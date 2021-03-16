@@ -30,9 +30,9 @@
 //*****************************************************************************
 // Constants
 //*****************************************************************************
-#define BUF_SIZE           10
-#define SAMPLE_RATE_HZ     10
-#define SYSTICK_RATE_HZ    100
+#define BUF_SIZE 10
+#define SAMPLE_RATE_HZ 10
+#define SYSTICK_RATE_HZ    100 // Systick configuration
 
 //*****************************************************************************
 // Global variables
@@ -51,6 +51,10 @@ SysTickIntHandler(void)
     //
     // Initiate a conversion
     //
+
+    // Poll the buttons
+    updateButtons();
+
     ADCProcessorTrigger(ADC0_BASE, 3);
     g_ulSampCnt++;
 
@@ -255,8 +259,6 @@ calibrate_height()
    return start_height;
 }
 
-
-
 int
 main(void)
 {
@@ -268,17 +270,20 @@ main(void)
     SysCtlPeripheralReset (LEFT_BUT_PERIPH);      // LEFT button GPIO
 
     initClock ();
+    initButtons ();
     initADC ();
     initCircBuf (&g_inBuffer, BUF_SIZE);
     initButtons ();
     initSysTick ();
     initDisplay ();
 
+
     //
     // Enable interrupts to the processor.
     IntMasterEnable();
     // System delay for accurate initial value calibration
     SysCtlDelay (SysCtlClockGet() / 8);
+
 
     landed_height = calibrate_height(); // Set initial helicopter resting height
 
@@ -293,6 +298,7 @@ main(void)
         //
         // Background task: calculate the (approximate) mean of the values in the
         // circular buffer and display it, together with the sample number.
+
         sum = 0;
 
         for (i = 0; i < BUF_SIZE; i++)
