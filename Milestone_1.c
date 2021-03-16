@@ -30,9 +30,10 @@
 //*****************************************************************************
 // Constants
 //*****************************************************************************
-#define BUF_SIZE 10
-#define SAMPLE_RATE_HZ 10
-#define SYSTICK_RATE_HZ    100 // Systick configuration
+#define BUF_SIZE            10
+#define SAMPLE_RATE_HZ      10
+#define SYSTICK_RATE_HZ     100 // Systick configuration
+#define ADC_BITS            4095 // 12 bit ADC
 
 //*****************************************************************************
 // Global variables
@@ -179,11 +180,10 @@ int
 calculate_percent_height(uint16_t current_height, uint16_t landed_height)
 {
     int16_t height_percent;
-    int16_t ADC_bits = 4095; // 12 bit ADC
     float height_voltage_range = 0.8; // Voltage range over helicopter height
     float ADC_voltage_range = 3.33; // Total voltage range of ADC
 
-    height_percent = 100 * ((landed_height - current_height)/((height_voltage_range/ADC_voltage_range)*ADC_bits)); // Calculate helicopter height as percentage
+    height_percent = 100 * ((landed_height - current_height)/((height_voltage_range/ADC_voltage_range)*ADC_BITS)); // Calculate helicopter height as percentage
 
     return height_percent;
 
@@ -246,9 +246,9 @@ displayMeanVal(uint16_t meanVal, uint16_t landed_height)
 int
 calibrate_height()
 {
-    int16_t start_height;
-    int16_t sum;
-    uint16_t i;
+    int32_t start_height;
+    int32_t sum;
+    uint32_t i;
 
     sum = 0;
     for (i = 0; i < BUF_SIZE; i++)
@@ -264,8 +264,8 @@ main(void)
 {
     uint16_t i;
     int32_t sum;
-    int16_t mean;
-    int16_t landed_height;
+    int32_t mean;
+    int32_t landed_height;
 
     SysCtlPeripheralReset (LEFT_BUT_PERIPH);      // LEFT button GPIO
 
@@ -282,13 +282,14 @@ main(void)
     // Enable interrupts to the processor.
     IntMasterEnable();
     // System delay for accurate initial value calibration
-    SysCtlDelay (SysCtlClockGet() / 8);
+    SysCtlDelay (SysCtlClockGet() / 2);
 
 
     landed_height = calibrate_height(); // Set initial helicopter resting height
 
     while (1)
     {
+        SysCtlDelay (SysCtlClockGet() / 16);  // Update display at ~ 2 Hz
         // Reset initial helicopter height if left button pushed
         if ((checkButton (LEFT) == PUSHED))
         {
@@ -307,13 +308,12 @@ main(void)
         mean = (2 * sum + BUF_SIZE) / 2 / BUF_SIZE;
 
         // Set upper limit of ADC value to resting height
-        if (mean > landed_height){
+        if (mean > landed_height) {
             mean = landed_height;
         }
 
         displayMeanVal (mean, landed_height); // Display helicopter height
 
-        SysCtlDelay (SysCtlClockGet() / 32);  // Update display at ~ 2 Hz
     }
 }
 
