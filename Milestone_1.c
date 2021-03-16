@@ -148,8 +148,8 @@ initDisplay (void)
 int
 calculate_percent_height(uint16_t current_height, uint16_t landed_height)
 {
-    int16_t height_percent
-    int16_t ADC_bits = 2^12; // 12 bit ADC
+    int16_t height_percent;
+    int16_t ADC_bits = 4095; // 12 bit ADC
     float height_voltage_range = 0.8; // Voltage range over helicopter height
     float ADC_voltage_range = 3.33; // Total voltage range of ADC
 
