@@ -215,25 +215,35 @@ displayUpdate (char *str1, char *str2, uint16_t num, uint8_t charLine, char *uni
 //
 //*****************************************************************************
 void
-displayMeanVal(uint16_t meanVal, uint16_t landed_height)
+displayMeanVal(uint16_t meanVal, uint16_t landed_height, int8_t display_state)
 {
     char string[17];  // 16 characters across the display
     int16_t height_percent;
-    height_percent = calculate_percent_height(meanVal, landed_height);
 
-    OLEDStringDraw ("Milestone 1", 0, 0);
-    usnprintf (string, sizeof(string), "Height %5d%%", height_percent);
-    OLEDStringDraw (string, 0, 1);
+    switch (display_state)
+    {
+    case 0:
+        height_percent = calculate_percent_height(meanVal, landed_height);
+        usnprintf (string, sizeof(string), "Height %5d%%", height_percent);
+        OLEDStringDraw (string, 0, 0);
+        break;
+    case 1:
+        usnprintf (string, sizeof(string), "Mean ADC = %4d", meanVal);
+        OLEDStringDraw (string, 0, 0);
+        break;
+    case 2:
+        OLEDStringDraw ("                ", 0, 0);
+    }
 
-
+    /*
     // Test code to be removed
     // Form a new string for the line.  The maximum width specified for the
     //  number field ensures it is displayed right justified.
     usnprintf (string, sizeof(string), "Mean ADC = %4d", meanVal);
     // Update line on display.
-    OLEDStringDraw (string, 0, 2);
+    OLEDStringDraw (string, 0, 1);
 
-    displayUpdate ("Landed","", landed_height, 3, "");
+    displayUpdate ("Landed","", landed_height, 2, "");*/
 
 
 }
@@ -266,8 +276,10 @@ main(void)
     int32_t sum;
     int32_t mean;
     int32_t landed_height;
+    int8_t display_state;
 
     SysCtlPeripheralReset (LEFT_BUT_PERIPH);      // LEFT button GPIO
+    SysCtlPeripheralReset (UP_BUT_PERIPH);
 
     initClock ();
     initButtons ();
@@ -296,6 +308,14 @@ main(void)
             landed_height = calibrate_height(); // Reset initial helicopter resting height
         }
 
+        if ((checkButton (UP) == PUSHED))
+        {
+            display_state++;
+            if (display_state == 3) {
+                display_state = 0;
+            }
+        }
+
         //
         // Background task: calculate the (approximate) mean of the values in the
         // circular buffer and display it, together with the sample number.
@@ -312,7 +332,7 @@ main(void)
             mean = landed_height;
         }
 
-        displayMeanVal (mean, landed_height); // Display helicopter height
+        displayMeanVal (mean, landed_height, display_state); // Display helicopter height
 
     }
 }
