@@ -1,13 +1,12 @@
 //*****************************************************************************
 //
-// ADCdemo1.c - Simple interrupt driven program which samples with AIN0
+// Milestone_1.c - Simple voltage measure of helicopter altitude
 //
-// Author:  P.J. Bones  UCECE
-// Last modified:   8.2.2018
+// Authors: Mark Gardyne, Tom Peterson
 //
-//*****************************************************************************
-// Based on the 'convert' series from 2016
-//*****************************************************************************
+// Code Sourced from:  P.J. Bones  UCECE
+// Last modified:   16.3.21
+//
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -34,7 +33,7 @@
 // Global variables
 //*****************************************************************************
 static circBuf_t g_inBuffer;        // Buffer of size BUF_SIZE integers (sample values)
-static uint32_t g_ulSampCnt;    // Counter for the interrupts
+static uint32_t g_ulSampCnt;        // Counter for the interrupts
 
 //*****************************************************************************
 //
@@ -140,21 +139,31 @@ initDisplay (void)
     OLEDInitialise ();
 }
 
+
+//*****************************************************************************
+//
+// Function to calculate the helicopter height as a percent of the voltage range.
+//
+//*****************************************************************************
 int
 calculate_percent_height(uint16_t current_height, uint16_t landed_height)
 {
-    int16_t height_percent, ADC_bits;
-    float height_voltage_range;
-    float ADC_voltage_range;
-    height_voltage_range = 0.8; // Volts
-    ADC_voltage_range = 3.33; // Volts
-    ADC_bits = 4095; // 2^12
-    height_percent = 100 * ((landed_height - current_height)/((height_voltage_range/ADC_voltage_range)*ADC_bits));
+    int16_t height_percent
+    int16_t ADC_bits = 2^12; // 12 bit ADC
+    float height_voltage_range = 0.8; // Voltage range over helicopter height
+    float ADC_voltage_range = 3.33; // Total voltage range of ADC
+
+    height_percent = 100 * ((landed_height - current_height)/((height_voltage_range/ADC_voltage_range)*ADC_bits)); // Calculate helicopter height as percentage
 
     return height_percent;
 
 }
 
+//*****************************************************************************
+//
+// Function to update the display with given string parameters and variables
+//
+//*****************************************************************************
 void
 displayUpdate (char *str1, char *str2, uint16_t num, uint8_t charLine, char *unit)
 {
@@ -171,7 +180,8 @@ displayUpdate (char *str1, char *str2, uint16_t num, uint8_t charLine, char *uni
 
 //*****************************************************************************
 //
-// Function to display the mean ADC value (10-bit value, note) and sample count.
+// Function to display either the mean ADC value (10-bit value, note), the helicopter height as a percentage
+// or no display at all.
 //
 //*****************************************************************************
 void
@@ -185,6 +195,8 @@ displayMeanVal(uint16_t meanVal, uint16_t landed_height)
     usnprintf (string, sizeof(string), "Height %5d%%", height_percent);
     OLEDStringDraw (string, 0, 1);
 
+
+    // Test code to be removed
     // Form a new string for the line.  The maximum width specified for the
     //  number field ensures it is displayed right justified.
     usnprintf (string, sizeof(string), "Mean ADC = %4d", meanVal);
@@ -196,7 +208,11 @@ displayMeanVal(uint16_t meanVal, uint16_t landed_height)
 
 }
 
-
+//*****************************************************************************
+//
+// Function to find the initial voltage reading and record this as the landed helicopter height.
+//
+//*****************************************************************************
 int
 calibrate_height()
 {
@@ -221,6 +237,7 @@ main(void)
     uint16_t i;
     int32_t sum;
     int16_t mean;
+    int16_t landed_height;
 
     initClock ();
     initADC ();
@@ -230,10 +247,10 @@ main(void)
     //
     // Enable interrupts to the processor.
     IntMasterEnable();
-    // Enable clock delay
+    // System delay for accurate initial value calibration
     SysCtlDelay (SysCtlClockGet());
-    int16_t landed_height;
-    landed_height = calibrate_height();
+
+    landed_height = calibrate_height(); // Set initial helicopter resting height
 
     while (1)
     {
@@ -246,10 +263,13 @@ main(void)
             sum = sum + (readCircBuf (&g_inBuffer));
         // Calculate and display the rounded mean of the buffer contents
         mean = (2 * sum + BUF_SIZE) / 2 / BUF_SIZE;
+
+        // Set upper limit of ADC value to resting height
         if (mean > landed_height){
             mean = landed_height;
         }
-        displayMeanVal (mean, landed_height);
+
+        displayMeanVal (mean, landed_height); // Display helicopter height
 
         SysCtlDelay (SysCtlClockGet() / 6);  // Update display at ~ 2 Hz
     }
