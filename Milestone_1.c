@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
+#include "inc/hw_ints.h"
 #include "driverlib/adc.h"
 #include "driverlib/pwm.h"
 #include "driverlib/gpio.h"
@@ -19,15 +20,19 @@
 #include "driverlib/systick.h"
 #include "driverlib/interrupt.h"
 #include "driverlib/debug.h"
+#include "driverlib/pin_map.h" //Needed for pin configure
 #include "utils/ustdlib.h"
 #include "circBufT.h"
 #include "OrbitOLED/OrbitOLEDInterface.h"
+#include "buttons4.h"
+#include "stdlib.h"
 
 //*****************************************************************************
 // Constants
 //*****************************************************************************
-#define BUF_SIZE 10
-#define SAMPLE_RATE_HZ 10
+#define BUF_SIZE           10
+#define SAMPLE_RATE_HZ     10
+#define SYSTICK_RATE_HZ    100
 
 //*****************************************************************************
 // Global variables
@@ -48,6 +53,8 @@ SysTickIntHandler(void)
     //
     ADCProcessorTrigger(ADC0_BASE, 3);
     g_ulSampCnt++;
+
+    updateButtons(); // Poll the buttons
 }
 
 //*****************************************************************************
@@ -137,6 +144,25 @@ initDisplay (void)
 {
     // intialise the Orbit OLED display
     OLEDInitialise ();
+}
+
+/*************************************************************
+ * SysTick interrupt
+ ************************************************************/
+void
+initSysTick (void)
+{
+    //
+    // Set up the period for the SysTick timer.  The SysTick
+    // timer period is set as a function of the system clock.
+    SysTickPeriodSet (SysCtlClockGet() / SYSTICK_RATE_HZ);
+    //
+    // Register the interrupt handler
+    SysTickIntRegister (SysTickIntHandler);
+    //
+    // Enable interrupt and device
+    SysTickIntEnable ();
+    SysTickEnable ();
 }
 
 
@@ -239,21 +265,31 @@ main(void)
     int16_t mean;
     int16_t landed_height;
 
+    SysCtlPeripheralReset (LEFT_BUT_PERIPH);      // LEFT button GPIO
+
     initClock ();
     initADC ();
-    initDisplay ();
     initCircBuf (&g_inBuffer, BUF_SIZE);
+    initButtons ();
+    initSysTick ();
+    initDisplay ();
 
     //
     // Enable interrupts to the processor.
     IntMasterEnable();
     // System delay for accurate initial value calibration
-    SysCtlDelay (SysCtlClockGet());
+    SysCtlDelay (SysCtlClockGet() / 8);
 
     landed_height = calibrate_height(); // Set initial helicopter resting height
 
     while (1)
     {
+        // Reset initial helicopter height if left button pushed
+        if ((checkButton (LEFT) == PUSHED))
+        {
+            landed_height = calibrate_height(); // Reset initial helicopter resting height
+        }
+
         //
         // Background task: calculate the (approximate) mean of the values in the
         // circular buffer and display it, together with the sample number.
@@ -271,7 +307,7 @@ main(void)
 
         displayMeanVal (mean, landed_height); // Display helicopter height
 
-        SysCtlDelay (SysCtlClockGet() / 6);  // Update display at ~ 2 Hz
+        SysCtlDelay (SysCtlClockGet() / 32);  // Update display at ~ 2 Hz
     }
 }
 
