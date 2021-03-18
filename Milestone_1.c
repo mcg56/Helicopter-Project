@@ -2,37 +2,37 @@
 //
 // Milestone_1.c - Simple voltage measure of helicopter altitude
 //
-// Authors: Mark Gardyne, Tom Peterson
+// Authors: Tom Peterson, Matt Comber, Mark Gardyne
+// Date 8/03/2021
 //
 // Code Sourced from:  P.J. Bones  UCECE
-// Last modified:   16.3.21
-//
+
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "stdlib.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
 #include "inc/hw_ints.h"
 #include "driverlib/adc.h"
-#include "driverlib/pwm.h"
 #include "driverlib/gpio.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/systick.h"
 #include "driverlib/interrupt.h"
 #include "driverlib/debug.h"
-#include "driverlib/pin_map.h" //Needed for pin configure
+#include "driverlib/pin_map.h"
 #include "utils/ustdlib.h"
 #include "circBufT.h"
 #include "OrbitOLED/OrbitOLEDInterface.h"
 #include "buttons4.h"
-#include "stdlib.h"
+
 
 //*****************************************************************************
 // Constants
 //*****************************************************************************
-#define BUF_SIZE            10
-#define SAMPLE_RATE_HZ      10
-#define SYSTICK_RATE_HZ     100 // Systick configuration
+#define BUF_SIZE            10   //
+#define SAMPLE_RATE_HZ      2000 //
+#define SYSTICK_RATE_HZ     100  // Systick configuration
 #define ADC_BITS            4095 // 12 bit ADC
 
 //*****************************************************************************
@@ -42,9 +42,7 @@ static circBuf_t g_inBuffer;        // Buffer of size BUF_SIZE integers (sample 
 static uint32_t g_ulSampCnt;        // Counter for the interrupts
 
 //*****************************************************************************
-//
 // The interrupt handler for the for SysTick interrupt.
-//
 //*****************************************************************************
 void
 SysTickIntHandler(void)
@@ -58,15 +56,11 @@ SysTickIntHandler(void)
 
     ADCProcessorTrigger(ADC0_BASE, 3);
     g_ulSampCnt++;
-
-    updateButtons(); // Poll the buttons
 }
 
 //*****************************************************************************
-//
 // The handler for the ADC conversion complete interrupt.
 // Writes to the circular buffer.
-//
 //*****************************************************************************
 void
 ADCIntHandler(void)
@@ -128,8 +122,8 @@ initADC (void)
     // sequence 0 has 8 programmable steps.  Since we are only doing a single
     // conversion using sequence 3 we will only configure step 0.  For more
     // on the ADC sequences and steps, refer to the LM3S1968 datasheet.
-    ADCSequenceStepConfigure(ADC0_BASE, 3, 0, ADC_CTL_CH0 | ADC_CTL_IE |
-                             ADC_CTL_END);
+    ADCSequenceStepConfigure(ADC0_BASE, 3, 0, ADC_CTL_CH9 | ADC_CTL_IE |
+                             ADC_CTL_END); // Channel 9 (PE4)
 
     //
     // Since sample sequence 3 is now configured, it must be enabled.
@@ -172,27 +166,22 @@ initSysTick (void)
 
 
 //*****************************************************************************
-//
 // Function to calculate the helicopter height as a percent of the voltage range.
-//
 //*****************************************************************************
 int
 calculate_percent_height(uint16_t current_height, uint16_t landed_height)
 {
     int16_t height_percent;
     float height_voltage_range = 0.8; // Voltage range over helicopter height
-    float ADC_voltage_range = 3.33; // Total voltage range of ADC
+    float ADC_voltage_range = 3.33;   // Total voltage range of ADC
 
     height_percent = 100 * ((landed_height - current_height)/((height_voltage_range/ADC_voltage_range)*ADC_BITS)); // Calculate helicopter height as percentage
 
     return height_percent;
-
 }
 
 //*****************************************************************************
-//
 // Function to update the display with given string parameters and variables
-//
 //*****************************************************************************
 void
 displayUpdate (char *str1, char *str2, uint16_t num, uint8_t charLine, char *unit)
@@ -209,10 +198,8 @@ displayUpdate (char *str1, char *str2, uint16_t num, uint8_t charLine, char *uni
 }
 
 //*****************************************************************************
-//
-// Function to display either the mean ADC value (10-bit value, note), the helicopter height as a percentage
+// Function to display either the mean ADC value, the helicopter height as a percentage
 // or no display at all.
-//
 //*****************************************************************************
 void
 displayMeanVal(uint16_t meanVal, uint16_t landed_height, int8_t display_state)
@@ -234,24 +221,10 @@ displayMeanVal(uint16_t meanVal, uint16_t landed_height, int8_t display_state)
     case 2:
         OLEDStringDraw ("                ", 0, 0);
     }
-
-    /*
-    // Test code to be removed
-    // Form a new string for the line.  The maximum width specified for the
-    //  number field ensures it is displayed right justified.
-    usnprintf (string, sizeof(string), "Mean ADC = %4d", meanVal);
-    // Update line on display.
-    OLEDStringDraw (string, 0, 1);
-
-    displayUpdate ("Landed","", landed_height, 2, "");*/
-
-
 }
 
 //*****************************************************************************
-//
 // Function to find the initial voltage reading and record this as the landed helicopter height.
-//
 //*****************************************************************************
 int
 calibrate_height()
@@ -278,30 +251,29 @@ main(void)
     int32_t landed_height;
     int8_t display_state;
 
-    SysCtlPeripheralReset (LEFT_BUT_PERIPH);      // LEFT button GPIO
-    SysCtlPeripheralReset (UP_BUT_PERIPH);
+    SysCtlPeripheralReset (LEFT_BUT_PERIPH);    // LEFT button GPIO
+    SysCtlPeripheralReset (UP_BUT_PERIPH);      // UP button GPIO
 
     initClock ();
     initButtons ();
-    initADC ();
     initCircBuf (&g_inBuffer, BUF_SIZE);
+    initADC ();
     initButtons ();
     initSysTick ();
     initDisplay ();
 
-
-    //
     // Enable interrupts to the processor.
     IntMasterEnable();
     // System delay for accurate initial value calibration
     SysCtlDelay (SysCtlClockGet() / 2);
 
-
     landed_height = calibrate_height(); // Set initial helicopter resting height
+    display_state = 0;
+
 
     while (1)
     {
-        SysCtlDelay (SysCtlClockGet() / 16);  // Update display at ~ 2 Hz
+        SysCtlDelay (SysCtlClockGet() / 32);  // Update display at ~ 2 Hz
         // Reset initial helicopter height if left button pushed
         if ((checkButton (LEFT) == PUSHED))
         {
