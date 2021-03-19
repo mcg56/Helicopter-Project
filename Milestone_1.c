@@ -175,7 +175,8 @@ calculate_percent_height(uint16_t current_height, uint16_t landed_height)
     float height_voltage_range = 0.8; // Voltage range over helicopter height
     float ADC_voltage_range = 3.33;   // Total voltage range of ADC
 
-    height_percent = 100 * ((landed_height - current_height)/((height_voltage_range/ADC_voltage_range)*ADC_BITS)); // Calculate helicopter height as percentage
+    // Calculate helicopter height as percentage
+    height_percent = 100 * ((landed_height - current_height)/((height_voltage_range/ADC_voltage_range)*ADC_BITS));
 
     return height_percent;
 }
@@ -268,18 +269,20 @@ main(void)
     SysCtlDelay (SysCtlClockGet() / 2);
 
     landed_height = calibrate_height(); // Set initial helicopter resting height
-    display_state = 0;
+    display_state = 0;                  // Set initial display state to percentage
 
 
     while (1)
     {
-        SysCtlDelay (SysCtlClockGet() / 32);  // Update display at ~ 2 Hz
-        // Reset initial helicopter height if left button pushed
+        SysCtlDelay (SysCtlClockGet() / 32);  // Update display
+
+        // Reset landed helicopter height if left button pushed
         if ((checkButton (LEFT) == PUSHED))
         {
-            landed_height = calibrate_height(); // Reset initial helicopter resting height
+            landed_height = calibrate_height();
         }
 
+        // Update height display method with UP button
         if ((checkButton (UP) == PUSHED))
         {
             display_state++;
@@ -296,7 +299,8 @@ main(void)
 
         for (i = 0; i < BUF_SIZE; i++)
             sum = sum + (readCircBuf (&g_inBuffer));
-        // Calculate and display the rounded mean of the buffer contents
+
+        // Calculate the rounded mean of the buffer contents
         mean = (2 * sum + BUF_SIZE) / 2 / BUF_SIZE;
 
         // Set upper limit of ADC value to resting height
@@ -304,7 +308,8 @@ main(void)
             mean = landed_height;
         }
 
-        displayMeanVal (mean, landed_height, display_state); // Display helicopter height
+        // Display helicopter height
+        displayMeanVal (mean, landed_height, display_state);
 
     }
 }
