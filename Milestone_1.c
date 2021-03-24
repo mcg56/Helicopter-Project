@@ -5,7 +5,8 @@
 // Authors: Tom Peterson, Matt Comber, Mark Gardyne
 // Date 8/03/2021
 //
-// Code Sourced from:  P.J. Bones  UCECE
+// Code Sourced from:  P.J. Bones  UCECE (acknowledged in function descriptions)
+//
 
 
 #include <stdint.h>
@@ -30,8 +31,8 @@
 //*****************************************************************************
 // Constants
 //*****************************************************************************
-#define BUF_SIZE            10   //
-#define SAMPLE_RATE_HZ      2000 //
+#define BUF_SIZE            10   // Buffer size for sample averaging
+#define SAMPLE_RATE_HZ      2000 // Sample rate
 #define SYSTICK_RATE_HZ     100  // Systick configuration
 #define ADC_BITS            4095 // 12 bit ADC
 
@@ -61,6 +62,7 @@ SysTickIntHandler(void)
 //*****************************************************************************
 // The handler for the ADC conversion complete interrupt.
 // Writes to the circular buffer.
+// Code Sourced from:  P.J. Bones  UCECE
 //*****************************************************************************
 void
 ADCIntHandler(void)
@@ -81,6 +83,7 @@ ADCIntHandler(void)
 
 //*****************************************************************************
 // Initialisation functions for the clock (incl. SysTick), ADC, display
+// Code Sourced from:  P.J. Bones  UCECE
 //*****************************************************************************
 void
 initClock (void)
@@ -101,6 +104,10 @@ initClock (void)
     SysTickEnable();
 }
 
+//*****************************************************************************
+// Initialise ADC functions
+// Code Sourced from:  P.J. Bones  UCECE
+//*****************************************************************************
 void
 initADC (void)
 {
@@ -145,9 +152,10 @@ initDisplay (void)
     OLEDInitialise ();
 }
 
-/*************************************************************
- * SysTick interrupt
- ************************************************************/
+//*************************************************************
+// SysTick interrupt
+// Code Sourced from:  P.J. Bones  UCECE
+//*************************************************************
 void
 initSysTick (void)
 {
@@ -166,7 +174,7 @@ initSysTick (void)
 
 
 //*****************************************************************************
-// Function to calculate the helicopter height as a percent of the voltage range.
+// Function to calculate the helicopter height as a percent of the voltage range
 //*****************************************************************************
 int
 calculate_percent_height(uint16_t current_height, uint16_t landed_height)
@@ -225,7 +233,7 @@ displayMeanVal(uint16_t meanVal, uint16_t landed_height, int8_t display_state)
 }
 
 //*****************************************************************************
-// Function to find the initial voltage reading and record this as the landed helicopter height.
+// Function to find the current voltage reading and record this as the landed helicopter height.
 //*****************************************************************************
 int
 calibrate_height()
@@ -274,7 +282,7 @@ main(void)
 
     while (1)
     {
-        SysCtlDelay (SysCtlClockGet() / 32);  // Update display
+        SysCtlDelay (SysCtlClockGet() / 32);  // Update display at approx 32 Hz
 
         // Reset landed helicopter height if left button pushed
         if ((checkButton (LEFT) == PUSHED))
@@ -294,19 +302,13 @@ main(void)
         //
         // Background task: calculate the (approximate) mean of the values in the
         // circular buffer and display it, together with the sample number.
-
         sum = 0;
-
         for (i = 0; i < BUF_SIZE; i++)
             sum = sum + (readCircBuf (&g_inBuffer));
 
         // Calculate the rounded mean of the buffer contents
         mean = (2 * sum + BUF_SIZE) / 2 / BUF_SIZE;
 
-        // Set upper limit of ADC value to resting height
-        if (mean > landed_height) {
-            mean = landed_height;
-        }
 
         // Display helicopter height
         displayMeanVal (mean, landed_height, display_state);
