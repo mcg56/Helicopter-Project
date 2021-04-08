@@ -41,7 +41,15 @@
 //*****************************************************************************
 static circBuf_t g_inBuffer;        // Buffer of size BUF_SIZE integers (sample values)
 static uint32_t g_ulSampCnt;        // Counter for the interrupts
-static int count;
+static int32_t yaw;
+static bool a_cur;
+static bool b_cur;
+//static int count;
+
+//*****************************************************************************
+// Function handles
+//*****************************************************************************
+void updateYaw(bool a_next, bool b_next);
 
 //*****************************************************************************
 // The interrupt handler for the for SysTick interrupt.
@@ -80,6 +88,27 @@ ADCIntHandler(void)
     //
     // Clean up, clearing the interrupt
     ADCIntClear(ADC0_BASE, 3);
+}
+
+//*************************************************************
+// GPIO Pin Interrupt
+//*************************************************************
+void
+GPIOPinIntHandler (void)
+{
+    bool a_next;
+    bool b_next;
+
+    a_next = GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_0);
+    b_next = GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_1);
+
+    updateYaw(a_next, b_next);
+
+    a_cur = a_next;
+    b_cur = b_next;
+
+    //count++;
+    GPIOIntClear(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 }
 
 //*****************************************************************************
@@ -174,31 +203,24 @@ initSysTick (void)
 }
 
 //*************************************************************
-// GPIO Pin Interrupt
-//*************************************************************
-void
-GPIOPinIntHandler (void)
-{
-    count++;
-
-    GPIOIntClear(GPIO_PORTB_BASE, GPIO_BOTH_EDGES);
-}
-
-//*************************************************************
 // Intialise GPIO Port B pins 0 and 1
 //*************************************************************
 void
 initGPIOPins (void)
 {
-
+    // Enable port peripheral
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
 
+    // Set pin 0 and 1 as input
     GPIOPinTypeGPIOInput(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 
+    // Set what conditions pins will be interrupted on
     GPIOIntTypeSet(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1, GPIO_BOTH_EDGES);
 
+    // Register interrupt
     GPIOIntRegister(GPIO_PORTB_BASE, GPIOPinIntHandler);
 
+    // Enable pins
     GPIOIntEnable(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1 );
 
 }
@@ -252,8 +274,10 @@ displayMeanVal(uint16_t meanVal, uint16_t landed_height, int8_t display_state)
         height_percent = calculate_percent_height(meanVal, landed_height);
         usnprintf (string, sizeof(string), "Height %5d%%", height_percent);
         OLEDStringDraw (string, 0, 0);
-        usnprintf (string, sizeof(string), "Angle %5d", count);
+        usnprintf (string, sizeof(string), "Yaw %5d", yaw);
         OLEDStringDraw (string, 0, 1);
+        //usnprintf (string, sizeof(string), "Testing %5d", count);
+        //OLEDStringDraw (string, 0, 2);
         break;
     case 1:
         usnprintf (string, sizeof(string), "Mean ADC = %4d", meanVal);
@@ -283,6 +307,26 @@ calibrate_height()
    return start_height;
 }
 
+//*****************************************************************************
+// Function to update helicopter yaw
+//*****************************************************************************
+void
+updateYaw(bool a_next, bool b_next)
+{
+    bool dir;
+
+    dir = (!a_cur & !b_cur & !a_next & b_next) | (!a_cur & b_cur & a_next & b_next) | (a_cur & b_cur & a_next & !b_next) | (a_cur & !b_cur & !a_next & !b_next);
+
+    if (dir) {
+        yaw++;
+    } else {
+        yaw--;
+    }
+
+
+}
+
+
 int
 main(void)
 {
@@ -294,6 +338,7 @@ main(void)
 
     SysCtlPeripheralReset (LEFT_BUT_PERIPH);    // LEFT button GPIO
     SysCtlPeripheralReset (UP_BUT_PERIPH);      // UP button GPIO
+    SysCtlPeripheralReset (SYSCTL_PERIPH_GPIOB); // Port B pins
 
     initClock ();
     initButtons ();
@@ -302,7 +347,7 @@ main(void)
     initButtons ();
     initSysTick ();
     initDisplay ();
-    //initGPIOPins ();
+    initGPIOPins ();
 
     // Enable interrupts to the processor.
     IntMasterEnable();
@@ -311,6 +356,7 @@ main(void)
 
     landed_height = calibrate_height(); // Set initial helicopter resting height
     display_state = 0;                  // Set initial display state to percentage
+    yaw = 0;                            // Initialise yaw to zero;
 
 
     while (1)
@@ -349,3 +395,5 @@ main(void)
     }
 }
 
+// Don't need display update function?
+// Don't need changing display system?
