@@ -41,10 +41,10 @@
 //*****************************************************************************
 static circBuf_t g_inBuffer;        // Buffer of size BUF_SIZE integers (sample values)
 static uint32_t g_ulSampCnt;        // Counter for the interrupts
-static int32_t yaw;
-static bool a_cur;
-static bool b_cur;
-//static int count;
+static int32_t yaw;                 // Helicopter heading from quadrature code disc
+static int32_t deg;                // Helicopter heading in degrees
+static bool a_cur;                  // Current A-phase pin value
+static bool b_cur;                  // Current B-phase pin value
 
 //*****************************************************************************
 // Function handles
@@ -99,15 +99,18 @@ GPIOPinIntHandler (void)
     bool a_next;
     bool b_next;
 
+    // Set next A-phase and B-phase values
     a_next = GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_0);
     b_next = GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_1);
 
+    // Update yaw in degrees
     updateYaw(a_next, b_next);
 
+    // Set next phase values to current
     a_cur = a_next;
     b_cur = b_next;
 
-    //count++;
+    // Clear pin interrupts
     GPIOIntClear(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 }
 
@@ -242,23 +245,6 @@ calculate_percent_height(uint16_t current_height, uint16_t landed_height)
 }
 
 //*****************************************************************************
-// Function to update the display with given string parameters and variables
-//*****************************************************************************
-void
-displayUpdate (char *str1, char *str2, uint16_t num, uint8_t charLine, char *unit)
-{
-    char text_buffer[17];           //Display fits 16 characters wide.
-
-    // "Undraw" the previous contents of the line to be updated.
-    OLEDStringDraw ("                ", 0, charLine);
-    // Form a new string for the line.  The maximum width specified for the
-    //  number field ensures it is displayed right justified.
-    usnprintf(text_buffer, sizeof(text_buffer), "%s %s %3d%s", str1, str2, num, unit);
-    // Update line on display.
-    OLEDStringDraw (text_buffer, 0, charLine);
-}
-
-//*****************************************************************************
 // Function to display either the mean ADC value, the helicopter height as a percentage
 // or no display at all.
 //*****************************************************************************
@@ -272,12 +258,10 @@ displayMeanVal(uint16_t meanVal, uint16_t landed_height, int8_t display_state)
     {
     case 0:
         height_percent = calculate_percent_height(meanVal, landed_height);
-        usnprintf (string, sizeof(string), "Height %5d%%", height_percent);
+        usnprintf (string, sizeof(string), "Height   %5d%%", height_percent);
         OLEDStringDraw (string, 0, 0);
-        usnprintf (string, sizeof(string), "Yaw %5d", yaw);
+        usnprintf (string, sizeof(string), "Yaw (deg) %5d", deg);
         OLEDStringDraw (string, 0, 1);
-        //usnprintf (string, sizeof(string), "Testing %5d", count);
-        //OLEDStringDraw (string, 0, 2);
         break;
     case 1:
         usnprintf (string, sizeof(string), "Mean ADC = %4d", meanVal);
@@ -285,6 +269,7 @@ displayMeanVal(uint16_t meanVal, uint16_t landed_height, int8_t display_state)
         break;
     case 2:
         OLEDStringDraw ("                ", 0, 0);
+        OLEDStringDraw ("                ", 0, 1);
     }
 }
 
@@ -308,22 +293,38 @@ calibrate_height()
 }
 
 //*****************************************************************************
-// Function to update helicopter yaw
+// Function to update helicopter yaw in degrees
 //*****************************************************************************
 void
 updateYaw(bool a_next, bool b_next)
 {
-    bool dir;
+    bool cw;
+    float deg_f;
+    float scale_factor = 0.8181; // Scale factor for converting yaw to degrees (360/440 to 4dp)
 
-    dir = (!a_cur & !b_cur & !a_next & b_next) | (!a_cur & b_cur & a_next & b_next) | (a_cur & b_cur & a_next & !b_next) | (a_cur & !b_cur & !a_next & !b_next);
 
-    if (dir) {
+    // Find rotation direction using current and next phase values
+    cw = (!a_cur & !b_cur & !a_next & b_next) | (!a_cur & b_cur & a_next & b_next)
+            | (a_cur & b_cur & a_next & !b_next) | (a_cur & !b_cur & !a_next & !b_next);
+
+    // Update yaw based on rotation direction
+    if (cw) {
         yaw++;
     } else {
         yaw--;
     }
 
+    // Limit yaw values
+    if (yaw == 440) {
+        yaw = 0;
+    } else if (yaw == -1) {
+        yaw = 439;
+    }
 
+    // Convert yaw value to degrees
+    deg_f = yaw * scale_factor * 10000;
+    deg = deg_f / 10000;
+    // FIX THIS!!!
 }
 
 
@@ -394,6 +395,3 @@ main(void)
 
     }
 }
-
-// Don't need display update function?
-// Don't need changing display system?
