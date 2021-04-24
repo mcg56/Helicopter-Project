@@ -7,20 +7,19 @@
 //
 // Code Sourced from:  P.J. Bones  UCECE (acknowledged in function descriptions)
 
-#include <stdint.h> /
-#include <stdio.h>  /
-#include <stdbool.h>  /
-#include "stdlib.h"  /
+#include <stdint.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include "stdlib.h"
 #include "inc/hw_memmap.h"
-#include "inc/hw_ints.h"    /
-#include "driverlib/adc.h"  /
+#include "inc/hw_ints.h"
+#include "driverlib/adc.h"
 #include "driverlib/gpio.h"
 #include "driverlib/sysctl.h"
-#include "driverlib/systick.h"  /
-#include "driverlib/interrupt.h"    /
-#include "driverlib/debug.h"    /
-#include "utils/ustdlib.h"  ///////
-#include "buttons4.h"   /
+#include "driverlib/systick.h"
+#include "driverlib/interrupt.h"
+#include "driverlib/debug.h"
+#include "buttons4.h"
 
 
 
