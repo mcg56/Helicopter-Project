@@ -8,7 +8,6 @@
 // Code Sourced from:  P.J. Bones  UCECE (acknowledged in function descriptions)
 
 #include <stdint.h>
-#include <stdio.h>
 #include <stdbool.h>
 #include "stdlib.h"
 #include "inc/hw_memmap.h"
@@ -19,9 +18,15 @@
 #include "driverlib/systick.h"
 #include "driverlib/interrupt.h"
 #include "driverlib/debug.h"
-#include "buttons4.h"
 #include "yaw.h"
 
+//*****************************************************************************
+// Global variables
+//*****************************************************************************
+static bool a_cur;                  // Current A-phase pin value
+static bool b_cur;                  // Current B-phase pin value
+static int32_t yaw = 0;             // Helicopter heading from quadrature code disc
+static int32_t deg;                 // Helicopter heading in degrees
 
 //*************************************************************
 // GPIO Pin Interrupt
@@ -50,7 +55,7 @@ GPIOPinIntHandler (void)
 //*************************************************************
 // Intialise GPIO Pins
 //*************************************************************
-void
+extern void
 initGPIOPins (void)
 {
     // Enable port peripheral
@@ -106,3 +111,13 @@ updateYaw(bool a_next, bool b_next)
     deg_f = yaw * scale_factor * scale_correction;
     deg = deg_f / scale_correction;
 }
+
+//*****************************************************************************
+// Pass deg to main function
+//*****************************************************************************
+extern int
+getYaw(void)
+{
+    return deg;
+}
+

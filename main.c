@@ -28,13 +28,6 @@
 #include "display.h"
 #include "circBufT.h"
 
-//*****************************************************************************
-// Global variables
-//*****************************************************************************
-
-
-
-
 
 //*****************************************************************************
 // The interrupt handler for the for SysTick interrupt.
@@ -97,10 +90,10 @@ initSysTick (void)
 int
 main(void)
 {
-    uint16_t i;
-    int32_t sum;
-    int32_t mean;
+    int32_t mean_height;
     int32_t landed_height;
+    int32_t display_deg;
+    int32_t height_percent;
     displayType display_state;
 
     SysCtlPeripheralReset (LEFT_BUT_PERIPH);
@@ -109,9 +102,7 @@ main(void)
 
     initClock ();
     initButtons ();
-    initCircBuf (&g_inBuffer, BUF_SIZE);
-    initADC ();
-    initButtons ();
+    initAltitude ();
     initSysTick ();
     initDisplay ();
     initGPIOPins ();
@@ -121,10 +112,8 @@ main(void)
     // System delay for accurate initial value calibration
     SysCtlDelay (SysCtlClockGet() / 2);
 
-    landed_height = calibrate_height(); // Set initial helicopter resting height
+    landed_height = getHeight();        // Set initial helicopter resting height
     display_state = percent_height;     // Set initial display state to percentage
-    yaw = 0;                            // Initialise yaw to zero;
-
 
     while (1)
     {
@@ -133,7 +122,7 @@ main(void)
         // Reset landed helicopter height if left button pushed
         if ((checkButton (LEFT) == PUSHED))
         {
-            landed_height = calibrate_height();
+            landed_height = getHeight();
         }
 
         // Update height display method with UP button
@@ -146,20 +135,14 @@ main(void)
             }
         }
 
-        //
-        // Background task: calculate the (approximate) mean of the values in the
-        // circular buffer and display it, together with the sample number.
-        sum = 0;
-        for (i = 0; i < BUF_SIZE; i++)
-            sum = sum + (readCircBuf (&g_inBuffer));
+        // Get current helicopter height
+        mean_height = getHeight();
 
-        // Calculate the rounded mean of the buffer contents
-        mean = (2 * sum + BUF_SIZE) / 2 / BUF_SIZE;
-
+        height_percent = calculate_percent_height(mean_height, landed_height);
 
         // Display helicopter height
-        displayMeanVal (mean, landed_height, display_state);
-
+        display_deg = getYaw();
+        displayMeanVal (mean_height, height_percent, display_state, display_deg);
     }
 }
 

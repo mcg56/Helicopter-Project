@@ -15,15 +15,8 @@
 // *******************************************************
 
 #include <stdint.h>
-#include <stdbool.h>
+#include <stdio.h>
 
-//*****************************************************************************
-// Global variables
-//*****************************************************************************
-extern bool a_cur;                  // Current A-phase pin value
-extern bool b_cur;                  // Current B-phase pin value
-extern int32_t yaw;                 // Helicopter heading from quadrature code disc
-extern int32_t deg;                 // Helicopter heading in degrees
 
 void updateYaw(bool a_next, bool b_next);
 
@@ -36,7 +29,7 @@ GPIOPinIntHandler (void);
 //*************************************************************
 // Intialise GPIO Pins
 //*************************************************************
-void
+extern void
 initGPIOPins (void);
 
 //*****************************************************************************
@@ -44,6 +37,12 @@ initGPIOPins (void);
 //*****************************************************************************
 void
 updateYaw(bool a_next, bool b_next);
+
+//*****************************************************************************
+// Pass deg to main function
+//*****************************************************************************
+extern int
+getYaw(void);
 
 
 #endif /* YAW_H_ */

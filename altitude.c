@@ -22,11 +22,23 @@
 #include "driverlib/debug.h"
 #include "driverlib/pin_map.h"
 #include "utils/ustdlib.h"
-#include "circBufT.h"
-#include "buttons4.h"
 #include "altitude.h"
+#include "circBufT.h"
 
+//*****************************************************************************
+// Global Variables
+//*****************************************************************************
+static circBuf_t g_inBuffer;
 
+//*****************************************************************************
+// Initialise altitude module
+//*****************************************************************************
+extern void
+initAltitude(void)
+{
+    initCircBuf (&g_inBuffer, BUF_SIZE);
+    initADC ();
+}
 
 //*****************************************************************************
 // The handler for the ADC conversion complete interrupt.
@@ -94,7 +106,7 @@ initADC (void)
 //*****************************************************************************
 // Function to convert helicopter height to percentage
 //*****************************************************************************
-int
+extern int
 calculate_percent_height(uint16_t current_height, uint16_t landed_height)
 {
     int16_t height_percent;
@@ -108,20 +120,23 @@ calculate_percent_height(uint16_t current_height, uint16_t landed_height)
 }
 
 //*****************************************************************************
-// Function to record helicopter landed height.
+// Find and return current helicopter landed height.
 //*****************************************************************************
-int
-calibrate_height()
+extern int
+getHeight(void)
 {
-    int32_t start_height;
     int32_t sum;
-    uint32_t i;
-
+    int32_t mean;
+    uint16_t i;
+    //
+    // Background task: calculate the (approximate) mean of the values in the
+    // circular buffer and display it, together with the sample number.
     sum = 0;
     for (i = 0; i < BUF_SIZE; i++)
         sum = sum + (readCircBuf (&g_inBuffer));
-    // Calculate rounded mean of the buffer contents
-    start_height = ((2 * sum + BUF_SIZE) / 2 / BUF_SIZE);
 
-   return start_height;
+    // Calculate the rounded mean of the buffer contents
+    mean = (2 * sum + BUF_SIZE) / 2 / BUF_SIZE;
+
+    return mean;
 }

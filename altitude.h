@@ -13,17 +13,18 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "circBufT.h"
-
-extern circBuf_t g_inBuffer;
 
 //*****************************************************************************
 // Constants
 //*****************************************************************************
 #define BUF_SIZE            10   // Buffer size for sample averaging
-#define SAMPLE_RATE_HZ      2000 // Sample rate
-#define SYSTICK_RATE_HZ     100  // Systick configuration
 #define ADC_BITS            4095 // 12 bit ADC
+
+//*****************************************************************************
+// Initialise altitude module
+//*****************************************************************************
+extern void
+initAltitude(void);
 
 //*****************************************************************************
 // The handler for the ADC conversion complete interrupt.
@@ -37,19 +38,19 @@ ADCIntHandler(void);
 // Initialise ADC functions
 // Sourced from:  P.J. Bones  UCECE
 //*****************************************************************************
-void
+extern void
 initADC (void);
 
 //*****************************************************************************
 // Function to convert helicopter height to percentage
 //*****************************************************************************
-int
+extern int
 calculate_percent_height(uint16_t current_height, uint16_t landed_height);
 
 //*****************************************************************************
-// Function to record helicopter landed height.
+// Find and return current helicopter landed height.
 //*****************************************************************************
-int
-calibrate_height();
+extern int
+getHeight(void);
 
 #endif /* ALTITUDE_H_ */

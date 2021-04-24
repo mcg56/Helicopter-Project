@@ -1,6 +1,6 @@
 //*****************************************************************************
 //
-// display.c - display functionality
+// display.c - Display functionality
 //
 // Authors: Tom Peterson, Matt Comber, Mark Gardyne
 // Date 19/04/2021
@@ -23,16 +23,13 @@
 #include "driverlib/pin_map.h"
 #include "utils/ustdlib.h"
 #include "OrbitOLED/OrbitOLEDInterface.h"
-#include "buttons4.h"
 #include "display.h"
-#include "yaw.h"
-
 
 //*****************************************************************************
 // Initialise Display Function
 // Code Sourced from:  P.J. Bones  UCECE
 //*****************************************************************************
-void
+extern void
 initDisplay (void)
 {
     // intialise the Orbit OLED display
@@ -42,19 +39,19 @@ initDisplay (void)
 //*****************************************************************************
 // Function to control display
 //*****************************************************************************
-void
-displayMeanVal(uint16_t mean_val, uint16_t landed_height, displayType display_state)
+extern void
+displayMeanVal(uint16_t mean_val, int16_t height_percent, displayType display_state, int32_t display_deg)
 {
     char string[17];  // 16 characters across the display
-    int16_t height_percent;
 
+    // Update display
     switch (display_state)
     {
     case percent_height:
-        height_percent = calculate_percent_height(mean_val, landed_height);
+
         usnprintf (string, sizeof(string), "Height   %5d%%", height_percent);
         OLEDStringDraw (string, 0, 0);
-        usnprintf (string, sizeof(string), "Yaw (deg) %5d", deg);
+        usnprintf (string, sizeof(string), "Yaw (deg) %5d", display_deg);
         OLEDStringDraw (string, 0, 1);
         break;
     case ADC_height:
