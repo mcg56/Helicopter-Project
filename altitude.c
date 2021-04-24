@@ -24,20 +24,9 @@
 #include "utils/ustdlib.h"
 #include "circBufT.h"
 #include "buttons4.h"
+#include "altitude.h"
 
 
-//*****************************************************************************
-// Constants
-//*****************************************************************************
-#define BUF_SIZE            10   // Buffer size for sample averaging
-#define SAMPLE_RATE_HZ      2000 // Sample rate
-#define SYSTICK_RATE_HZ     100  // Systick configuration
-#define ADC_BITS            4095 // 12 bit ADC
-
-//*****************************************************************************
-// Global variables
-//*****************************************************************************
-static circBuf_t g_inBuffer;        // Buffer of size BUF_SIZE integers (sample values)
 
 //*****************************************************************************
 // The handler for the ADC conversion complete interrupt.

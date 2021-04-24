@@ -13,6 +13,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "circBufT.h"
+
+extern circBuf_t g_inBuffer;
 
 //*****************************************************************************
 // Constants

@@ -24,16 +24,9 @@
 #include "utils/ustdlib.h"
 #include "OrbitOLED/OrbitOLEDInterface.h"
 #include "buttons4.h"
+#include "display.h"
+#include "yaw.h"
 
-
-
-
-
-typedef enum {
-    percent_height,
-    ADC_height,
-    off
-} displayType;
 
 //*****************************************************************************
 // Initialise Display Function

@@ -20,18 +20,8 @@
 #include "driverlib/interrupt.h"
 #include "driverlib/debug.h"
 #include "buttons4.h"
+#include "yaw.h"
 
-
-
-//*****************************************************************************
-// Global variables
-//*****************************************************************************
-static int32_t yaw;                 // Helicopter heading from quadrature code disc
-static int32_t deg;                 // Helicopter heading in degrees
-static bool a_cur;                  // Current A-phase pin value
-static bool b_cur;                  // Current B-phase pin value
-
-void updateYaw(bool a_next, bool b_next);
 
 //*************************************************************
 // GPIO Pin Interrupt
