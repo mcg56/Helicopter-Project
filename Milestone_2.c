@@ -1,15 +1,14 @@
 //*****************************************************************************
 //
-// Milestone_1.c - Simple voltage measure of helicopter altitude
+// Milestone_2.c - Measure and display helicopter altitude and yaw
 //
 // Authors: Tom Peterson, Matt Comber, Mark Gardyne
-// Date 8/03/2021
+// Date 19/04/2021
 //
 // Code Sourced from:  P.J. Bones  UCECE (acknowledged in function descriptions)
-//
-
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include "stdlib.h"
 #include "inc/hw_memmap.h"
@@ -42,7 +41,7 @@
 static circBuf_t g_inBuffer;        // Buffer of size BUF_SIZE integers (sample values)
 static uint32_t g_ulSampCnt;        // Counter for the interrupts
 static int32_t yaw;                 // Helicopter heading from quadrature code disc
-static int32_t deg;                // Helicopter heading in degrees
+static int32_t deg;                 // Helicopter heading in degrees
 static bool a_cur;                  // Current A-phase pin value
 static bool b_cur;                  // Current B-phase pin value
 
@@ -51,16 +50,19 @@ static bool b_cur;                  // Current B-phase pin value
 //*****************************************************************************
 void updateYaw(bool a_next, bool b_next);
 
+
+typedef enum {
+    percent_height,
+    ADC_height,
+    off
+} displayType;
+
 //*****************************************************************************
 // The interrupt handler for the for SysTick interrupt.
 //*****************************************************************************
 void
 SysTickIntHandler(void)
 {
-    //
-    // Initiate a conversion
-    //
-
     // Poll the buttons
     updateButtons();
 
@@ -71,7 +73,7 @@ SysTickIntHandler(void)
 //*****************************************************************************
 // The handler for the ADC conversion complete interrupt.
 // Writes to the circular buffer.
-// Code Sourced from:  P.J. Bones  UCECE
+// Sourced from:  P.J. Bones  UCECE
 //*****************************************************************************
 void
 ADCIntHandler(void)
@@ -99,24 +101,24 @@ GPIOPinIntHandler (void)
     bool a_next;
     bool b_next;
 
-    // Set next A-phase and B-phase values
+    // Read next A-phase and B-phase values
     a_next = GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_0);
     b_next = GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_1);
 
     // Update yaw in degrees
     updateYaw(a_next, b_next);
 
-    // Set next phase values to current
+    // Update next phase values to current
     a_cur = a_next;
     b_cur = b_next;
 
-    // Clear pin interrupts
+    // Clean up, clearing the interrupt
     GPIOIntClear(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 }
 
 //*****************************************************************************
-// Initialisation functions for the clock (incl. SysTick), ADC, display
-// Code Sourced from:  P.J. Bones  UCECE
+// Initialisation functions for the clock
+// Sourced from:  P.J. Bones  UCECE
 //*****************************************************************************
 void
 initClock (void)
@@ -139,7 +141,7 @@ initClock (void)
 
 //*****************************************************************************
 // Initialise ADC functions
-// Code Sourced from:  P.J. Bones  UCECE
+// Sourced from:  P.J. Bones  UCECE
 //*****************************************************************************
 void
 initADC (void)
@@ -178,6 +180,10 @@ initADC (void)
     ADCIntEnable(ADC0_BASE, 3);
 }
 
+//*****************************************************************************
+// Initialise Display Function
+// Code Sourced from:  P.J. Bones  UCECE
+//*****************************************************************************
 void
 initDisplay (void)
 {
@@ -187,7 +193,7 @@ initDisplay (void)
 
 //*************************************************************
 // SysTick interrupt
-// Code Sourced from:  P.J. Bones  UCECE
+// Sourced from:  P.J. Bones  UCECE
 //*************************************************************
 void
 initSysTick (void)
@@ -206,7 +212,7 @@ initSysTick (void)
 }
 
 //*************************************************************
-// Intialise GPIO Port B pins 0 and 1
+// Intialise GPIO Pins
 //*************************************************************
 void
 initGPIOPins (void)
@@ -217,7 +223,7 @@ initGPIOPins (void)
     // Set pin 0 and 1 as input
     GPIOPinTypeGPIOInput(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 
-    // Set what conditions pins will be interrupted on
+    // Set what pin interrupt conditions
     GPIOIntTypeSet(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1, GPIO_BOTH_EDGES);
 
     // Register interrupt
@@ -229,7 +235,7 @@ initGPIOPins (void)
 }
 
 //*****************************************************************************
-// Function to calculate the helicopter height as a percent of the voltage range
+// Function to convert helicopter height to percentage
 //*****************************************************************************
 int
 calculate_percent_height(uint16_t current_height, uint16_t landed_height)
@@ -238,43 +244,42 @@ calculate_percent_height(uint16_t current_height, uint16_t landed_height)
     float height_voltage_range = 0.8; // Voltage range over helicopter height
     float ADC_voltage_range = 3.33;   // Total voltage range of ADC
 
-    // Calculate helicopter height as percentage
+    // Percentage height calculation
     height_percent = 100 * ((landed_height - current_height)/((height_voltage_range/ADC_voltage_range)*ADC_BITS));
 
     return height_percent;
 }
 
 //*****************************************************************************
-// Function to display either the mean ADC value, the helicopter height as a percentage
-// or no display at all.
+// Function to control display
 //*****************************************************************************
 void
-displayMeanVal(uint16_t meanVal, uint16_t landed_height, int8_t display_state)
+displayMeanVal(uint16_t mean_val, uint16_t landed_height, displayType display_state)
 {
     char string[17];  // 16 characters across the display
     int16_t height_percent;
 
     switch (display_state)
     {
-    case 0:
-        height_percent = calculate_percent_height(meanVal, landed_height);
+    case percent_height:
+        height_percent = calculate_percent_height(mean_val, landed_height);
         usnprintf (string, sizeof(string), "Height   %5d%%", height_percent);
         OLEDStringDraw (string, 0, 0);
         usnprintf (string, sizeof(string), "Yaw (deg) %5d", deg);
         OLEDStringDraw (string, 0, 1);
         break;
-    case 1:
-        usnprintf (string, sizeof(string), "Mean ADC = %4d", meanVal);
+    case ADC_height:
+        usnprintf (string, sizeof(string), "Mean ADC = %4d", mean_val);
         OLEDStringDraw (string, 0, 0);
         break;
-    case 2:
+    case off:
         OLEDStringDraw ("                ", 0, 0);
         OLEDStringDraw ("                ", 0, 1);
     }
 }
 
 //*****************************************************************************
-// Function to find the current voltage reading and record this as the landed helicopter height.
+// Function to record helicopter landed height.
 //*****************************************************************************
 int
 calibrate_height()
@@ -286,7 +291,7 @@ calibrate_height()
     sum = 0;
     for (i = 0; i < BUF_SIZE; i++)
         sum = sum + (readCircBuf (&g_inBuffer));
-    // Calculate and display the rounded mean of the buffer contents
+    // Calculate rounded mean of the buffer contents
     start_height = ((2 * sum + BUF_SIZE) / 2 / BUF_SIZE);
 
    return start_height;
@@ -301,6 +306,8 @@ updateYaw(bool a_next, bool b_next)
     bool cw;
     float deg_f;
     float scale_factor = 0.8181; // Scale factor for converting yaw to degrees (360/440 to 4dp)
+    uint16_t scale_correction = 10000; // Scale multiplier for float calculations
+    uint16_t tooth_count = 440; // Total teeth in quadrature code disc
 
 
     // Find rotation direction using current and next phase values
@@ -315,16 +322,15 @@ updateYaw(bool a_next, bool b_next)
     }
 
     // Limit yaw values
-    if (yaw == 440) {
+    if (yaw == tooth_count) {
         yaw = 0;
     } else if (yaw == -1) {
-        yaw = 439;
+        yaw = tooth_count - 1;
     }
 
     // Convert yaw value to degrees
-    deg_f = yaw * scale_factor * 10000;
-    deg = deg_f / 10000;
-    // FIX THIS!!!
+    deg_f = yaw * scale_factor * scale_correction;
+    deg = deg_f / scale_correction;
 }
 
 
@@ -335,11 +341,11 @@ main(void)
     int32_t sum;
     int32_t mean;
     int32_t landed_height;
-    int8_t display_state;
+    displayType display_state;
 
-    SysCtlPeripheralReset (LEFT_BUT_PERIPH);    // LEFT button GPIO
-    SysCtlPeripheralReset (UP_BUT_PERIPH);      // UP button GPIO
-    SysCtlPeripheralReset (SYSCTL_PERIPH_GPIOB); // Port B pins
+    SysCtlPeripheralReset (LEFT_BUT_PERIPH);
+    SysCtlPeripheralReset (UP_BUT_PERIPH);
+    SysCtlPeripheralReset (SYSCTL_PERIPH_GPIOB);
 
     initClock ();
     initButtons ();
@@ -356,7 +362,7 @@ main(void)
     SysCtlDelay (SysCtlClockGet() / 2);
 
     landed_height = calibrate_height(); // Set initial helicopter resting height
-    display_state = 0;                  // Set initial display state to percentage
+    display_state = percent_height;                  // Set initial display state to percentage
     yaw = 0;                            // Initialise yaw to zero;
 
 
@@ -373,9 +379,10 @@ main(void)
         // Update height display method with UP button
         if ((checkButton (UP) == PUSHED))
         {
-            display_state++;
-            if (display_state == 3) {
-                display_state = 0;
+            if (display_state == off) {
+                display_state = percent_height;
+            } else {
+                display_state++;
             }
         }
 
@@ -395,3 +402,7 @@ main(void)
 
     }
 }
+
+// Ask about typedef of enum for display state
+// How to divide with float (scale correction) and display
+// Is it ok call update yaw in interrupt?
