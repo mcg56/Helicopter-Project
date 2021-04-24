@@ -7,24 +7,23 @@
 //
 // Code Sourced from:  P.J. Bones  UCECE (acknowledged in function descriptions)
 
-#include <stdint.h> /
-#include <stdio.h>  /
-#include <stdbool.h>  /
-#include "stdlib.h"  /
-#include "inc/hw_memmap.h"  /
-#include "inc/hw_types.h"  /
-#include "inc/hw_ints.h"    /
-#include "driverlib/adc.h"  /
-#include "driverlib/gpio.h" /
-#include "driverlib/sysctl.h"   /
-#include "driverlib/systick.h"  /
-#include "driverlib/interrupt.h"    /
-#include "driverlib/debug.h"    /
-#include "driverlib/pin_map.h"  /
-#include "utils/ustdlib.h"  /
+#include <stdint.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include "stdlib.h"
+#include "inc/hw_memmap.h"
+#include "inc/hw_types.h"
+#include "inc/hw_ints.h"
+#include "driverlib/adc.h"
+#include "driverlib/gpio.h"
+#include "driverlib/sysctl.h"
+#include "driverlib/systick.h"
+#include "driverlib/interrupt.h"
+#include "driverlib/debug.h"
+#include "driverlib/pin_map.h"
+#include "utils/ustdlib.h"
 #include "circBufT.h"
-
-#include "buttons4.h"   /
+#include "buttons4.h"
 
 
 //*****************************************************************************
@@ -39,12 +38,6 @@
 // Global variables
 //*****************************************************************************
 static circBuf_t g_inBuffer;        // Buffer of size BUF_SIZE integers (sample values)
-static uint32_t g_ulSampCnt;        // Counter for the interrupts
-static int32_t yaw;                 // Helicopter heading from quadrature code disc
-static int32_t deg;                 // Helicopter heading in degrees
-static bool a_cur;                  // Current A-phase pin value
-static bool b_cur;                  // Current B-phase pin value
-
 
 //*****************************************************************************
 // The handler for the ADC conversion complete interrupt.
