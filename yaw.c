@@ -100,12 +100,6 @@ updateYaw(bool a_next, bool b_next)
         yaw--;
     }
 
-    // Limit yaw values
-    if (yaw == tooth_count) {
-        yaw = 0;
-    } else if (yaw == -1) {
-        yaw = tooth_count - 1;
-    }
 
     // Convert yaw value to degrees
     deg_f = yaw * scale_factor * scale_correction;
