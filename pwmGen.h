@@ -6,7 +6,7 @@
 //
 // Support for PWM signal generation of the helicopter
 //
-// T.R. Peterson M.G. Gardyne
+// Authors: T.R. Peterson M.G. Gardyne M. Comber
 // Last modified:  24.4.2021
 //
 // *******************************************************
