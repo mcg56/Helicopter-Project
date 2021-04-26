@@ -98,11 +98,11 @@ initSysTick (void)
 int
 main(void)
 {
-    int32_t mean_height;
+    int32_t current_height;
     int32_t landed_height;
     int32_t display_deg;
-    int32_t height_percent;
-    uint32_t pwm_main_duty;
+    int16_t height_percent;
+    int16_t target_height_percent;
 
     // As a precaution, make sure that the peripherals used are reset
     SysCtlPeripheralReset (PWM_MAIN_PERIPH_GPIO); // Used for PWM output
@@ -126,22 +126,22 @@ main(void)
     SysCtlDelay (SysCtlClockGet() / 2);
 
     landed_height = getHeight();        // Set initial helicopter resting height
-    pwm_main_duty = 50;                 // Set initial duty cycle for main rotor
+    target_height_percent = 50;         // Set initial duty cycle for main rotor
 
     while (1)
     {
         SysCtlDelay (SysCtlClockGet() / 32);  // Update display at approx 32 Hz
 
         // Increase main rotor duty cycle if up button pressed
-        if ((checkButton (UP) == PUSHED))
+        if ((checkButton (UP) == PUSHED) && (target_height_percent < 90))
         {
-            pwm_main_duty += 5;
+            target_height_percent += 10;
         }
 
         // Decrease main rotor duty cycle if down button pressed
-        if ((checkButton (DOWN) == PUSHED))
+        if ((checkButton (DOWN) == PUSHED) && (target_height_percent > 10))
         {
-            pwm_main_duty -= 5;
+            target_height_percent -= 10;
         }
 
         // Reset landed helicopter height if left button pushed
@@ -151,19 +151,19 @@ main(void)
         }
 
         // Get current helicopter height
-        mean_height = getHeight();
+        current_height = getHeight();
 
         // Convert ADC height to percentage
-        height_percent = calculate_percent_height(mean_height, landed_height);
+        height_percent = calculate_percent_height(current_height, landed_height);
 
         // Get yaw from yaw module
         display_deg = getYaw();
 
         // Display helicopter details
-        displayMeanVal (mean_height, height_percent, display_deg);
+        displayMeanVal (height_percent, display_deg);
 
         // Update altitude control
-        updateAltitude(pwm_main_duty);
+        updateAltitude(height_percent, target_height_percent);
     }
 }
 

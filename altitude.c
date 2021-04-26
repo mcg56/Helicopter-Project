@@ -26,6 +26,7 @@
 #include "altitude.h"
 #include "circBufT.h"
 #include "pwmGen.h"
+#include "responseControl.h"
 
 //*****************************************************************************
 // Global Variables
@@ -151,7 +152,11 @@ getHeight(void)
 // Update helicopter altitute control
 //*****************************************************************************
 extern void
-updateAltitude(uint32_t pwm_main_duty)
+updateAltitude(int16_t height_percent, int16_t target_height_percent)
 {
+    uint32_t pwm_main_duty;
+
+    pwm_main_duty = dutyResponse(height_percent, target_height_percent);
+
     setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
 }

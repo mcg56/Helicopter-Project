@@ -40,7 +40,7 @@ initDisplay (void)
 // Function to control display
 //*****************************************************************************
 extern void
-displayMeanVal(uint16_t mean_val, int16_t height_percent, int32_t display_deg)
+displayMeanVal(int16_t height_percent, int32_t display_deg)
 {
     char string[17];  // 16 characters across the display
 
