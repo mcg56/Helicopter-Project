@@ -29,6 +29,11 @@
 #include "circBufT.h"
 
 
+typedef enum {
+    landed,
+    take_off
+} flight_mode;
+
 //*****************************************************************************
 // The interrupt handler for the for SysTick interrupt.
 //*****************************************************************************
