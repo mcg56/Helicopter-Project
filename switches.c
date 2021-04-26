@@ -103,7 +103,7 @@ checkSwitch (uint8_t switchName)
     if (switch_flag[switchName])
     {
         switch_flag[switchName] = false;
-        if (switch_state[switchName] == switch_normal[butName])
+        if (switch_state[switchName] == switch_normal[switchName])
             return HIGH;
         else
             return LOW;
