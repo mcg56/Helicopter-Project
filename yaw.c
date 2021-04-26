@@ -83,10 +83,8 @@ void
 updateYaw(bool a_next, bool b_next)
 {
     bool cw;
-    float deg_f;
-    float scale_factor = 0.8181; // Scale factor for converting yaw to degrees (360/440 to 4dp)
-    uint16_t scale_correction = 10000; // Scale multiplier for float calculations
-    uint16_t tooth_count = 440; // Total teeth in quadrature code disc
+    uint16_t full_rot = 360;
+    uint16_t tooth_count = 446; // Total teeth in quadrature code disc
 
 
     // Find rotation direction using current and next phase values
@@ -102,8 +100,7 @@ updateYaw(bool a_next, bool b_next)
 
 
     // Convert yaw value to degrees
-    deg_f = yaw * scale_factor * scale_correction;
-    deg = deg_f / scale_correction;
+    deg = yaw * full_rot/tooth_count;
 }
 
 //*****************************************************************************
