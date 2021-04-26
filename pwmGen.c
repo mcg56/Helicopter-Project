@@ -1,11 +1,11 @@
 /**********************************************************
- *
- * pwmGen.c - Generates PWM signals for helicopter height
- * and yaw control
- *
- * Authors: Tom Peterson, Matt Comber, Mark Gardyne
+//
+// pwmGen.c - Generates PWM signals for helicopter height
+// and yaw control
+//
+// Authors: T.R. Peterson M.G. Gardyne M. Comber
 // Date 19/04/2021
- *
+//
  **********************************************************/
 
 #include <stdint.h>
