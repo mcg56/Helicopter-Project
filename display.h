@@ -23,15 +23,6 @@
 #define ADC_BITS            4095 // 12 bit ADC
 
 //*****************************************************************************
-// Display cases
-//*****************************************************************************
-typedef enum {
-    percent_height,
-    ADC_height,
-    off
-} displayType;
-
-//*****************************************************************************
 // Initialise Display Function
 // Code Sourced from:  P.J. Bones  UCECE
 //*****************************************************************************
@@ -42,6 +33,6 @@ initDisplay (void);
 // Function to control display
 //*****************************************************************************
 extern void
-displayMeanVal(uint16_t mean_val, int16_t height_percent, displayType display_state, int32_t display_deg);
+displayMeanVal(uint16_t mean_val, int16_t height_percent, int32_t display_deg);
 
 #endif /* DISPLAY_H_ */

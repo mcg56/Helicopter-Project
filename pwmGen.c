@@ -38,7 +38,7 @@ void setPWMTail (uint32_t u32Freq, uint32_t u32Duty);
  * initialisePWM
  * M0PWM7 (J4-05, PC5) is used for the main rotor motor
  *********************************************************/
-void
+extern void
 initialisePWMMain (void)
 {
     SysCtlPeripheralEnable(PWM_MAIN_PERIPH_PWM);
@@ -62,7 +62,7 @@ initialisePWMMain (void)
  * initialisePWM
  * M1PWM5 (J3-10, PF1) is used for the tail rotor motor
  *********************************************************/
-void
+extern void
 initialisePWMTail (void)
 {
     SysCtlPeripheralEnable(PWM_TAIL_PERIPH_PWM);
@@ -85,7 +85,7 @@ initialisePWMTail (void)
 /********************************************************
  * Function to set the freq, duty cycle of M1PWM5
  ********************************************************/
-void
+extern void
 setPWMTail (uint32_t ui32Freq, uint32_t ui32Duty)
 {
     // Calculate the PWM period corresponding to the freq.
@@ -100,7 +100,7 @@ setPWMTail (uint32_t ui32Freq, uint32_t ui32Duty)
 /********************************************************
  * Function to set the freq, duty cycle of M0PWM7
  ********************************************************/
-void
+extern void
 setPWMMain (uint32_t ui32Freq, uint32_t ui32Duty)
 {
     // Calculate the PWM period corresponding to the freq.

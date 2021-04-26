@@ -21,9 +21,11 @@
 #include "driverlib/interrupt.h"
 #include "driverlib/debug.h"
 #include "driverlib/pin_map.h"
+#include "driverlib/pwm.h" // For setting pwm output true
 #include "utils/ustdlib.h"
 #include "altitude.h"
 #include "circBufT.h"
+#include "pwmGen.h"
 
 //*****************************************************************************
 // Global Variables
@@ -38,6 +40,10 @@ initAltitude(void)
 {
     initCircBuf (&g_inBuffer, BUF_SIZE);
     initADC ();
+    initialisePWMMain ();
+
+    // Initialisation is complete, so turn on the output.
+    PWMOutputState(PWM_MAIN_BASE, PWM_MAIN_OUTBIT, true);
 }
 
 //*****************************************************************************
@@ -139,4 +145,13 @@ getHeight(void)
     mean = (2 * sum + BUF_SIZE) / 2 / BUF_SIZE;
 
     return mean;
+}
+
+//*****************************************************************************
+// Update helicopter altitute control
+//*****************************************************************************
+extern void
+updateAltitude(uint32_t pwm_main_duty)
+{
+    setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
 }

@@ -40,26 +40,13 @@ initDisplay (void)
 // Function to control display
 //*****************************************************************************
 extern void
-displayMeanVal(uint16_t mean_val, int16_t height_percent, displayType display_state, int32_t display_deg)
+displayMeanVal(uint16_t mean_val, int16_t height_percent, int32_t display_deg)
 {
     char string[17];  // 16 characters across the display
 
-    // Update display
-    switch (display_state)
-    {
-    case percent_height:
-
-        usnprintf (string, sizeof(string), "Height   %5d%%", height_percent);
-        OLEDStringDraw (string, 0, 0);
-        usnprintf (string, sizeof(string), "Yaw (deg) %5d", display_deg);
-        OLEDStringDraw (string, 0, 1);
-        break;
-    case ADC_height:
-        usnprintf (string, sizeof(string), "Mean ADC = %4d", mean_val);
-        OLEDStringDraw (string, 0, 0);
-        break;
-    case off:
-        OLEDStringDraw ("                ", 0, 0);
-        OLEDStringDraw ("                ", 0, 1);
-    }
+    usnprintf (string, sizeof(string), "Height   %5d%%", height_percent);
+    OLEDStringDraw (string, 0, 0);
+    usnprintf (string, sizeof(string), "Yaw (deg) %5d", display_deg);
+    OLEDStringDraw (string, 0, 1);
 }
+

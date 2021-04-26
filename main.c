@@ -27,8 +27,11 @@
 #include "altitude.h"
 #include "display.h"
 #include "circBufT.h"
+#include "pwmGen.h"
 
-
+//*****************************************************************************
+// Definition Types
+//*****************************************************************************
 typedef enum {
     landed,
     take_off
@@ -99,8 +102,13 @@ main(void)
     int32_t landed_height;
     int32_t display_deg;
     int32_t height_percent;
-    displayType display_state;
+    uint32_t pwm_main_duty;
 
+    // As a precaution, make sure that the peripherals used are reset
+    SysCtlPeripheralReset (PWM_MAIN_PERIPH_GPIO); // Used for PWM output
+    SysCtlPeripheralReset (PWM_MAIN_PERIPH_PWM);  // Main Rotor PWM
+    SysCtlPeripheralReset (PWM_TAIL_PERIPH_GPIO); // Used for PWM output
+    SysCtlPeripheralReset (PWM_TAIL_PERIPH_PWM);  // Tail Rotor PWM
     SysCtlPeripheralReset (LEFT_BUT_PERIPH);
     SysCtlPeripheralReset (UP_BUT_PERIPH);
     SysCtlPeripheralReset (SYSCTL_PERIPH_GPIOB);
@@ -118,11 +126,23 @@ main(void)
     SysCtlDelay (SysCtlClockGet() / 2);
 
     landed_height = getHeight();        // Set initial helicopter resting height
-    display_state = percent_height;     // Set initial display state to percentage
+    pwm_main_duty = 50;                 // Set initial duty cycle for main rotor
 
     while (1)
     {
         SysCtlDelay (SysCtlClockGet() / 32);  // Update display at approx 32 Hz
+
+        // Increase main rotor duty cycle if up button pressed
+        if ((checkButton (UP) == PUSHED))
+        {
+            pwm_main_duty += 5;
+        }
+
+        // Decrease main rotor duty cycle if down button pressed
+        if ((checkButton (DOWN) == PUSHED))
+        {
+            pwm_main_duty -= 5;
+        }
 
         // Reset landed helicopter height if left button pushed
         if ((checkButton (LEFT) == PUSHED))
@@ -130,24 +150,20 @@ main(void)
             landed_height = getHeight();
         }
 
-        // Update height display method with UP button
-        if ((checkButton (UP) == PUSHED))
-        {
-            if (display_state == off) {
-                display_state = percent_height;
-            } else {
-                display_state++;
-            }
-        }
-
         // Get current helicopter height
         mean_height = getHeight();
 
+        // Convert ADC height to percentage
         height_percent = calculate_percent_height(mean_height, landed_height);
 
-        // Display helicopter height
+        // Get yaw from yaw module
         display_deg = getYaw();
-        displayMeanVal (mean_height, height_percent, display_state, display_deg);
+
+        // Display helicopter details
+        displayMeanVal (mean_height, height_percent, display_deg);
+
+        // Update altitude control
+        updateAltitude(pwm_main_duty);
     }
 }
 
@@ -155,3 +171,4 @@ main(void)
 // How to divide with float (scale correction) and display
 // Is it ok call update yaw in interrupt?
 // What is reasonable drift for yaw
+// How to make a bin file

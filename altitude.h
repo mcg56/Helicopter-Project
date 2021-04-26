@@ -53,4 +53,10 @@ calculate_percent_height(uint16_t current_height, uint16_t landed_height);
 extern int
 getHeight(void);
 
+//*****************************************************************************
+// Update helicopter altitute control
+//*****************************************************************************
+extern void
+updateAltitude(uint32_t pwm_main_duty);
+
 #endif /* ALTITUDE_H_ */
