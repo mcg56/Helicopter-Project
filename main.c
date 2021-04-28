@@ -30,6 +30,7 @@
 #include "pwmGen.h"
 #include "uart.h"
 
+#include "driverlib/qei.c"
 #include "driverlib/uart.h"
 
 
