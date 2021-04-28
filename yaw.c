@@ -19,6 +19,8 @@
 #include "driverlib/interrupt.h"
 #include "driverlib/debug.h"
 #include "yaw.h"
+#include "responseControl.h"
+#include "pwmGen.h"
 
 //*****************************************************************************
 // Global variables
@@ -42,7 +44,7 @@ GPIOPinIntHandler (void)
     b_next = GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_1);
 
     // Update yaw in degrees
-    updateYaw(a_next, b_next);
+    calculateYaw(a_next, b_next);
 
     // Update next phase values to current
     a_cur = a_next;
@@ -80,7 +82,7 @@ initGPIOPins (void)
 // Function to update helicopter yaw in degrees
 //*****************************************************************************
 void
-updateYaw(bool a_next, bool b_next)
+calculateYaw(bool a_next, bool b_next)
 {
     bool cw;
     uint16_t full_rot = 360;
@@ -101,6 +103,19 @@ updateYaw(bool a_next, bool b_next)
 
     // Convert yaw value to degrees
     deg = yaw * full_rot/tooth_count;
+}
+
+//*****************************************************************************
+// Update yaw helicopter control
+//*****************************************************************************
+void
+updateYaw(int16_t yaw_degree, int16_t target_yaw)
+{
+    uint32_t pwm_tail_duty;
+
+    pwm_tail_duty = dutyResponse(yaw_degree, target_yaw);
+
+    setPWMMain (PWM_MAIN_FREQ, pwm_tail_duty);
 }
 
 //*****************************************************************************

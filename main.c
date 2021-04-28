@@ -100,9 +100,10 @@ main(void)
 {
     int32_t current_height;
     int32_t landed_height;
-    int32_t display_deg;
     int16_t height_percent;
     int16_t target_height_percent;
+    int16_t yaw_degree;
+    int16_t target_yaw;
 
     // As a precaution, make sure that the peripherals used are reset
     SysCtlPeripheralReset (PWM_MAIN_PERIPH_GPIO); // Used for PWM output
@@ -127,6 +128,7 @@ main(void)
 
     landed_height = getHeight();        // Set initial helicopter resting height
     target_height_percent = 50;         // Set initial duty cycle for main rotor
+    target_yaw = 50;                    // Set initial target yaw
 
     while (1)
     {
@@ -144,10 +146,16 @@ main(void)
             target_height_percent -= 10;
         }
 
-        // Reset landed helicopter height if left button pushed
+        // Increase yaw if left button pushed
         if ((checkButton (LEFT) == PUSHED))
         {
-            landed_height = getHeight();
+            target_yaw += 15;
+        }
+
+        // Decrease yaw if right button pushed
+        if ((checkButton (RIGHT) == PUSHED))
+        {
+            target_yaw -= 15;
         }
 
         // Get current helicopter height
@@ -157,20 +165,17 @@ main(void)
         height_percent = calculate_percent_height(current_height, landed_height);
 
         // Get yaw from yaw module
-        display_deg = getYaw();
+        yaw_degree = getYaw();
 
         // Display helicopter details
-        displayMeanVal (height_percent, display_deg);
+        displayMeanVal (height_percent, yaw_degree);
 
         // Update altitude control
         updateAltitude(height_percent, target_height_percent);
+
+        // Update yaw control
+        updateYaw(yaw_degree, target_yaw);
     }
 }
 
-// Is it ok call update yaw in interrupt?
-// What is reasonable drift for yaw - how many slots on the disc 112? should be no drift
-// How to make a bin file
-// Externals unresolved symbols
-
-
-// Get rid of externs for functions
+// Steps: Add serial, add yaw control, add switch control, add reset interrupt button

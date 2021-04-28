@@ -15,7 +15,7 @@
 #include <stdio.h>
 
 
-void updateYaw(bool a_next, bool b_next);
+void calculateYaw(bool a_next, bool b_next);
 
 //*************************************************************
 // GPIO Pin Interrupt
@@ -33,7 +33,13 @@ initGPIOPins (void);
 // Function to update helicopter yaw in degrees
 //*****************************************************************************
 void
-updateYaw(bool a_next, bool b_next);
+calculateYaw(bool a_next, bool b_next);
+
+//*****************************************************************************
+// Update yaw helicopter control
+//*****************************************************************************
+void
+updateYaw(int16_t yaw_degree, int16_t target_yaw);
 
 //*****************************************************************************
 // Pass deg to main function
