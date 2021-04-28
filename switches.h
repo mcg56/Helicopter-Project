@@ -31,8 +31,6 @@ enum switchStates {LOW = 0, HIGH, NO_CHANGE};
 #define SWITCH_ONE_PORT_BASE  GPIO_PORTA_BASE
 #define SWITCH_ONE_PIN  GPIO_PIN_7
 #define SWITCH_ONE_NORMAL  false
-
-
 #define NUM_SWITCH_POLLS 3
 // Debounce algorithm: A state machine is associated with each button.
 // A state change occurs only after NUM_BUT_POLLS consecutive polls have

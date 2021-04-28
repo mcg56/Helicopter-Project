@@ -59,66 +59,7 @@ void displayButtonState (char *butStr, char *stateStr,
 char statusStr[MAX_STR_LEN + 1];
 volatile uint8_t slowTick = false;
 
-//*******************************************************************
-//
-// The interrupt handler for the SysTick interrupt.
-//
-//*******************************************************************
-void
-SysTickIntHandler (void)
-{
-    static uint8_t tickCount = 0;
-    const uint8_t ticksPerSlow = SYSTICK_RATE_HZ / SLOWTICK_RATE_HZ;
 
-    updateButtons ();       // Poll the buttons
-    if (++tickCount >= ticksPerSlow)
-    {                       // Signal a slow tick
-        tickCount = 0;
-        slowTick = true;
-    }
-
-}
-
-//********************************************************
-// Initialisation functions: clock, SysTick, display, UART
-//********************************************************
-void
-initClock (void)
-{
-    // Set the clock rate to 20 MHz
-    SysCtlClockSet (SYSCTL_SYSDIV_10 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
-                   SYSCTL_XTAL_16MHZ);
-}
-
-//*******************************************************************
-void
-initSysTick (void)
-{
-    //
-    // Set up the period for the SysTick timer.  The SysTick timer period is
-    // set as a function of the system clock.
-    SysTickPeriodSet (SysCtlClockGet () / SYSTICK_RATE_HZ);
-    //
-    // Register the interrupt handler
-    SysTickIntRegister (SysTickIntHandler);
-    //
-    // Enable interrupt and device
-    SysTickIntEnable ();
-    SysTickEnable ();
-}
-
-// *******************************************************
-void
-initDisplay (void)
-{
-  // intialise the Orbit OLED display
-    OLEDInitialise ();
-}
-
-
-//********************************************************
-// initialiseUSB_UART - 8 bits, 1 stop bit, no parity
-//********************************************************
 void
 initialiseUSB_UART (void)
 {
@@ -157,19 +98,6 @@ UARTSend (char *pucBuffer)
     }
 }
 
-//********************************************************
-// Function to display a status message on the OLED
-//********************************************************
-void
-displayButtonState (char *butStr, char *stateStr, uint8_t numPushes, uint8_t charLine)
-{
-    char string[MAX_STR_LEN + 1]; //Display fits 16 characters per line.
-
-    OLEDStringDraw ("                ", 0, charLine);
-    usprintf (string, "%s - %s %d", butStr, stateStr, numPushes); // * usprintf
-    OLEDStringDraw (string, 0, charLine);
-}
-
 
 int
 main(void)
@@ -183,38 +111,10 @@ main(void)
     initialiseUSB_UART ();
     initSysTick ();
 
-    OLEDStringDraw ("UART demo", 0, 0);
-    displayButtonState ("UP  ", "RELS", upPushes, 2);
-    displayButtonState ("DOWN", "RELS", downPushes, 3);
 
     while(1)
     {
-        // updateButtons ();       // Poll the buttons
-        // check state of each button and display if a change is detected
-        butState = checkButton (UP);
-        switch (butState)
-        {
-        case PUSHED:
-            displayButtonState ("UP  ", "PUSH", ++upPushes, 2);
-            break;
-        case RELEASED:
-            displayButtonState ("UP  ", "RELS", upPushes, 2);
-            break;
-        // Do nothing if state is NO_CHANGE
-        }
-        butState = checkButton (DOWN);
-        switch (butState)
-        {
-        case PUSHED:
-            displayButtonState ("DOWN", "PUSH", ++downPushes, 3);
-            break;
-        case RELEASED:
-            displayButtonState ("DOWN", "RELS", downPushes, 3);
-            break;
-        // Do nothing if state is NO_CHANGE
-        }
 
-        // Is it time to send a message?
         if (slowTick)
         {
             slowTick = false;
