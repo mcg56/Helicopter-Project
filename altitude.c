@@ -36,7 +36,7 @@ static circBuf_t g_inBuffer;
 //*****************************************************************************
 // Initialise altitude module
 //*****************************************************************************
-extern void
+void
 initAltitude(void)
 {
     initCircBuf (&g_inBuffer, BUF_SIZE);
@@ -113,7 +113,7 @@ initADC (void)
 //*****************************************************************************
 // Function to convert helicopter height to percentage
 //*****************************************************************************
-extern int
+int
 calculate_percent_height(uint16_t current_height, uint16_t landed_height)
 {
     int16_t height_percent;
@@ -129,7 +129,7 @@ calculate_percent_height(uint16_t current_height, uint16_t landed_height)
 //*****************************************************************************
 // Find and return current helicopter landed height.
 //*****************************************************************************
-extern int
+int
 getHeight(void)
 {
     int32_t sum;
@@ -151,7 +151,7 @@ getHeight(void)
 //*****************************************************************************
 // Update helicopter altitute control
 //*****************************************************************************
-extern void
+void
 updateAltitude(int16_t height_percent, int16_t target_height_percent)
 {
     uint32_t pwm_main_duty;

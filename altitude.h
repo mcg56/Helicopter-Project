@@ -23,7 +23,7 @@
 //*****************************************************************************
 // Initialise altitude module
 //*****************************************************************************
-extern void
+void
 initAltitude(void);
 
 //*****************************************************************************
@@ -38,25 +38,25 @@ ADCIntHandler(void);
 // Initialise ADC functions
 // Sourced from:  P.J. Bones  UCECE
 //*****************************************************************************
-extern void
+void
 initADC (void);
 
 //*****************************************************************************
 // Function to convert helicopter height to percentage
 //*****************************************************************************
-extern int
+int
 calculate_percent_height(uint16_t current_height, uint16_t landed_height);
 
 //*****************************************************************************
 // Find and return current helicopter landed height.
 //*****************************************************************************
-extern int
+int
 getHeight(void);
 
 //*****************************************************************************
 // Update helicopter altitute control
 //*****************************************************************************
-extern void
+void
 updateAltitude(int16_t height_percent, int16_t target_height_percent);
 
 #endif /* ALTITUDE_H_ */

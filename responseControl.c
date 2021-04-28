@@ -14,7 +14,7 @@
 //*****************************************************************************
 // Caculate helicopter rotor response using PI control
 //*****************************************************************************
-extern int
+int
 dutyResponse(int16_t current_height, int16_t target_percent)
 {
     int16_t duty_cycle;

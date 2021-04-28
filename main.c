@@ -167,8 +167,10 @@ main(void)
     }
 }
 
-// Ask about typedef of enum for display state
-// How to divide with float (scale correction) and display
 // Is it ok call update yaw in interrupt?
-// What is reasonable drift for yaw
+// What is reasonable drift for yaw - how many slots on the disc 112? should be no drift
 // How to make a bin file
+// Externals unresolved symbols
+
+
+// Get rid of externs for functions

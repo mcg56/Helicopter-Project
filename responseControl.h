@@ -20,12 +20,12 @@
 //*****************************************************************************
 #define PROPORTIONAL_GAIN           1 // Proportional control gain
 #define MAX_DUTY                    98 // Maximum helicopter duty cycle
-#define MIN_DUTY                    0  // Minimum helicopter duty cycle
+#define MIN_DUTY                    2  // Minimum helicopter duty cycle
 
 //*****************************************************************************
 // Caculate helicopter rotor response using PI control
 //*****************************************************************************
-extern int
+int
 dutyResponse(int16_t current_height, int16_t target_height);
 
 #endif /* RESPONSECONTROL_H_ */

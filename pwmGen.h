@@ -69,26 +69,26 @@
  * initialisePWM
  * M0PWM7 (J4-05, PC5) is used for the main rotor motor
  *********************************************************/
-extern void
+void
 initialisePWMMain (void);
 
 /*********************************************************
  * initialisePWM
  * M1PWM5 (J3-10, PF1) is used for the tail rotor motor
  *********************************************************/
-extern void
+void
 initialisePWMTail (void);
 
 /********************************************************
  * Function to set the freq, duty cycle of M1PWM5
  ********************************************************/
-extern void
+void
 setPWMTail (uint32_t ui32Freq, uint32_t ui32Duty);
 
 /********************************************************
  * Function to set the freq, duty cycle of M0PWM7
  ********************************************************/
-extern void
+void
 setPWMMain (uint32_t ui32Freq, uint32_t ui32Duty);
 
 #endif /* PWMGEN_H_ */

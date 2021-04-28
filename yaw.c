@@ -55,7 +55,7 @@ GPIOPinIntHandler (void)
 //*************************************************************
 // Intialise GPIO Pins
 //*************************************************************
-extern void
+void
 initGPIOPins (void)
 {
     // Enable port peripheral
@@ -84,7 +84,7 @@ updateYaw(bool a_next, bool b_next)
 {
     bool cw;
     uint16_t full_rot = 360;
-    uint16_t tooth_count = 446; // Total teeth in quadrature code disc
+    uint16_t tooth_count = 448; // Total teeth in quadrature code disc
 
 
     // Find rotation direction using current and next phase values
@@ -106,7 +106,7 @@ updateYaw(bool a_next, bool b_next)
 //*****************************************************************************
 // Pass deg to main function
 //*****************************************************************************
-extern int
+int
 getYaw(void)
 {
     return deg;

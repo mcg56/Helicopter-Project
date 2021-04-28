@@ -26,13 +26,13 @@
 // Initialise Display Function
 // Code Sourced from:  P.J. Bones  UCECE
 //*****************************************************************************
-extern void
+void
 initDisplay (void);
 
 //*****************************************************************************
 // Function to control display
 //*****************************************************************************
-extern void
+void
 displayMeanVal(int16_t height_percent, int32_t display_deg);
 
 #endif /* DISPLAY_H_ */
