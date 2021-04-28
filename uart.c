@@ -41,27 +41,10 @@
 #define UART_USB_GPIO_PIN_TX    GPIO_PIN_1
 #define UART_USB_GPIO_PINS      UART_USB_GPIO_PIN_RX | UART_USB_GPIO_PIN_TX
 
-//********************************************************
-// Prototypes
-//********************************************************
-void SysTickIntHandler (void);
-void initClock (void);
-void initSysTick (void);
-void initDisplay (void);
-void initialiseUSB_UART (void);
-void UARTSend (char *pucBuffer);
-void displayButtonState (char *butStr, char *stateStr,
-    uint8_t numPushes, uint8_t charLine);
-
-//********************************************************
-// Global variables
-//********************************************************
 char statusStr[MAX_STR_LEN + 1];
-volatile uint8_t slowTick = false;
-
 
 void
-initialiseUSB_UART (void)
+initUSB_UART (void)
 {
     //
     // Enable GPIO port A which is used for UART0 pins.
@@ -98,30 +81,16 @@ UARTSend (char *pucBuffer)
     }
 }
 
-
-int
-main(void)
+void
+UARTTransData (int16_t current_height, int16_t target_height_percent, int16_t yaw_degree, int16_t target_yaw, uint8_t slowTick)
 {
-    int8_t upPushes = 0, downPushes = 0;
-    uint8_t butState;
-
-    initClock ();
-    initDisplay ();
-    initButtons ();
-    initialiseUSB_UART ();
-    initSysTick ();
-
-
-    while(1)
+    if (slowTick)
     {
-
-        if (slowTick)
-        {
-            slowTick = false;
-            // Form and send a status message to the console
-            usprintf (statusStr, "UP=%2d DN=%2d | \r\n", upPushes, downPushes); // * usprintf
-            UARTSend (statusStr);
-        }
+        slowTick = false;
+        // Form and send a status message to the console
+        usprintf (statusStr, "Alt: %2d [%2d]\n Yaw: %2d [%2d]\r\n",current_height,target_height_percent, yaw_degree, target_yaw); // * usprintf
+        UARTSend (statusStr);
     }
+
 }
 

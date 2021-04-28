@@ -115,7 +115,7 @@ updateYaw(int16_t yaw_degree, int16_t target_yaw)
 
     pwm_tail_duty = dutyResponse(yaw_degree, target_yaw);
 
-    setPWMMain (PWM_MAIN_FREQ, pwm_tail_duty);
+    setPWMTail (PWM_MAIN_FREQ, pwm_tail_duty);
 }
 
 //*****************************************************************************

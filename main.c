@@ -28,6 +28,12 @@
 #include "display.h"
 #include "circBufT.h"
 #include "pwmGen.h"
+#include "uart.h"
+
+#include "driverlib/uart.h"
+
+
+volatile uint8_t slowTick = false;
 
 //*****************************************************************************
 // Definition Types
@@ -43,10 +49,18 @@ typedef enum {
 void
 SysTickIntHandler(void)
 {
+    static uint8_t tickCount = 0;
+    const uint8_t ticksPerSlow = SYSTICK_RATE_HZ / SLOWTICK_RATE_HZ;
     // Poll the buttons
     updateButtons();
 
     ADCProcessorTrigger(ADC0_BASE, 3);
+    if (++tickCount >= ticksPerSlow)
+        {                       // Signal a slow tick
+            tickCount = 0;
+            slowTick = true;
+        }
+
 
 }
 
@@ -120,6 +134,8 @@ main(void)
     initSysTick ();
     initDisplay ();
     initGPIOPins ();
+    initUSB_UART ();
+    initialisePWMTail ();
 
     // Enable interrupts to the processor.
     IntMasterEnable();
@@ -128,7 +144,7 @@ main(void)
 
     landed_height = getHeight();        // Set initial helicopter resting height
     target_height_percent = 50;         // Set initial duty cycle for main rotor
-    target_yaw = 50;                    // Set initial target yaw
+    target_yaw = 0;                    // Set initial target yaw
 
     while (1)
     {
@@ -175,6 +191,11 @@ main(void)
 
         // Update yaw control
         updateYaw(yaw_degree, target_yaw);
+
+
+        UARTTransData (current_height, target_height_percent, yaw_degree, target_yaw, slowTick);
+
+
     }
 }
 
