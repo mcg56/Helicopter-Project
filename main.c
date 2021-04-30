@@ -146,12 +146,15 @@ main(void)
     }
 }
 
-// Steps: Add switch control
-// Add reset interrupt button
-// Add system
+// To do:
+// Add integral
+// Add flight mode land functionality
 // Remove functions from headers that don't need to be there
 // Clean #includes
-// Location of flight state enum in switches?
-// Fix UART
 // Convert switches to interrupt on regular timer
-// init yaw
+// Reference yaw
+
+// Questions?
+// Location of flight state enum in switches?
+// Is it ok to use prescalers for pwm signal with clock issues
+
