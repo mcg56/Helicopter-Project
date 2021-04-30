@@ -66,7 +66,6 @@ main(void)
     initDisplay ();
     initGPIOPins ();
     initUSB_UART ();
-    initialisePWMMain ();
     initialisePWMTail ();
     initSwitches ();
 
@@ -155,3 +154,4 @@ main(void)
 // Location of flight state enum in switches?
 // Fix UART
 // Convert switches to interrupt on regular timer
+// init yaw
