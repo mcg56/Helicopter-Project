@@ -29,12 +29,8 @@
 #include "circBufT.h"
 #include "pwmGen.h"
 #include "uart.h"
+#include "system.h"
 
-#include "driverlib/qei.c"
-#include "driverlib/uart.h"
-
-
-volatile uint8_t slowTick = false;
 
 //*****************************************************************************
 // Definition Types
@@ -43,71 +39,6 @@ typedef enum {
     landed,
     take_off
 } flight_mode;
-
-//*****************************************************************************
-// The interrupt handler for the for SysTick interrupt.
-//*****************************************************************************
-void
-SysTickIntHandler(void)
-{
-    static uint8_t tickCount = 0;
-    const uint8_t ticksPerSlow = SYSTICK_RATE_HZ / SLOWTICK_RATE_HZ;
-    // Poll the buttons
-    updateButtons();
-
-    ADCProcessorTrigger(ADC0_BASE, 3);
-    if (++tickCount >= ticksPerSlow)
-        {                       // Signal a slow tick
-            tickCount = 0;
-            slowTick = true;
-        }
-
-
-}
-
-//*****************************************************************************
-// Initialisation functions for the clock
-// Sourced from:  P.J. Bones  UCECE
-//*****************************************************************************
-void
-initClock (void)
-{
-    // Set the clock rate to 20 MHz
-    SysCtlClockSet (SYSCTL_SYSDIV_10 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
-                   SYSCTL_XTAL_16MHZ);
-    //
-    // Set up the period for the SysTick timer.  The SysTick timer period is
-    // set as a function of the system clock.
-    SysTickPeriodSet(SysCtlClockGet() / SAMPLE_RATE_HZ);
-    //
-    // Register the interrupt handler
-    SysTickIntRegister(SysTickIntHandler);
-    //
-    // Enable interrupt and device
-    SysTickIntEnable();
-    SysTickEnable();
-}
-
-
-//*************************************************************
-// SysTick interrupt
-// Sourced from:  P.J. Bones  UCECE
-//*************************************************************
-void
-initSysTick (void)
-{
-    //
-    // Set up the period for the SysTick timer.  The SysTick
-    // timer period is set as a function of the system clock.
-    SysTickPeriodSet (SysCtlClockGet() / SYSTICK_RATE_HZ);
-    //
-    // Register the interrupt handler
-    SysTickIntRegister (SysTickIntHandler);
-    //
-    // Enable interrupt and device
-    SysTickIntEnable ();
-    SysTickEnable ();
-}
 
 
 int
@@ -119,6 +50,7 @@ main(void)
     int16_t target_height_percent;
     int16_t yaw_degree;
     int16_t target_yaw;
+    uint8_t slowTick;
 
     // As a precaution, make sure that the peripherals used are reset
     SysCtlPeripheralReset (PWM_MAIN_PERIPH_GPIO); // Used for PWM output
@@ -144,7 +76,7 @@ main(void)
     SysCtlDelay (SysCtlClockGet() / 2);
 
     landed_height = getHeight();        // Set initial helicopter resting height
-    target_height_percent = 50;         // Set initial duty cycle for main rotor
+    target_height_percent = 100;         // Set initial duty cycle for main rotor
     target_yaw = 0;                    // Set initial target yaw
 
     while (1)
@@ -193,11 +125,18 @@ main(void)
         // Update yaw control
         updateYaw(yaw_degree, target_yaw);
 
+        // Get slowTick from system module
+        slowTick = getSlowTick();
 
+        // Carry out UART transmission of helicopter data
         UARTTransData (current_height, target_height_percent, yaw_degree, target_yaw, slowTick);
 
 
     }
 }
 
-// Steps: Add serial, add yaw control, add switch control, add reset interrupt button
+// Steps: Add switch control
+// Add reset interrupt button
+// Add system
+// Remove functions from headers that don't need to be there
+// Clean #includes
