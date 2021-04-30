@@ -34,8 +34,8 @@
 */
 
 // PWM configuration
-#define PWM_DIVIDER_CODE   SYSCTL_PWMDIV_4
-#define PWM_DIVIDER        4
+#define PWM_DIVIDER_CODE   SYSCTL_PWMDIV_1
+#define PWM_DIVIDER        1
 #define PWM_MAIN_FREQ      250
 #define PWM_START_DUTY     0
 #define PWM_TAIL_FREQ      250

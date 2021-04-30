@@ -39,7 +39,7 @@ dutyResponseTail(int16_t current_yaw, int16_t target_yaw)
 {
     int16_t duty_cycle;
 
-    duty_cycle = PROPORTIONAL_GAIN_TAIL * (target_yaw - current_yaw);
+    duty_cycle = PROPORTIONAL_GAIN_TAIL * (target_yaw - current_yaw) + 20;
 
     //Limit duty cycle values
     if (duty_cycle > MAX_DUTY) {

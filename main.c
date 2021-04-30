@@ -62,12 +62,12 @@ main(void)
     initClock ();
     initButtons ();
     initAltitude ();
+    initYaw ();
     //initSysTick ();
     initDisplay ();
-    initGPIOPins ();
     initUSB_UART ();
-    initialisePWMTail ();
     initSwitches ();
+    initSoftReset ();
 
     // Enable interrupts to the processor.
     IntMasterEnable();
@@ -76,7 +76,7 @@ main(void)
 
     landed_height = getHeight();        // Set initial helicopter resting height
     target_height_percent = 50;         // Set initial duty cycle for main rotor
-    target_yaw = 0;                    // Set initial target yaw
+    target_yaw = 0;                     // Set initial target yaw
 
     while (1)
     {
@@ -141,7 +141,7 @@ main(void)
         slowTick = getSlowTick();
 
         // Carry out UART transmission of helicopter data
-        UARTTransData (current_height, target_height_percent, yaw_degree, target_yaw, duty_main, duty_tail, current_state, slowTick);
+        UARTTransData (height_percent, target_height_percent, yaw_degree, target_yaw, duty_main, duty_tail, current_state, slowTick);
 
     }
 }

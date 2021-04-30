@@ -54,6 +54,18 @@ SysTickIntHandler(void)
 }
 
 //*****************************************************************************
+// The interrupt handler for the for SysTick interrupt.
+//*****************************************************************************
+void
+SoftResetIntHandler (void)
+{
+    SysCtlReset();
+
+    // Clean up, clearing the interrupt
+    GPIOIntClear(GPIO_PORTA_BASE, GPIO_PIN_6);
+}
+
+//*****************************************************************************
 // Initialisation functions for the clock
 // Sourced from:  P.J. Bones  UCECE
 //*****************************************************************************
@@ -96,6 +108,28 @@ initSysTick (void)
     SysTickEnable ();
 }
 */
+
+//*****************************************************************************
+// Initialisation function for soft reset pin
+//*****************************************************************************
+void
+initSoftReset (void)
+{
+    // Enable port peripheral
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+
+    // Set pin 0 and 1 as input
+    GPIOPinTypeGPIOInput(GPIO_PORTA_BASE, GPIO_PIN_6);
+
+    GPIOPadConfigSet (GPIO_PORTA_BASE, GPIO_PIN_6, GPIO_STRENGTH_2MA,
+           GPIO_PIN_TYPE_STD_WPU);
+
+    // Register interrupt
+    GPIOIntRegister(GPIO_PORTA_BASE, SoftResetIntHandler);
+
+    // Enable pins
+    GPIOIntEnable(GPIO_PORTA_BASE, GPIO_PIN_6);
+}
 
 //*************************************************************
 // Pass slowTick to main for UART transmission

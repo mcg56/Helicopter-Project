@@ -21,6 +21,7 @@
 #include "yaw.h"
 #include "responseControl.h"
 #include "pwmGen.h"
+#include "driverlib/pwm.h" // For setting pwm output true
 
 //*****************************************************************************
 // Global variables
@@ -75,6 +76,19 @@ initGPIOPins (void)
     // Enable pins
     GPIOIntEnable(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1 );
 
+}
+
+//*************************************************************
+// Intialise Yaw module
+//*************************************************************
+void
+initYaw (void)
+{
+    initGPIOPins ();
+    initialisePWMTail ();
+
+    // Initialisation is complete, so turn on the output.
+    PWMOutputState(PWM_TAIL_BASE, PWM_TAIL_OUTBIT, true);
 }
 
 

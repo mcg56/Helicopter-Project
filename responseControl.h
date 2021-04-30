@@ -18,10 +18,10 @@
 //*****************************************************************************
 // Constants
 //*****************************************************************************
-#define PROPORTIONAL_GAIN_MAIN           1  // Proportional control gain for main rotor
-#define PROPORTIONAL_GAIN_TAIL      1  // Proportional control gain for main rotor
-#define MAX_DUTY                    98 // Maximum helicopter duty cycle
-#define MIN_DUTY                    2  // Minimum helicopter duty cycle
+#define PROPORTIONAL_GAIN_MAIN      1  // Proportional control gain for main rotor
+#define PROPORTIONAL_GAIN_TAIL      0.75  // Proportional control gain for tail rotor
+#define MAX_DUTY                    90 // Maximum helicopter duty cycle
+#define MIN_DUTY                    3  // Minimum helicopter duty cycle
 
 //*****************************************************************************
 // Caculate helicopter main rotor response using PI control
