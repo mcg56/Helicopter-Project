@@ -18,14 +18,21 @@
 //*****************************************************************************
 // Constants
 //*****************************************************************************
-#define PROPORTIONAL_GAIN           1 // Proportional control gain
+#define PROPORTIONAL_GAIN_MAIN           1  // Proportional control gain for main rotor
+#define PROPORTIONAL_GAIN_TAIL      1  // Proportional control gain for main rotor
 #define MAX_DUTY                    98 // Maximum helicopter duty cycle
 #define MIN_DUTY                    2  // Minimum helicopter duty cycle
 
 //*****************************************************************************
-// Caculate helicopter rotor response using PI control
+// Caculate helicopter main rotor response using PI control
 //*****************************************************************************
 int
-dutyResponse(int16_t current_height, int16_t target_height);
+dutyResponseMain(int16_t current_height, int16_t target_height);
+
+//*****************************************************************************
+// Caculate helicopter tail rotor response using PI control
+//*****************************************************************************
+int
+dutyResponseTail(int16_t current_yaw, int16_t target_yaw);
 
 #endif /* RESPONSECONTROL_H_ */

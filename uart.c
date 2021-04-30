@@ -24,22 +24,11 @@
 #include "stdlib.h"
 #include "OrbitOLED/OrbitOLEDInterface.h"
 #include "buttons4.h"
+#include "switches.h"
+#include "uart.h"
 
-//********************************************************
-// Constants
-//********************************************************
-#define SYSTICK_RATE_HZ 100
-#define SLOWTICK_RATE_HZ 4
-#define MAX_STR_LEN 16
-//---USB Serial comms: UART0, Rx:PA0 , Tx:PA1
-#define BAUD_RATE 9600
-#define UART_USB_BASE           UART0_BASE
-#define UART_USB_PERIPH_UART    SYSCTL_PERIPH_UART0
-#define UART_USB_PERIPH_GPIO    SYSCTL_PERIPH_GPIOA
-#define UART_USB_GPIO_BASE      GPIO_PORTA_BASE
-#define UART_USB_GPIO_PIN_RX    GPIO_PIN_0
-#define UART_USB_GPIO_PIN_TX    GPIO_PIN_1
-#define UART_USB_GPIO_PINS      UART_USB_GPIO_PIN_RX | UART_USB_GPIO_PIN_TX
+
+
 
 char statusStr[MAX_STR_LEN + 1];
 
@@ -82,13 +71,13 @@ UARTSend (char *pucBuffer)
 }
 
 void
-UARTTransData (int16_t current_height, int16_t target_height_percent, int16_t yaw_degree, int16_t target_yaw, uint8_t slowTick)
+UARTTransData (int16_t current_height, int16_t target_height_percent, int16_t yaw_degree, int16_t target_yaw, uint32_t duty_main, uint32_t duty_tail, flight_mode current_state, uint8_t slowTick)
 {
     if (slowTick)
     {
         slowTick = false;
         // Form and send a status message to the console
-        usprintf (statusStr, "Alt: %2d [%2d]\n Yaw: %2d [%2d]\r\n",current_height,target_height_percent, yaw_degree, target_yaw); // * usprintf
+        usprintf (statusStr, "----------------\r\nAlt: %2d [%2d]\r\nYaw: %2d [%2d]\r\nMain %2d Tail %2d\r\nMode: %d\r\n", current_height, target_height_percent, yaw_degree, target_yaw, duty_main, duty_tail, current_state); // * usprintf
         UARTSend (statusStr);
     }
 

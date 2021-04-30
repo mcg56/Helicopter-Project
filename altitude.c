@@ -151,12 +151,13 @@ getHeight(void)
 //*****************************************************************************
 // Update helicopter altitute control
 //*****************************************************************************
-void
+uint32_t
 updateAltitude(int16_t height_percent, int16_t target_height_percent)
 {
     uint32_t pwm_main_duty;
 
-    pwm_main_duty = dutyResponse(height_percent, target_height_percent);
+    pwm_main_duty = dutyResponseMain(height_percent, target_height_percent);
 
     setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
+    return pwm_main_duty;
 }

@@ -45,10 +45,10 @@ SysTickIntHandler(void)
 
     ADCProcessorTrigger(ADC0_BASE, 3);
     if (++tickCount >= ticksPerSlow)
-        {                       // Signal a slow tick
-            tickCount = 0;
-            slowTick = true;
-        }
+    {                       // Signal a slow tick
+        tickCount = 0;
+        slowTick = true;
+    }
 
 
 }
@@ -75,7 +75,7 @@ initClock (void)
     SysTickIntEnable();
     SysTickEnable();
 }
-
+/*
 //*************************************************************
 // SysTick interrupt
 // Sourced from:  P.J. Bones  UCECE
@@ -95,6 +95,7 @@ initSysTick (void)
     SysTickIntEnable ();
     SysTickEnable ();
 }
+*/
 
 //*************************************************************
 // Pass slowTick to main for UART transmission

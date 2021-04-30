@@ -20,18 +20,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-//*****************************************************************************
-// Constants
-//*****************************************************************************
-enum switchNames {ONE = 0, NUM_SWITCHES};
-enum switchStates {LOW = 0, HIGH, NO_CHANGE};
-
 // SWITCH ONE
 #define SWITCH_ONE_PERIPH  SYSCTL_PERIPH_GPIOA
 #define SWITCH_ONE_PORT_BASE  GPIO_PORTA_BASE
 #define SWITCH_ONE_PIN  GPIO_PIN_7
 #define SWITCH_ONE_NORMAL  false
 #define NUM_SWITCH_POLLS 3
+
+//*****************************************************************************
+// Definition Types
+//*****************************************************************************
+typedef enum {
+    landed,
+    take_off,
+} flight_mode;
+
+
 // Debounce algorithm: A state machine is associated with each button.
 // A state change occurs only after NUM_BUT_POLLS consecutive polls have
 // read the pin in the opposite condition, before the state changes and
@@ -58,5 +62,11 @@ updateSwitches (void);
 // enumeration butStates, excluding 'NUM_BUTS'. Safe under interrupt.
 uint8_t
 checkSwitch (uint8_t switchName);
+
+// *******************************************************
+// Return current switch state
+// *******************************************************
+flight_mode
+switchValue(void);
 
 #endif /*SWITCH_H_*/

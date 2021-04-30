@@ -56,7 +56,7 @@ getHeight(void);
 //*****************************************************************************
 // Update helicopter altitute control
 //*****************************************************************************
-void
+uint32_t
 updateAltitude(int16_t height_percent, int16_t target_height_percent);
 
 #endif /* ALTITUDE_H_ */

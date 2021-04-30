@@ -24,6 +24,11 @@
 #include "inc/tm4c123gh6pm.h"  // Board specific defines (for PF0)
 #include "switches.h"
 
+//*****************************************************************************
+// Constants
+//*****************************************************************************
+enum switchNames {ONE = 0, NUM_SWITCHES};
+enum switchStates {LOW = 0, HIGH, NO_CHANGE};
 
 // *******************************************************
 // Globals to module
@@ -32,6 +37,8 @@ static bool switch_state[NUM_SWITCHES];    // Corresponds to the electrical stat
 static uint8_t switch_count[NUM_SWITCHES];
 static bool switch_flag[NUM_SWITCHES];
 static bool switch_normal[NUM_SWITCHES];   // Corresponds to the electrical state
+static uint8_t switchState;
+static flight_mode current_state;
 
 // *******************************************************
 // initButtons: Initialise the variables associated with the set of buttons
@@ -111,3 +118,23 @@ checkSwitch (uint8_t switchName)
     return NO_CHANGE;
 }
 
+// *******************************************************
+// Return current switch state
+// *******************************************************
+flight_mode
+switchValue(void)
+{
+    updateSwitches();
+    switchState = checkSwitch (ONE);
+
+    switch (switchState)
+    {
+    case HIGH:
+        current_state = take_off;
+        break;
+    case LOW:
+        current_state = landed;
+        break;
+    }
+    return current_state;
+}

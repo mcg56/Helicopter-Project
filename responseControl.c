@@ -12,14 +12,34 @@
 
 
 //*****************************************************************************
-// Caculate helicopter rotor response using PI control
+// Caculate helicopter main rotor response using PI control
 //*****************************************************************************
 int
-dutyResponse(int16_t current_height, int16_t target_percent)
+dutyResponseMain(int16_t current_height, int16_t target_percent)
 {
     int16_t duty_cycle;
 
-    duty_cycle = PROPORTIONAL_GAIN * (target_percent - current_height);
+    duty_cycle = PROPORTIONAL_GAIN_MAIN * (target_percent - current_height);
+
+    //Limit duty cycle values
+    if (duty_cycle > MAX_DUTY) {
+        duty_cycle = MAX_DUTY;
+    } else if (duty_cycle < MIN_DUTY) {
+        duty_cycle = MIN_DUTY;
+    }
+
+    return duty_cycle;
+}
+
+//*****************************************************************************
+// Caculate helicopter tail rotor response using PI control
+//*****************************************************************************
+int
+dutyResponseTail(int16_t current_yaw, int16_t target_yaw)
+{
+    int16_t duty_cycle;
+
+    duty_cycle = PROPORTIONAL_GAIN_TAIL * (target_yaw - current_yaw);
 
     //Limit duty cycle values
     if (duty_cycle > MAX_DUTY) {

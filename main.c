@@ -30,22 +30,18 @@
 #include "pwmGen.h"
 #include "uart.h"
 #include "system.h"
+#include "switches.h"
 
-
-//*****************************************************************************
-// Definition Types
-//*****************************************************************************
-typedef enum {
-    landed,
-    take_off
-} flight_mode;
 
 
 int
 main(void)
 {
+    flight_mode current_state;
     int32_t current_height;
     int32_t landed_height;
+    uint32_t duty_main;
+    uint32_t duty_tail;
     int16_t height_percent;
     int16_t target_height_percent;
     int16_t yaw_degree;
@@ -60,15 +56,19 @@ main(void)
     SysCtlPeripheralReset (LEFT_BUT_PERIPH);
     SysCtlPeripheralReset (UP_BUT_PERIPH);
     SysCtlPeripheralReset (SYSCTL_PERIPH_GPIOB);
+    SysCtlPeripheralReset (UART_USB_PERIPH_UART);
+    SysCtlPeripheralReset (UART_USB_PERIPH_GPIO);
 
     initClock ();
     initButtons ();
     initAltitude ();
-    initSysTick ();
+    //initSysTick ();
     initDisplay ();
     initGPIOPins ();
     initUSB_UART ();
+    initialisePWMMain ();
     initialisePWMTail ();
+    initSwitches ();
 
     // Enable interrupts to the processor.
     IntMasterEnable();
@@ -76,35 +76,48 @@ main(void)
     SysCtlDelay (SysCtlClockGet() / 2);
 
     landed_height = getHeight();        // Set initial helicopter resting height
-    target_height_percent = 100;         // Set initial duty cycle for main rotor
+    target_height_percent = 50;         // Set initial duty cycle for main rotor
     target_yaw = 0;                    // Set initial target yaw
 
     while (1)
     {
         SysCtlDelay (SysCtlClockGet() / 32);  // Update display at approx 32 Hz
 
-        // Increase main rotor duty cycle if up button pressed
-        if ((checkButton (UP) == PUSHED) && (target_height_percent < 90))
-        {
-            target_height_percent += 10;
-        }
+        current_state = switchValue();
 
-        // Decrease main rotor duty cycle if down button pressed
-        if ((checkButton (DOWN) == PUSHED) && (target_height_percent > 10))
+        switch (current_state)
         {
-            target_height_percent -= 10;
-        }
+        case landed:
+            target_height_percent = 0;
+            target_yaw = 0;
+            // Motors stop when low enough
+            // Disable switch funciton until landed
+            break;
+        case take_off:
+            // Increase main rotor duty cycle if up button pressed
+            if ((checkButton (UP) == PUSHED) && (target_height_percent < 90))
+            {
+                target_height_percent += 10;
+            }
 
-        // Increase yaw if left button pushed
-        if ((checkButton (LEFT) == PUSHED))
-        {
-            target_yaw += 15;
-        }
+            // Decrease main rotor duty cycle if down button pressed
+            if ((checkButton (DOWN) == PUSHED) && (target_height_percent > 10))
+            {
+                target_height_percent -= 10;
+            }
 
-        // Decrease yaw if right button pushed
-        if ((checkButton (RIGHT) == PUSHED))
-        {
-            target_yaw -= 15;
+            // Increase yaw if left button pushed
+            if ((checkButton (LEFT) == PUSHED))
+            {
+                target_yaw += 15;
+            }
+
+            // Decrease yaw if right button pushed
+            if ((checkButton (RIGHT) == PUSHED))
+            {
+                target_yaw -= 15;
+            }
+            break;
         }
 
         // Get current helicopter height
@@ -120,17 +133,16 @@ main(void)
         displayMeanVal (height_percent, yaw_degree);
 
         // Update altitude control
-        updateAltitude(height_percent, target_height_percent);
+        duty_main = updateAltitude(height_percent, target_height_percent);
 
         // Update yaw control
-        updateYaw(yaw_degree, target_yaw);
+        duty_tail = updateYaw(yaw_degree, target_yaw);
 
         // Get slowTick from system module
         slowTick = getSlowTick();
 
         // Carry out UART transmission of helicopter data
-        UARTTransData (current_height, target_height_percent, yaw_degree, target_yaw, slowTick);
-
+        UARTTransData (current_height, target_height_percent, yaw_degree, target_yaw, duty_main, duty_tail, current_state, slowTick);
 
     }
 }
@@ -140,3 +152,6 @@ main(void)
 // Add system
 // Remove functions from headers that don't need to be there
 // Clean #includes
+// Location of flight state enum in switches?
+// Fix UART
+// Convert switches to interrupt on regular timer

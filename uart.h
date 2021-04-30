@@ -18,13 +18,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "switches.h"
 
 //********************************************************
 // Constants
 //********************************************************
 #define SYSTICK_RATE_HZ 100
-#define SLOWTICK_RATE_HZ 4
-#define MAX_STR_LEN 16
+#define SLOWTICK_RATE_HZ 80
+#define MAX_STR_LEN 80
 //---USB Serial comms: UART0, Rx:PA0 , Tx:PA1
 #define BAUD_RATE 9600
 #define UART_USB_BASE           UART0_BASE
@@ -46,7 +47,7 @@ void
 UARTSend (char *pucBuffer);
 
 void
-UARTTransData (int16_t current_height, int16_t target_height_percent, int16_t yaw_degree, int16_t target_yaw, uint8_t slowTick);
+UARTTransData (int16_t current_height, int16_t target_height_percent, int16_t yaw_degree, int16_t target_yaw, uint32_t duty_main, uint32_t duty_tail, flight_mode current_state, uint8_t slowTick);
 
 
 
