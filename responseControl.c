@@ -10,44 +10,72 @@
 #include "stdlib.h"
 #include "responseControl.h"
 
+static int16_t prev_error_main;
+static int16_t prev_error_tail;
+static float integral_main;
+static float integral_tail;
 
 //*****************************************************************************
-// Caculate helicopter main rotor response using PI control
+// Calculate helicopter main rotor response using PI control
 //*****************************************************************************
-int
+int16_t
 dutyResponseMain(int16_t current_height, int16_t target_percent)
 {
     int16_t duty_cycle;
+    float d_integral;
+    int16_t delta_t = 1;
+    int16_t error;
+    int16_t proportional;
 
-    duty_cycle = PROPORTIONAL_GAIN_MAIN * (target_percent - current_height);
+    error = target_percent - current_height;
+
+    proportional = PROPORTIONAL_GAIN_MAIN * error;
+
+    d_integral = INTEGRAL_GAIN_MAIN * (error - prev_error_main) * delta_t;
+
+    duty_cycle = proportional + (integral_main + d_integral) + OFFSET_DUTY;
 
     //Limit duty cycle values
-    if (duty_cycle > MAX_DUTY) {
-        duty_cycle = MAX_DUTY;
-    } else if (duty_cycle < MIN_DUTY) {
-        duty_cycle = MIN_DUTY;
+    if (duty_cycle > MAX_DUTY_MAIN) {
+        duty_cycle = MAX_DUTY_MAIN;
+    } else if (duty_cycle < MIN_DUTY_MAIN) {
+        duty_cycle = MIN_DUTY_MAIN;
+    } else {
+        integral_main += d_integral;
     }
 
+    prev_error_main = error;
     return duty_cycle;
 }
 
 //*****************************************************************************
 // Caculate helicopter tail rotor response using PI control
 //*****************************************************************************
-int
+int32_t
 dutyResponseTail(int16_t current_yaw, int16_t target_yaw)
 {
-    int16_t duty_cycle;
+    int32_t duty_cycle;
+    float d_integral;
+    int16_t delta_t = 1;
+    int16_t error;
+    int16_t proportional;
 
-    duty_cycle = PROPORTIONAL_GAIN_TAIL * (target_yaw - current_yaw) + 20;
+    error = target_yaw - current_yaw;
+
+    proportional = PROPORTIONAL_GAIN_TAIL * error;
+
+    d_integral = INTEGRAL_GAIN_TAIL * (error - prev_error_tail) * delta_t;
+
+    duty_cycle = proportional + (integral_tail + d_integral);
 
     //Limit duty cycle values
-    if (duty_cycle > MAX_DUTY) {
-        duty_cycle = MAX_DUTY;
-    } else if (duty_cycle < MIN_DUTY) {
-        duty_cycle = MIN_DUTY;
+    if (duty_cycle > MAX_DUTY_TAIL) {
+        duty_cycle = MAX_DUTY_TAIL;
+    } else if (duty_cycle < MIN_DUTY_TAIL) {
+        duty_cycle = MIN_DUTY_TAIL;
     }
 
+    prev_error_tail = error;
     return duty_cycle;
 }
 

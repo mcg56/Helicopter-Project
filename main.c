@@ -33,6 +33,9 @@
 #include "switches.h"
 
 
+#include "responseControl.h"
+
+
 
 int
 main(void)
@@ -78,6 +81,7 @@ main(void)
     target_height_percent = 50;         // Set initial duty cycle for main rotor
     target_yaw = 0;                     // Set initial target yaw
 
+
     while (1)
     {
         SysCtlDelay (SysCtlClockGet() / 32);  // Update display at approx 32 Hz
@@ -100,21 +104,25 @@ main(void)
             }
 
             // Decrease main rotor duty cycle if down button pressed
-            if ((checkButton (DOWN) == PUSHED) && (target_height_percent > 10))
+            if (checkButton (DOWN) == PUSHED)
             {
-                target_height_percent -= 10;
+                if (target_height_percent > 10) {
+                    target_height_percent -= 10;
+                } else {
+                    target_height_percent = 0;
+                }
             }
 
             // Increase yaw if left button pushed
             if ((checkButton (LEFT) == PUSHED))
             {
-                target_yaw += 15;
+                target_yaw -= 15;
             }
 
             // Decrease yaw if right button pushed
             if ((checkButton (RIGHT) == PUSHED))
             {
-                target_yaw -= 15;
+                target_yaw += 15;
             }
             break;
         }
