@@ -17,11 +17,6 @@
 
 void calculateYaw(bool a_next, bool b_next);
 
-//*************************************************************
-// GPIO Pin Interrupt
-//*************************************************************
-void
-GPIOPinIntHandler (void);
 
 //*************************************************************
 // Intialise GPIO Pins
@@ -52,6 +47,9 @@ updateYaw(int16_t yaw_degree, int16_t target_yaw);
 //*****************************************************************************
 int
 getYaw(void);
+
+void
+findReference(void);
 
 
 #endif /* YAW_H_ */

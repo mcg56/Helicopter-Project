@@ -28,8 +28,11 @@
 //*****************************************************************************
 static bool a_cur;                  // Current A-phase pin value
 static bool b_cur;                  // Current B-phase pin value
+static bool ref_found;              // Helicopter heading in degrees
 static int32_t yaw = 0;             // Helicopter heading from quadrature code disc
 static int32_t deg;                 // Helicopter heading in degrees
+static int32_t yaw_sweep_duty = 50;
+
 
 //*************************************************************
 // GPIO Pin Interrupt
@@ -56,6 +59,19 @@ GPIOPinIntHandler (void)
 }
 
 //*************************************************************
+// GPIO Pin Interrupt
+//*************************************************************
+void
+GPIORefPinIntHandler (void)
+{
+
+    yaw = 0;
+    ref_found = true;
+    // Clean up, clearing the interrupt
+    GPIOIntClear(GPIO_PORTC_BASE, GPIO_PIN_4);
+}
+
+//*************************************************************
 // Intialise GPIO Pins
 //*************************************************************
 void
@@ -63,18 +79,25 @@ initGPIOPins (void)
 {
     // Enable port peripheral
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
 
-    // Set pin 0 and 1 as input
+    // Set pin 0,1 and 4 as input
     GPIOPinTypeGPIOInput(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+    GPIOPinTypeGPIOInput(GPIO_PORTC_BASE, GPIO_PIN_4);
 
     // Set what pin interrupt conditions
     GPIOIntTypeSet(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1, GPIO_BOTH_EDGES);
+    GPIOIntTypeSet(GPIO_PORTC_BASE, GPIO_PIN_4, GPIO_FALLING_EDGE);
 
     // Register interrupt
     GPIOIntRegister(GPIO_PORTB_BASE, GPIOPinIntHandler);
+    GPIOIntRegister(GPIO_PORTC_BASE, GPIORefPinIntHandler);
 
     // Enable pins
     GPIOIntEnable(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1 );
+    GPIOIntEnable(GPIO_PORTC_BASE, GPIO_PIN_4 );
+
+
 
 }
 
@@ -131,6 +154,19 @@ updateYaw(int16_t yaw_degree, int16_t target_yaw)
 
     setPWMTail (PWM_MAIN_FREQ, pwm_tail_duty);
     return pwm_tail_duty;
+}
+
+void
+findReference(void)
+{
+
+    // Do a sweep
+    // If pin someting high set yaw = 0
+    while (ref_found == false) {
+        setPWMTail (PWM_MAIN_FREQ, yaw_sweep_duty);
+    }
+
+
 }
 
 //*****************************************************************************

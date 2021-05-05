@@ -50,6 +50,7 @@ main(void)
     int16_t yaw_degree;
     int16_t target_yaw;
     uint8_t slowTick;
+    bool reference_found = false;
 
     // As a precaution, make sure that the peripherals used are reset
     SysCtlPeripheralReset (PWM_MAIN_PERIPH_GPIO); // Used for PWM output
@@ -59,6 +60,7 @@ main(void)
     SysCtlPeripheralReset (LEFT_BUT_PERIPH);
     SysCtlPeripheralReset (UP_BUT_PERIPH);
     SysCtlPeripheralReset (SYSCTL_PERIPH_GPIOB);
+    SysCtlPeripheralReset (SYSCTL_PERIPH_GPIOC);
     SysCtlPeripheralReset (UART_USB_PERIPH_UART);
     SysCtlPeripheralReset (UART_USB_PERIPH_GPIO);
 
@@ -97,7 +99,15 @@ main(void)
             // Disable switch funciton until landed
             break;
         case take_off:
+            // Find reference yaw on first take off
+            if (reference_found == false)
+            {
+                findReference();
+                reference_found = true;
 
+                // Get yaw from yaw module
+                yaw_degree = getYaw();
+            }
             // Increase main rotor duty cycle if up button pressed
             if ((checkButton (UP) == PUSHED) && (target_height_percent < 90))
             {
