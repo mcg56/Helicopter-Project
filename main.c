@@ -97,6 +97,7 @@ main(void)
             // Disable switch funciton until landed
             break;
         case take_off:
+
             // Increase main rotor duty cycle if up button pressed
             if ((checkButton (UP) == PUSHED) && (target_height_percent < 90))
             {
@@ -160,6 +161,8 @@ main(void)
 // Clean #includes
 // Convert switches to interrupt on regular timer
 // Reference yaw
+// Add pi as interrupt off timer
+// change to +180 to -180
 
 // Questions?
 // Location of flight state enum in switches?
