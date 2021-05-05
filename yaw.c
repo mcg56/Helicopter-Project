@@ -29,7 +29,8 @@
 static bool a_cur;                  // Current A-phase pin value
 static bool b_cur;                  // Current B-phase pin value
 static bool ref_found;              // Helicopter heading in degrees
-static int32_t yaw = 0;             // Helicopter heading from quadrature code disc
+static bool ref_enabled = false;
+static int32_t yaw;             // Helicopter heading from quadrature code disc
 static int32_t deg;                 // Helicopter heading in degrees
 static int32_t yaw_sweep_duty = 50;
 
@@ -64,9 +65,11 @@ GPIOPinIntHandler (void)
 void
 GPIORefPinIntHandler (void)
 {
-
-    yaw = 0;
-    ref_found = true;
+    if (ref_enabled) {
+        yaw = 0;
+        deg = 0;
+        ref_found = true;
+    }
     // Clean up, clearing the interrupt
     GPIOIntClear(GPIO_PORTC_BASE, GPIO_PIN_4);
 }
@@ -87,7 +90,7 @@ initGPIOPins (void)
 
     // Set what pin interrupt conditions
     GPIOIntTypeSet(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1, GPIO_BOTH_EDGES);
-    GPIOIntTypeSet(GPIO_PORTC_BASE, GPIO_PIN_4, GPIO_FALLING_EDGE);
+    GPIOIntTypeSet(GPIO_PORTC_BASE, GPIO_PIN_4, GPIO_RISING_EDGE);
 
     // Register interrupt
     GPIOIntRegister(GPIO_PORTB_BASE, GPIOPinIntHandler);
@@ -137,9 +140,16 @@ calculateYaw(bool a_next, bool b_next)
         yaw--;
     }
 
+    /*
+    // Limit yaw values
+    if (yaw == tooth_count) {
+        yaw = 0;
+    } else if (yaw == -1) {
+        yaw = tooth_count - 1;
+    }*/
 
-    // Convert yaw value to degrees
-    deg = yaw * full_rot/tooth_count;
+    // Convert yaw value to degrees with rounded value
+    deg = (2 * yaw * full_rot + 1)/(2 * tooth_count);
 }
 
 //*****************************************************************************
@@ -159,14 +169,14 @@ updateYaw(int16_t yaw_degree, int16_t target_yaw)
 void
 findReference(void)
 {
-
+    ref_enabled = true;
     // Do a sweep
     // If pin someting high set yaw = 0
     while (ref_found == false) {
         setPWMTail (PWM_MAIN_FREQ, yaw_sweep_duty);
     }
 
-
+    ref_enabled = false;
 }
 
 //*****************************************************************************

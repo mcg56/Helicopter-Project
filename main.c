@@ -80,8 +80,6 @@ main(void)
     SysCtlDelay (SysCtlClockGet() / 2);
 
     landed_height = getHeight();        // Set initial helicopter resting height
-    target_height_percent = 50;         // Set initial duty cycle for main rotor
-    target_yaw = 0;                     // Set initial target yaw
 
 
     while (1)
@@ -105,8 +103,8 @@ main(void)
                 findReference();
                 reference_found = true;
 
-                // Get yaw from yaw module
-                yaw_degree = getYaw();
+                yaw_degree = 0;
+                target_yaw = 0;
             }
             // Increase main rotor duty cycle if up button pressed
             if ((checkButton (UP) == PUSHED) && (target_height_percent < 90))
@@ -170,7 +168,6 @@ main(void)
 // Remove functions from headers that don't need to be there
 // Clean #includes
 // Convert switches to interrupt on regular timer
-// Reference yaw
 // Add pi as interrupt off timer
 // change to +180 to -180
 

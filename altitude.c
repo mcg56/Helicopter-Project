@@ -27,11 +27,58 @@
 #include "circBufT.h"
 #include "pwmGen.h"
 #include "responseControl.h"
+#include "driverlib/timer.h"
 
 //*****************************************************************************
 // Global Variables
 //*****************************************************************************
 static circBuf_t g_inBuffer;
+static int16_t height_percent;
+static int16_t target_height_percent;
+static volatile int16_t pwm_main_duty;
+
+//*****************************************************************************
+// The interrupt handler for the for Timer interrupt.
+//*****************************************************************************
+void
+HeightControlIntHandler (void)
+{
+    // Clear the timer interrupt flag
+    TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+
+    pwm_main_duty = dutyResponseMain(height_percent, target_height_percent);
+
+    setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
+
+}
+
+//*****************************************************************************
+// Intialise timer for PI control update
+//*****************************************************************************
+void
+initTimer (void)
+{
+    //
+    // The Timer0 peripheral must be enabled for use.
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
+
+    //
+    // Configure Timer0B as a 16-bit periodic timer.
+    //
+    TimerConfigure(TIMER0_BASE, TIMER_CFG_SPLIT_PAIR | TIMER_CFG_A_PERIODIC);
+
+    TimerLoadSet(TIMER0_BASE, TIMER_A, SysCtlClockGet() / 1000);
+
+    TimerIntRegister(TIMER0_BASE, TIMER_A, HeightControlIntHandler);
+
+    //
+    // Configure the Timer0B interrupt for timer timeout.
+    //
+    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+
+    TimerEnable(TIMER0_BASE, TIMER_A);
+}
 
 //*****************************************************************************
 // Initialise altitude module
@@ -39,9 +86,12 @@ static circBuf_t g_inBuffer;
 void
 initAltitude(void)
 {
+    SysCtlPeripheralReset(SYSCTL_PERIPH_TIMER0); // REMOVE
+
     initCircBuf (&g_inBuffer, BUF_SIZE);
     initADC ();
     initialisePWMMain ();
+    initTimer ();
 
     // Initialisation is complete, so turn on the output.
     PWMOutputState(PWM_MAIN_BASE, PWM_MAIN_OUTBIT, true);
@@ -152,13 +202,10 @@ getHeight(void)
 // Update helicopter altitute control
 //*****************************************************************************
 int16_t
-updateAltitude(int16_t height_percent, int16_t target_height_percent)
+updateAltitude(int16_t height_percent_in, int16_t target_height_percent_in)
 {
-    int16_t pwm_main_duty;
-
-    pwm_main_duty = dutyResponseMain(height_percent, target_height_percent);
-
-    setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
+    height_percent = height_percent_in;
+    target_height_percent = target_height_percent_in;
 
     return pwm_main_duty;
 }
