@@ -155,7 +155,6 @@ main(void)
 }
 
 // To do:
-// Add integral
 // Add flight mode land functionality
 // Remove functions from headers that don't need to be there
 // Clean #includes
