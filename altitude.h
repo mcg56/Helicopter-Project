@@ -20,6 +20,7 @@
 #define BUF_SIZE            10   // Buffer size for sample averaging
 #define ADC_BITS            4095 // 12 bit ADC
 
+int16_t Acount;
 //*****************************************************************************
 // Initialise altitude module
 //*****************************************************************************
@@ -45,7 +46,7 @@ initADC (void);
 // Function to convert helicopter height to percentage
 //*****************************************************************************
 int
-calculate_percent_height(uint16_t current_height, uint16_t landed_height);
+calculate_percent_height(uint16_t current_height_in, uint16_t landed_height_in);
 
 //*****************************************************************************
 // Find and return current helicopter landed height.

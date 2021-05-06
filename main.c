@@ -66,8 +66,8 @@ main(void)
 
     initClock ();
     initButtons ();
-    initAltitude ();
     initYaw ();
+    initAltitude ();
     //initSysTick ();
     initDisplay ();
     initUSB_UART ();
@@ -146,7 +146,7 @@ main(void)
         yaw_degree = getYaw();
 
         // Display helicopter details
-        displayMeanVal (height_percent, yaw_degree);
+        displayMeanVal (height_percent, yaw_degree, count, Acount);
 
         // Update altitude control
         duty_main = updateAltitude(height_percent, target_height_percent);

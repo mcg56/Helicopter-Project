@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+int16_t count;
 
 void calculateYaw(bool a_next, bool b_next);
 
@@ -40,7 +41,7 @@ calculateYaw(bool a_next, bool b_next);
 // Update yaw helicopter control
 //*****************************************************************************
 uint32_t
-updateYaw(int16_t yaw_degree, int16_t target_yaw);
+updateYaw(int16_t yaw_degree_in, int16_t target_yaw_in);
 
 //*****************************************************************************
 // Pass deg to main function

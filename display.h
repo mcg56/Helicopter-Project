@@ -33,6 +33,6 @@ initDisplay (void);
 // Function to control display
 //*****************************************************************************
 void
-displayMeanVal(int16_t height_percent, int32_t display_deg);
+displayMeanVal(int16_t height_percent, int32_t display_deg, int16_t count, int16_t Acount);
 
 #endif /* DISPLAY_H_ */

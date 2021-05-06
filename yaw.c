@@ -22,6 +22,21 @@
 #include "responseControl.h"
 #include "pwmGen.h"
 #include "driverlib/pwm.h" // For setting pwm output true
+#include "driverlib/timer.h"
+
+
+#include <stdbool.h>
+#include <stdint.h>
+#include "inc/hw_ints.h"
+#include "inc/hw_memmap.h"
+#include "driverlib/gpio.h"
+#include "driverlib/interrupt.h"
+#include "driverlib/pin_map.h"
+#include "driverlib/sysctl.h"
+#include "driverlib/timer.h"
+#include "driverlib/uart.h"
+#include "utils/uartstdio.h"
+
 
 //*****************************************************************************
 // Global variables
@@ -33,6 +48,53 @@ static bool ref_enabled = false;
 static int32_t yaw;             // Helicopter heading from quadrature code disc
 static int32_t deg;                 // Helicopter heading in degrees
 static int32_t yaw_sweep_duty = 50;
+static int16_t yaw_degree;
+static int16_t target_yaw;
+static volatile uint32_t pwm_tail_duty;
+
+//*****************************************************************************
+// The interrupt handler for the for Timer interrupt.
+//*****************************************************************************
+void
+YawControlIntHandler (void)
+{
+    // Clear the timer interrupt flag
+    TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+
+    pwm_tail_duty = dutyResponseTail(yaw_degree, target_yaw);
+    count++;
+    setPWMTail (PWM_TAIL_FREQ, pwm_tail_duty);
+
+}
+
+//*****************************************************************************
+// Intialise timer for PI control update
+//*****************************************************************************
+void
+initYawTimer (void)
+{
+    //
+    // The Timer0 peripheral must be enabled for use.
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
+
+    //
+    // Configure Timer0B as a 16-bit periodic timer.
+    //
+    TimerConfigure(TIMER0_BASE, TIMER_CFG_SPLIT_PAIR);
+
+    TimerLoadSet(TIMER0_BASE, TIMER_A, SysCtlClockGet() / 500);
+
+    TimerIntRegister(TIMER0_BASE, TIMER_A, YawControlIntHandler);
+
+    //
+    // Configure the Timer0B interrupt for timer timeout.
+    //
+    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+
+
+    TimerEnable(TIMER0_BASE, TIMER_A);
+}
 
 
 //*************************************************************
@@ -110,8 +172,11 @@ initGPIOPins (void)
 void
 initYaw (void)
 {
+    SysCtlPeripheralReset(SYSCTL_PERIPH_TIMER1); // REMOVE
+
     initGPIOPins ();
     initialisePWMTail ();
+    initYawTimer ();
 
     // Initialisation is complete, so turn on the output.
     PWMOutputState(PWM_TAIL_BASE, PWM_TAIL_OUTBIT, true);
@@ -156,13 +221,11 @@ calculateYaw(bool a_next, bool b_next)
 // Update yaw helicopter control
 //*****************************************************************************
 uint32_t
-updateYaw(int16_t yaw_degree, int16_t target_yaw)
+updateYaw(int16_t yaw_degree_in, int16_t target_yaw_in)
 {
-    uint32_t pwm_tail_duty;
+    yaw_degree = yaw_degree_in;
+    target_yaw = target_yaw_in;
 
-    pwm_tail_duty = dutyResponseTail(yaw_degree, target_yaw);
-
-    setPWMTail (PWM_MAIN_FREQ, pwm_tail_duty);
     return pwm_tail_duty;
 }
 
@@ -172,10 +235,11 @@ findReference(void)
     ref_enabled = true;
     // Do a sweep
     // If pin someting high set yaw = 0
+    IntMasterDisable();
     while (ref_found == false) {
         setPWMTail (PWM_MAIN_FREQ, yaw_sweep_duty);
     }
-
+    IntMasterEnable();
     ref_enabled = false;
 }
 
