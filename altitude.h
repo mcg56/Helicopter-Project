@@ -27,21 +27,6 @@ void
 initAltitude(void);
 
 //*****************************************************************************
-// The handler for the ADC conversion complete interrupt.
-// Writes to the circular buffer.
-// Sourced from:  P.J. Bones  UCECE
-//*****************************************************************************
-void
-ADCIntHandler(void);
-
-//*****************************************************************************
-// Initialise ADC functions
-// Sourced from:  P.J. Bones  UCECE
-//*****************************************************************************
-void
-initADC (void);
-
-//*****************************************************************************
 // Function to convert helicopter height to percentage
 //*****************************************************************************
 int
@@ -56,7 +41,7 @@ getHeight(void);
 //*****************************************************************************
 // Update helicopter altitute control
 //*****************************************************************************
-int16_t
+uint32_t
 updateAltitude(int16_t height_percent, int16_t target_height_percent);
 
 //*****************************************************************************

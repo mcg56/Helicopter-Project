@@ -40,7 +40,7 @@ initDisplay (void)
 // Function to control display
 //*****************************************************************************
 void
-displayMeanVal(int16_t height_percent, int32_t display_deg)
+displayMeanVal(int16_t height_percent, int32_t display_deg, int16_t countbla)
 {
     char string[17];  // 16 characters across the display
 
@@ -48,5 +48,7 @@ displayMeanVal(int16_t height_percent, int32_t display_deg)
     OLEDStringDraw (string, 0, 0);
     usnprintf (string, sizeof(string), "Yaw (deg) %5d", display_deg);
     OLEDStringDraw (string, 0, 1);
+    usnprintf (string, sizeof(string), "Test %5d", countbla);
+    OLEDStringDraw (string, 0, 2);
 }
 

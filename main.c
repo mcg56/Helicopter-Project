@@ -32,10 +32,7 @@
 #include "system.h"
 #include "switches.h"
 
-
 #include "responseControl.h"
-
-
 
 int
 main(void)
@@ -52,6 +49,7 @@ main(void)
     uint8_t slowTick;
     bool reference_found = false;
 
+    //IntMasterDisable();
     // As a precaution, make sure that the peripherals used are reset
     SysCtlPeripheralReset (PWM_MAIN_PERIPH_GPIO); // Used for PWM output
     SysCtlPeripheralReset (PWM_MAIN_PERIPH_PWM);  // Main Rotor PWM
@@ -67,13 +65,13 @@ main(void)
 
     initClock ();
     initButtons ();
-    initAltitude ();
     initYaw ();
-
+    initAltitude ();
     initDisplay ();
     initUSB_UART ();
     initSwitches ();
     initSoftReset ();
+    initResponseTimer ();
 
     // Enable interrupts to the processor.
     IntMasterEnable();
@@ -101,7 +99,6 @@ main(void)
             // Find reference yaw on first take off
             if (reference_found == false)
             {
-                target_height_percent = 10;
                 findReference();
                 reference_found = true;
 
@@ -148,7 +145,7 @@ main(void)
         yaw_degree = getYaw();
 
         // Display helicopter details
-        displayMeanVal (height_percent, yaw_degree);
+        displayMeanVal (height_percent, yaw_degree, countbla);
 
         // Update altitude control
         duty_main = updateAltitude(height_percent, target_height_percent);

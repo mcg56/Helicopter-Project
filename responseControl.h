@@ -19,7 +19,7 @@
 // Constants
 //*****************************************************************************
 #define PROPORTIONAL_GAIN_MAIN      4 // Proportional control gain for main rotor
-#define PROPORTIONAL_GAIN_TAIL      5  // Proportional control gain for tail rotor
+#define PROPORTIONAL_GAIN_TAIL      1  // Proportional control gain for tail rotor
 #define INTEGRAL_GAIN_MAIN          0  // Integral control gain for main rotor
 #define INTEGRAL_GAIN_TAIL          0  // Integral control gain for tail rotor
 #define MAX_DUTY_MAIN                    97 // Maximum helicopter duty cycle
@@ -28,12 +28,12 @@
 #define MAX_DUTY_TAIL                    98  // Minimum helicopter duty cycle
 #define MIN_DUTY_TAIL                    2  // Minimum helicopter duty cycle
 
-
+int16_t countbla;
 
 //*****************************************************************************
 // Caculate helicopter main rotor response using PI control
 //*****************************************************************************
-int16_t
+int32_t
 dutyResponseMain(int16_t current_height, int16_t target_height);
 
 //*****************************************************************************
@@ -48,10 +48,10 @@ dutyResponseTail(int16_t current_yaw, int16_t target_yaw);
 void
 initResponseTimer (void);
 
-int32_t
+uint32_t
 getTailDuty(void);
 
-int32_t
+uint32_t
 getMainDuty(void);
 
 #endif /* RESPONSECONTROL_H_ */

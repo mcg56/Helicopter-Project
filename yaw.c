@@ -31,12 +31,12 @@ static bool a_cur;                  // Current A-phase pin value
 static bool b_cur;                  // Current B-phase pin value
 static bool ref_found;              // Helicopter heading in degrees
 static bool ref_enabled = false;
-static int32_t yaw;             // Helicopter heading from quadrature code disc
-static int32_t deg;                 // Helicopter heading in degrees
-static int32_t yaw_sweep_duty = 60;
+static int16_t yaw;             // Helicopter heading from quadrature code disc
+static int16_t deg;                 // Helicopter heading in degrees
+static uint32_t yaw_sweep_duty = 60;
 static int16_t yaw_degree;
 static int16_t target_yaw;
-static volatile uint32_t pwm_tail_duty;
+static uint32_t pwm_tail_duty;
 
 
 
@@ -117,7 +117,7 @@ initYaw (void)
 {
     initGPIOPins ();
     initialisePWMTail ();
-    initResponseTimer ();
+
 
     // Initialisation is complete, so turn on the output.
     PWMOutputState(PWM_TAIL_BASE, PWM_TAIL_OUTBIT, true);
@@ -145,13 +145,15 @@ calculateYaw(bool a_next, bool b_next)
     } else {
         yaw--;
     }
-    /*
-    // Limit yaw values
-    if (yaw == tooth_count) {
-        yaw = 0;
-    } else if (yaw == -1) {
-        yaw = tooth_count - 1;
-    }*/
+
+
+//    // Limit yaw values
+//    if (yaw == tooth_count) {
+//        yaw = 0;
+//    } else if (yaw == -1) {
+//        yaw = tooth_count - 1;
+//    }
+
 
     /*
     // Limit yaw values

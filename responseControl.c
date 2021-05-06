@@ -23,12 +23,12 @@ static float integral_tail;
 
 static int16_t height_percent;
 static int16_t target_height_percent;
-static volatile uint32_t pwm_main_duty;
+static uint32_t pwm_main_duty;
 
 
 static int16_t yaw_degree;
 static int16_t target_yaw;
-static volatile uint32_t pwm_tail_duty;
+static uint32_t pwm_tail_duty;
 
 
 //*****************************************************************************
@@ -51,8 +51,9 @@ responseControlIntHandler (void)
     target_yaw = getYawDataTarget();
 
     pwm_tail_duty = dutyResponseTail(yaw_degree, target_yaw);
-    setPWMTail (PWM_MAIN_FREQ, pwm_tail_duty);
+    setPWMTail (PWM_TAIL_FREQ, pwm_tail_duty);
 
+    countbla = target_yaw; //Test point
 }
 
 //*****************************************************************************
@@ -86,10 +87,10 @@ initResponseTimer (void)
 //*****************************************************************************
 // Calculate helicopter main rotor response using PI control
 //*****************************************************************************
-int16_t
+int32_t
 dutyResponseMain(int16_t current_height, int16_t target_percent)
 {
-    int16_t duty_cycle;
+    int32_t duty_cycle;
     float d_integral;
     int16_t delta_t = 1;
     int16_t error;
@@ -146,13 +147,13 @@ dutyResponseTail(int16_t current_yaw, int16_t target_yaw)
     return duty_cycle;
 }
 
-int32_t
+uint32_t
 getTailDuty(void)
 {
     return pwm_tail_duty;
 }
 
-int32_t
+uint32_t
 getMainDuty(void)
 {
     return pwm_main_duty;

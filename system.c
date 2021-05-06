@@ -44,6 +44,7 @@ SysTickIntHandler(void)
     updateButtons();
 
     ADCProcessorTrigger(ADC0_BASE, 3);
+
     if (++tickCount >= ticksPerSlow)
     {                       // Signal a slow tick
         tickCount = 0;

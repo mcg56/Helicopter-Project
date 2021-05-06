@@ -35,23 +35,8 @@
 static circBuf_t g_inBuffer;
 static int16_t height_percent;
 static int16_t target_height_percent;
-static volatile int16_t pwm_main_duty;
+static uint32_t pwm_main_duty;
 
-
-//*****************************************************************************
-// Initialise altitude module
-//*****************************************************************************
-void
-initAltitude(void)
-{
-    initCircBuf (&g_inBuffer, BUF_SIZE);
-    initADC ();
-    initialisePWMMain ();
-    //initResponseTimer ();
-
-    // Initialisation is complete, so turn on the output.
-    PWMOutputState(PWM_MAIN_BASE, PWM_MAIN_OUTBIT, true);
-}
 
 //*****************************************************************************
 // The handler for the ADC conversion complete interrupt.
@@ -117,6 +102,20 @@ initADC (void)
 }
 
 //*****************************************************************************
+// Initialise altitude module
+//*****************************************************************************
+void
+initAltitude(void)
+{
+    initCircBuf (&g_inBuffer, BUF_SIZE);
+    initADC ();
+    initialisePWMMain ();
+
+    // Initialisation is complete, so turn on the output.
+    PWMOutputState(PWM_MAIN_BASE, PWM_MAIN_OUTBIT, true);
+}
+
+//*****************************************************************************
 // Function to convert helicopter height to percentage
 //*****************************************************************************
 int
@@ -157,7 +156,7 @@ getHeight(void)
 //*****************************************************************************
 // Update helicopter altitute control
 //*****************************************************************************
-int16_t
+uint32_t
 updateAltitude(int16_t height_percent_in, int16_t target_height_percent_in)
 {
     height_percent = height_percent_in;
