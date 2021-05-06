@@ -20,7 +20,6 @@
 #define BUF_SIZE            10   // Buffer size for sample averaging
 #define ADC_BITS            4095 // 12 bit ADC
 
-int16_t Acount;
 //*****************************************************************************
 // Initialise altitude module
 //*****************************************************************************
@@ -59,5 +58,18 @@ getHeight(void);
 //*****************************************************************************
 int16_t
 updateAltitude(int16_t height_percent, int16_t target_height_percent);
+
+//*****************************************************************************
+// Passes current height and target height to reponse module
+//*****************************************************************************
+int16_t
+getAltitudeData(void);
+
+//*****************************************************************************
+// Passes current height and target height to reponse module
+// TO BE REMOVED
+//*****************************************************************************
+int16_t
+getAltitudeDataTarget(void);
 
 #endif /* ALTITUDE_H_ */

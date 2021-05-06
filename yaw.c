@@ -22,20 +22,6 @@
 #include "responseControl.h"
 #include "pwmGen.h"
 #include "driverlib/pwm.h" // For setting pwm output true
-#include "driverlib/timer.h"
-
-
-#include <stdbool.h>
-#include <stdint.h>
-#include "inc/hw_ints.h"
-#include "inc/hw_memmap.h"
-#include "driverlib/gpio.h"
-#include "driverlib/interrupt.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/timer.h"
-#include "driverlib/uart.h"
-#include "utils/uartstdio.h"
 
 
 //*****************************************************************************
@@ -47,57 +33,11 @@ static bool ref_found;              // Helicopter heading in degrees
 static bool ref_enabled = false;
 static int32_t yaw;             // Helicopter heading from quadrature code disc
 static int32_t deg;                 // Helicopter heading in degrees
-static int32_t yaw_sweep_duty = 50;
+static int32_t yaw_sweep_duty = 60;
 static int16_t yaw_degree;
 static int16_t target_yaw;
 static volatile uint32_t pwm_tail_duty;
 
-//*****************************************************************************
-// The interrupt handler for the for Timer interrupt.
-//*****************************************************************************
-void
-YawControlIntHandler (void)
-{
-    // Clear the timer interrupt flag
-    TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
-
-    pwm_tail_duty = dutyResponseTail(yaw_degree, target_yaw);
-    count++;
-    setPWMTail (PWM_TAIL_FREQ, pwm_tail_duty);
-
-}
-
-//*****************************************************************************
-// Intialise timer for PI control update
-//*****************************************************************************
-void
-initYawTimer (void)
-{
-    /*
-    //
-    // The Timer0 peripheral must be enabled for use.
-    //
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
-
-    //
-    // Configure Timer0B as a 16-bit periodic timer.
-    //
-    TimerConfigure(TIMER0_BASE, TIMER_CFG_SPLIT_PAIR);
-
-    TimerLoadSet(TIMER0_BASE, TIMER_A, SysCtlClockGet() / 500);
-
-    TimerIntRegister(TIMER0_BASE, TIMER_A, YawControlIntHandler);
-
-    //
-    // Configure the Timer0B interrupt for timer timeout.
-    //
-    //TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
-
-
-    //TimerEnable(TIMER0_BASE, TIMER_A);
-     *
-     */
-}
 
 
 //*************************************************************
@@ -175,11 +115,9 @@ initGPIOPins (void)
 void
 initYaw (void)
 {
-    SysCtlPeripheralReset(SYSCTL_PERIPH_TIMER1); // REMOVE
-
     initGPIOPins ();
     initialisePWMTail ();
-    initYawTimer ();
+    initResponseTimer ();
 
     // Initialisation is complete, so turn on the output.
     PWMOutputState(PWM_TAIL_BASE, PWM_TAIL_OUTBIT, true);
@@ -193,8 +131,8 @@ void
 calculateYaw(bool a_next, bool b_next)
 {
     bool cw;
-    uint16_t full_rot = 360;
-    uint16_t tooth_count = 448; // Total teeth in quadrature code disc
+    int16_t full_rot = 360;
+    int16_t tooth_count = 448; // Total teeth in quadrature code disc
 
 
     // Find rotation direction using current and next phase values
@@ -207,7 +145,6 @@ calculateYaw(bool a_next, bool b_next)
     } else {
         yaw--;
     }
-
     /*
     // Limit yaw values
     if (yaw == tooth_count) {
@@ -215,6 +152,15 @@ calculateYaw(bool a_next, bool b_next)
     } else if (yaw == -1) {
         yaw = tooth_count - 1;
     }*/
+
+    /*
+    // Limit yaw values
+    if ((yaw == (tooth_count/2 + 1))) {
+        yaw = -1 * tooth_count/2 - 1;
+    } else if ((yaw == -1 * tooth_count/2)) {
+        yaw = tooth_count/2;
+    }*/
+
 
     // Convert yaw value to degrees with rounded value
     deg = (2 * yaw * full_rot + 1)/(2 * tooth_count);
@@ -228,6 +174,7 @@ updateYaw(int16_t yaw_degree_in, int16_t target_yaw_in)
 {
     yaw_degree = yaw_degree_in;
     target_yaw = target_yaw_in;
+    pwm_tail_duty = getTailDuty();
 
     return pwm_tail_duty;
 }
@@ -238,7 +185,6 @@ findReference(void)
     ref_enabled = true;
     // Do a sweep
     // If pin someting high set yaw = 0
-
     while (ref_found == false) {
         setPWMTail (PWM_MAIN_FREQ, yaw_sweep_duty);
     }
@@ -255,3 +201,21 @@ getYaw(void)
     return deg;
 }
 
+//*****************************************************************************
+// Pass yaw data to response control module
+//*****************************************************************************
+int16_t
+getYawData(void)
+{
+    return yaw_degree;
+}
+
+//*****************************************************************************
+// Pass yaw data to response control module
+// TO BE REMOVED
+//*****************************************************************************
+int16_t
+getYawDataTarget(void)
+{
+    return target_yaw;
+}

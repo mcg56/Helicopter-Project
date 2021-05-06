@@ -37,48 +37,6 @@ static int16_t height_percent;
 static int16_t target_height_percent;
 static volatile int16_t pwm_main_duty;
 
-//*****************************************************************************
-// The interrupt handler for the for Timer interrupt.
-//*****************************************************************************
-void
-AltitudeControlIntHandler (void)
-{
-    // Clear the timer interrupt flag
-    TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
-
-    pwm_main_duty = dutyResponseMain(height_percent, target_height_percent);
-    Acount++;
-    setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
-
-}
-
-//*****************************************************************************
-// Intialise timer for PI control update
-//*****************************************************************************
-void
-initAltTimer (void)
-{
-    //
-    // The Timer0 peripheral must be enabled for use.
-    //
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
-
-    //
-    // Configure Timer0B as a 16-bit periodic timer.
-    //
-    TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);
-
-    TimerLoadSet(TIMER0_BASE, TIMER_A, SysCtlClockGet() / 1000);
-
-    TimerIntRegister(TIMER0_BASE, TIMER_A, AltitudeControlIntHandler);
-
-    //
-    // Configure the Timer0B interrupt for timer timeout.
-    //
-    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
-
-    TimerEnable(TIMER0_BASE, TIMER_A);
-}
 
 //*****************************************************************************
 // Initialise altitude module
@@ -86,12 +44,10 @@ initAltTimer (void)
 void
 initAltitude(void)
 {
-    SysCtlPeripheralReset(SYSCTL_PERIPH_TIMER0); // REMOVE
-
     initCircBuf (&g_inBuffer, BUF_SIZE);
     initADC ();
     initialisePWMMain ();
-    initAltTimer ();
+    //initResponseTimer ();
 
     // Initialisation is complete, so turn on the output.
     PWMOutputState(PWM_MAIN_BASE, PWM_MAIN_OUTBIT, true);
@@ -206,6 +162,28 @@ updateAltitude(int16_t height_percent_in, int16_t target_height_percent_in)
 {
     height_percent = height_percent_in;
     target_height_percent = target_height_percent_in;
+    pwm_main_duty = getMainDuty();
 
     return pwm_main_duty;
 }
+
+//*****************************************************************************
+// Passes current height and target height to reponse module
+//*****************************************************************************
+int16_t
+getAltitudeData(void)
+{
+    return height_percent;
+}
+
+//*****************************************************************************
+// Passes current height and target height to reponse module
+// TO BE REMOVED
+//*****************************************************************************
+int16_t
+getAltitudeDataTarget(void)
+{
+    return target_height_percent;
+}
+
+

@@ -63,12 +63,13 @@ main(void)
     SysCtlPeripheralReset (SYSCTL_PERIPH_GPIOC);
     SysCtlPeripheralReset (UART_USB_PERIPH_UART);
     SysCtlPeripheralReset (UART_USB_PERIPH_GPIO);
+    //SysCtlPeripheralReset(SYSCTL_PERIPH_TIMER0);
 
     initClock ();
     initButtons ();
-    initYaw ();
     initAltitude ();
-    //initSysTick ();
+    initYaw ();
+
     initDisplay ();
     initUSB_UART ();
     initSwitches ();
@@ -100,6 +101,7 @@ main(void)
             // Find reference yaw on first take off
             if (reference_found == false)
             {
+                target_height_percent = 10;
                 findReference();
                 reference_found = true;
 
@@ -146,7 +148,7 @@ main(void)
         yaw_degree = getYaw();
 
         // Display helicopter details
-        displayMeanVal (height_percent, yaw_degree, count, Acount);
+        displayMeanVal (height_percent, yaw_degree);
 
         // Update altitude control
         duty_main = updateAltitude(height_percent, target_height_percent);

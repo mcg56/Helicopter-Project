@@ -87,27 +87,6 @@ initClock (void)
     SysTickIntEnable();
     SysTickEnable();
 }
-/*
-//*************************************************************
-// SysTick interrupt
-// Sourced from:  P.J. Bones  UCECE
-//*************************************************************
-void
-initSysTick (void)
-{
-    //
-    // Set up the period for the SysTick timer.  The SysTick
-    // timer period is set as a function of the system clock.
-    SysTickPeriodSet (SysCtlClockGet() / SYSTICK_RATE_HZ);
-    //
-    // Register the interrupt handler
-    SysTickIntRegister (SysTickIntHandler);
-    //
-    // Enable interrupt and device
-    SysTickIntEnable ();
-    SysTickEnable ();
-}
-*/
 
 //*****************************************************************************
 // Initialisation function for soft reset pin
