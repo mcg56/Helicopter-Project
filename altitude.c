@@ -44,7 +44,7 @@ void
 AltitudeControlIntHandler (void)
 {
     // Clear the timer interrupt flag
-    TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
+    TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
     pwm_main_duty = dutyResponseMain(height_percent, target_height_percent);
     Acount++;
@@ -61,23 +61,23 @@ initAltTimer (void)
     //
     // The Timer0 peripheral must be enabled for use.
     //
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER1);
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
 
     //
     // Configure Timer0B as a 16-bit periodic timer.
     //
-    TimerConfigure(TIMER1_BASE, TIMER_CFG_SPLIT_PAIR | TIMER_CFG_A_PERIODIC);
+    TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);
 
-    TimerLoadSet(TIMER1_BASE, TIMER_A, SysCtlClockGet() / 1000);
+    TimerLoadSet(TIMER0_BASE, TIMER_A, SysCtlClockGet() / 1000);
 
-    TimerIntRegister(TIMER1_BASE, TIMER_A, AltitudeControlIntHandler);
+    TimerIntRegister(TIMER0_BASE, TIMER_A, AltitudeControlIntHandler);
 
     //
     // Configure the Timer0B interrupt for timer timeout.
     //
-    TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
+    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
-    TimerEnable(TIMER1_BASE, TIMER_A);
+    TimerEnable(TIMER0_BASE, TIMER_A);
 }
 
 //*****************************************************************************

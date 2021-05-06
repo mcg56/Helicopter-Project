@@ -73,6 +73,7 @@ YawControlIntHandler (void)
 void
 initYawTimer (void)
 {
+    /*
     //
     // The Timer0 peripheral must be enabled for use.
     //
@@ -90,10 +91,12 @@ initYawTimer (void)
     //
     // Configure the Timer0B interrupt for timer timeout.
     //
-    TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
+    //TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
 
-    TimerEnable(TIMER0_BASE, TIMER_A);
+    //TimerEnable(TIMER0_BASE, TIMER_A);
+     *
+     */
 }
 
 
@@ -235,11 +238,11 @@ findReference(void)
     ref_enabled = true;
     // Do a sweep
     // If pin someting high set yaw = 0
-    IntMasterDisable();
+
     while (ref_found == false) {
         setPWMTail (PWM_MAIN_FREQ, yaw_sweep_duty);
     }
-    IntMasterEnable();
+
     ref_enabled = false;
 }
 

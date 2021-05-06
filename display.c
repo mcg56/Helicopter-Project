@@ -48,9 +48,9 @@ displayMeanVal(int16_t height_percent, int32_t display_deg, int16_t count, int16
     OLEDStringDraw (string, 0, 0);
     usnprintf (string, sizeof(string), "Yaw (deg) %5d", display_deg);
     OLEDStringDraw (string, 0, 1);
-    usnprintf (string, sizeof(string), "Yaw (deg) %5d", count);
+    usnprintf (string, sizeof(string), "YC (deg) %5d", count);
     OLEDStringDraw (string, 0, 2);
-    usnprintf (string, sizeof(string), "Yaw (deg) %5d", Acount);
+    usnprintf (string, sizeof(string), "AC (deg) %5d", Acount);
         OLEDStringDraw (string, 0, 3);
 }
 
