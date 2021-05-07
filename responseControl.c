@@ -6,8 +6,6 @@
 //
 
 #include <stdint.h>
-#include <stdbool.h>
-#include "stdlib.h"
 #include "responseControl.h"
 #include "driverlib/timer.h"
 #include "yaw.h"
@@ -15,6 +13,8 @@
 #include "pwmGen.h"
 #include "inc/hw_memmap.h"
 #include "driverlib/sysctl.h"
+//#include <stdbool.h>
+//#include "stdlib.h"
 
 //*****************************************************************************
 // Global variables
