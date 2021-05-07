@@ -11,6 +11,7 @@
 #include "yaw.h"
 #include "altitude.h"
 #include "pwmGen.h"
+#include "switches.h"
 #include "inc/hw_memmap.h"
 #include "driverlib/sysctl.h"
 
@@ -30,11 +31,18 @@ static float integral_tail;
 static int16_t height_percent;
 static int16_t target_height_percent;
 static uint32_t pwm_main_duty;
+static uint32_t height_sweep_duty = 30;
 
 // Yaw data
 static int16_t yaw_degree;
 static int16_t target_yaw;
 static uint32_t pwm_tail_duty;
+static uint32_t yaw_sweep_duty = 40;
+
+// Current helicopter state
+flight_mode current_state;
+
+
 
 //*****************************************************************************
 // Function prototypes
@@ -51,22 +59,45 @@ responseControlIntHandler (void)
     // Clear the timer interrupt flag
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
-    if (refFound()) {
-        // Update data from altitude module
-        height_percent = getAltitudeHeight();
-        target_height_percent = getAltitudeTarget();
+    // Update helicopter state
+    current_state = getState();
 
-        // Calculate and set main rotor PWM using PI control
-        pwm_main_duty = dutyResponseMain(height_percent, target_height_percent);
-        setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
-
-        // Update data from yaw module
-        yaw_degree = getYaw();
-        target_yaw = getYawTarget();
-
-        // Calculate and set tail rotor PWM using PI control
-        pwm_tail_duty = dutyResponseTail(yaw_degree, target_yaw);
+    switch (current_state)
+    {
+    case landed:
+        // Turn off rotors
+        pwm_tail_duty = 0;
+        pwm_main_duty = 0;
         setPWMTail (PWM_TAIL_FREQ, pwm_tail_duty);
+        setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
+        break;
+    case landing:
+        // Use same control as take off so continue
+    case take_off:
+        // Initiate PI control is initialisation finished
+        if (refFound()) {
+            // Update data from altitude module
+            height_percent = getAltitudeHeight();
+            target_height_percent = getAltitudeTarget();
+
+            // Calculate and set main rotor PWM using PI control
+            pwm_main_duty = dutyResponseMain(height_percent, target_height_percent);
+
+            // Update data from yaw module
+            yaw_degree = getYaw();
+            target_yaw = getYawTarget();
+
+            // Calculate and set tail rotor PWM using PI control
+            pwm_tail_duty = dutyResponseTail(yaw_degree, target_yaw);
+        } else {
+            // Set duty to sweeping values during intialisation
+            pwm_tail_duty = yaw_sweep_duty;
+            pwm_main_duty = height_sweep_duty;
+        }
+
+        // Set duty values
+        setPWMTail (PWM_TAIL_FREQ, pwm_tail_duty);
+        setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
     }
 }
 

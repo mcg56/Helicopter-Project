@@ -75,55 +75,62 @@ main(void)
     // Set initial helicopter resting height
     landed_height = getHeight();
 
+    // Intialise helicopter state
+    current_state = landed;
 
     while (1)
     {
         SysCtlDelay (SysCtlClockGet() / 32);  // Update display at approx 32 Hz
 
         // Update helicopter state
-        current_state = switchValue();
+        current_state = updateState(current_state);
 
         switch (current_state)
         {
         case landed:
+            break;
+        case landing:
+            // Set target values to home
             target_height_percent = 0;
             target_yaw = 0;
-            // Motors stop when low enough
-            // Disable switch funciton until landed
-            break;
+
+            // Update state to landed when targets reached
+            if ((yaw_degree > -20) && (yaw_degree <= 20) && height_percent == 0) {
+                current_state = landed;
+            }
         case take_off:
-            // Find reference yaw on first take off
+            // Find reference yaw on first take off and prevent button usage
             if (reference_found == false)
             {
                 reference_found = findReference();
-            }
-
-            // Increase main rotor duty cycle if up button pressed
-            if ((checkButton (UP) == PUSHED) && (target_height_percent < 90))
-            {
-                target_height_percent += 10;
-            }
-
-            // Decrease main rotor duty cycle if down button pressed
-            if (checkButton (DOWN) == PUSHED)
-            {
-                if (target_height_percent > 10) {
-                    target_height_percent -= 10;
-                } else {
-                    target_height_percent = 0;
+            } else {
+                // Increase main rotor duty cycle if up button pressed
+                if ((checkButton (UP) == PUSHED) && (target_height_percent < 90))
+                {
+                    target_height_percent += 10;
                 }
-            }
 
-            // Decrease yaw if left button pushed
-            if ((checkButton (LEFT) == PUSHED))
-            {
-                target_yaw -= 15;
-            }
+                // Decrease main rotor duty cycle if down button pressed
+                if (checkButton (DOWN) == PUSHED)
+                {
+                    if (target_height_percent > 10) {
+                        target_height_percent -= 10;
+                    } else {
+                        target_height_percent = 0;
+                    }
+                }
 
-            // Increase yaw if right button pushed
-            if ((checkButton (RIGHT) == PUSHED))
-            {
-                target_yaw += 15;
+                // Decrease yaw if left button pushed
+                if ((checkButton (LEFT) == PUSHED))
+                {
+                    target_yaw -= 15;
+                }
+
+                // Increase yaw if right button pushed
+                if ((checkButton (RIGHT) == PUSHED))
+                {
+                    target_yaw += 15;
+                }
             }
         }
 
@@ -155,13 +162,9 @@ main(void)
 }
 
 // To do:
-// Add flight mode land functionality
-// Remove functions from headers that don't need to be there
-// Convert switches to interrupt on regular timer
 // Add pi as interrupt off timer
 // Change data transfer to struct
 
 // Questions?
 // Location of flight state enum in switches?
-// Is it ok to use prescalers for pwm signal with clock issues
 

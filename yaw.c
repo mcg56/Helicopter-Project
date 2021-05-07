@@ -35,8 +35,7 @@ static int16_t yaw_degree;          // Helicopter heading in degrees
 static int16_t target_yaw;
 
 static uint32_t pwm_tail_duty;
-static uint32_t height_sweep_duty = 30;
-static uint32_t yaw_sweep_duty = 40;
+
 
 //*****************************************************************************
 // Function prototypes
@@ -198,8 +197,6 @@ bool
 findReference(void)
 {
     ref_enabled = true;
-    setPWMTail (PWM_MAIN_FREQ, yaw_sweep_duty);
-    setPWMMain (PWM_TAIL_FREQ, height_sweep_duty);
     var_check++;
 
     // Alternative method

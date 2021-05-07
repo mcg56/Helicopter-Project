@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include "inc/hw_memmap.h"
 #include "driverlib/gpio.h"
 #include "driverlib/uart.h"
@@ -73,11 +74,26 @@ UARTSend (char *pucBuffer)
 void
 UARTTransData (int16_t current_height, int16_t target_height_percent, int16_t yaw_degree, int16_t target_yaw, uint32_t duty_main, uint32_t duty_tail, flight_mode current_state, uint8_t slowTick)
 {
+    char flight_status[10];
+
     if (slowTick)
     {
         slowTick = false;
+
+        switch (current_state)
+        {
+        case landed:
+            strcpy(flight_status, "Landed");
+            break;
+        case take_off:
+            strcpy(flight_status, "Take off");
+            break;
+        case landing:
+            strcpy(flight_status, "Landing");
+        }
+
         // Form and send a status message to the console
-        usprintf (statusStr, "----------------\r\nAlt: %2d [%2d]\r\nYaw: %2d [%2d]\r\nMain %2d Tail %2d\r\nMode: %d\r\n", current_height, target_height_percent, yaw_degree, target_yaw, duty_main, duty_tail, current_state); // * usprintf
+        usprintf (statusStr, "----------------\r\nAlt: %2d [%2d]\r\nYaw: %2d [%2d]\r\nMain %2d Tail %2d\r\nMode: %s\r\n", current_height, target_height_percent, yaw_degree, target_yaw, duty_main, duty_tail, flight_status); // * usprintf
         UARTSend (statusStr);
     }
 

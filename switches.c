@@ -112,22 +112,41 @@ checkSwitch (uint8_t switchName)
 }
 
 // *******************************************************
-// Return current switch state
+// Update and return current helicopter state
 // *******************************************************
 flight_mode
-switchValue(void)
+updateState(flight_mode main_state)
 {
+    // Update state from main
+    current_state = main_state;
+
+    // Update switches
     updateSwitches();
     switchState = checkSwitch (ONE);
 
     switch (switchState)
     {
+    case NO_CHANGE:
+        break;
     case HIGH:
-        current_state = take_off;
+        // Prevent state change during landing process
+        if (current_state == landed) {
+            current_state = take_off;
+        }
         break;
     case LOW:
-        current_state = landed;
+        current_state = landing;
         break;
     }
+
+    return current_state;
+}
+
+// *******************************************************
+// Return current helicopter state
+// *******************************************************
+flight_mode
+getState(void)
+{
     return current_state;
 }

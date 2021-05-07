@@ -33,8 +33,8 @@
 typedef enum {
     landed,
     take_off,
+    landing,
 } flight_mode;
-
 
 //*****************************************************************************
 // Initialise switch
@@ -43,9 +43,15 @@ void
 initSwitches (void);
 
 // *******************************************************
-// Return current switch state
+// Update and return current helicopter state
 // *******************************************************
 flight_mode
-switchValue(void);
+updateState(flight_mode main_state);
+
+// *******************************************************
+// Return current helicopter state
+// *******************************************************
+flight_mode
+getState(void);
 
 #endif /*SWITCH_H_*/
