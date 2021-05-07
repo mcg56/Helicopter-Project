@@ -46,14 +46,13 @@ responseControlIntHandler (void)
     pwm_main_duty = dutyResponseMain(height_percent, target_height_percent);
     setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
 
-
     yaw_degree = getYawData();
     target_yaw = getYawDataTarget();
 
     pwm_tail_duty = dutyResponseTail(yaw_degree, target_yaw);
     setPWMTail (PWM_TAIL_FREQ, pwm_tail_duty);
 
-    countbla = target_yaw; //Test point
+    countbla++; //Test point
 }
 
 //*****************************************************************************
@@ -102,7 +101,7 @@ dutyResponseMain(int16_t current_height, int16_t target_percent)
 
     d_integral = INTEGRAL_GAIN_MAIN * (error - prev_error_main) * delta_t;
 
-    duty_cycle = proportional + (integral_main + d_integral) + OFFSET_DUTY;
+    duty_cycle = proportional + (integral_main + d_integral);
 
     //Limit duty cycle values
     if (duty_cycle > MAX_DUTY_MAIN) {
@@ -141,6 +140,8 @@ dutyResponseTail(int16_t current_yaw, int16_t target_yaw)
         duty_cycle = MAX_DUTY_TAIL;
     } else if (duty_cycle < MIN_DUTY_TAIL) {
         duty_cycle = MIN_DUTY_TAIL;
+    } else {
+        integral_tail += d_integral;
     }
 
     prev_error_tail = error;

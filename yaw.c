@@ -155,13 +155,13 @@ calculateYaw(bool a_next, bool b_next)
 //    }
 
 
-    /*
-    // Limit yaw values
-    if ((yaw == (tooth_count/2 + 1))) {
-        yaw = -1 * tooth_count/2 - 1;
-    } else if ((yaw == -1 * tooth_count/2)) {
-        yaw = tooth_count/2;
-    }*/
+
+//    // Limit yaw values
+//    if ((yaw == (tooth_count/2 + 1))) {
+//        yaw = -1 * tooth_count/2 - 1;
+//    } else if ((yaw == -1 * tooth_count/2)) {
+//        yaw = tooth_count/2;
+//    }
 
 
     // Convert yaw value to degrees with rounded value
@@ -189,7 +189,11 @@ findReference(void)
     // If pin someting high set yaw = 0
     while (ref_found == false) {
         setPWMTail (PWM_MAIN_FREQ, yaw_sweep_duty);
+        setPWMMain (PWM_TAIL_FREQ, 30);
     }
+
+    setPWMTail (PWM_MAIN_FREQ, 0);
+    setPWMMain (PWM_MAIN_FREQ, 0);
 
     ref_enabled = false;
 }

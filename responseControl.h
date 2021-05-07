@@ -25,7 +25,7 @@
 #define MAX_DUTY_MAIN                    97 // Maximum helicopter duty cycle
 #define MIN_DUTY_MAIN                    2  // Minimum helicopter duty cycle
 #define OFFSET_DUTY                      30 // Helicopter hover duty
-#define MAX_DUTY_TAIL                    98  // Minimum helicopter duty cycle
+#define MAX_DUTY_TAIL                    97  // Minimum helicopter duty cycle
 #define MIN_DUTY_TAIL                    2  // Minimum helicopter duty cycle
 
 int16_t countbla;

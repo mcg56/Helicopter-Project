@@ -168,7 +168,7 @@ main(void)
 // Clean #includes
 // Convert switches to interrupt on regular timer
 // Add pi as interrupt off timer
-// change to +180 to -180
+// Change data transfer to struct
 
 // Questions?
 // Location of flight state enum in switches?
