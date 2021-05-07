@@ -18,10 +18,11 @@
 #include "driverlib/systick.h"
 #include "driverlib/interrupt.h"
 #include "driverlib/debug.h"
+#include "driverlib/pwm.h" // For setting pwm output true
 #include "yaw.h"
 #include "responseControl.h"
 #include "pwmGen.h"
-#include "driverlib/pwm.h" // For setting pwm output true
+
 
 
 //*****************************************************************************
@@ -31,14 +32,19 @@ static bool a_cur;                  // Current A-phase pin value
 static bool b_cur;                  // Current B-phase pin value
 static bool ref_found;              // Helicopter heading in degrees
 static bool ref_enabled = false;
-static int16_t yaw;             // Helicopter heading from quadrature code disc
-static int16_t deg;                 // Helicopter heading in degrees
-static uint32_t yaw_sweep_duty = 60;
-static int16_t yaw_degree;
+
+static int16_t yaw;                 // Helicopter heading from quadrature code disc
+static int16_t yaw_degree;          // Helicopter heading in degrees
 static int16_t target_yaw;
+
 static uint32_t pwm_tail_duty;
+static uint32_t height_sweep_duty = 30;
+static uint32_t yaw_sweep_duty = 60;
 
-
+//*****************************************************************************
+// Function prototypes
+//*****************************************************************************
+void calculateYaw(bool a_next, bool b_next);
 
 //*************************************************************
 // GPIO Pin Interrupt
@@ -65,22 +71,26 @@ GPIOPinIntHandler (void)
 }
 
 //*************************************************************
-// GPIO Pin Interrupt
+// GPIO reference yaw pin interrupt
 //*************************************************************
 void
 GPIORefPinIntHandler (void)
 {
+    // Set reference found to true and reset yaw values
     if (ref_enabled) {
         yaw = 0;
-        deg = 0;
+        yaw_degree = 0;
         ref_found = true;
     }
+
     // Clean up, clearing the interrupt
     GPIOIntClear(GPIO_PORTC_BASE, GPIO_PIN_4);
 }
 
 //*************************************************************
 // Intialise GPIO Pins
+// PB0 and PB1 are used for quadrature encoding
+// PC4 is used for reference yaw input
 //*************************************************************
 void
 initGPIOPins (void)
@@ -104,9 +114,6 @@ initGPIOPins (void)
     // Enable pins
     GPIOIntEnable(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1 );
     GPIOIntEnable(GPIO_PORTC_BASE, GPIO_PIN_4 );
-
-
-
 }
 
 //*************************************************************
@@ -118,21 +125,20 @@ initYaw (void)
     initGPIOPins ();
     initialisePWMTail ();
 
-
     // Initialisation is complete, so turn on the output.
     PWMOutputState(PWM_TAIL_BASE, PWM_TAIL_OUTBIT, true);
 }
 
 
 //*****************************************************************************
-// Function to update helicopter yaw in degrees
+// Update helicopter yaw in degrees
 //*****************************************************************************
 void
 calculateYaw(bool a_next, bool b_next)
 {
     bool cw;
-    int16_t full_rot = 360;
-    int16_t tooth_count = 448; // Total teeth in quadrature code disc
+    int16_t full_rot = 360;    // Degrees in full rotation
+    int16_t tooth_count = 448; // Total count in quadrature code disc
 
 
     // Find rotation direction using current and next phase values
@@ -165,7 +171,7 @@ calculateYaw(bool a_next, bool b_next)
 
 
     // Convert yaw value to degrees with rounded value
-    deg = (2 * yaw * full_rot + 1)/(2 * tooth_count);
+    yaw_degree = (2 * yaw * full_rot + 1)/(2 * tooth_count);
 }
 
 //*****************************************************************************
@@ -181,47 +187,37 @@ updateYaw(int16_t yaw_degree_in, int16_t target_yaw_in)
     return pwm_tail_duty;
 }
 
+//*****************************************************************************
+// Sweep helicopter to find reference yaw
+//*****************************************************************************
 void
 findReference(void)
 {
     ref_enabled = true;
-    // Do a sweep
-    // If pin someting high set yaw = 0
+
+    // Sweep helicopter at fixed rate
     while (ref_found == false) {
         setPWMTail (PWM_MAIN_FREQ, yaw_sweep_duty);
-        setPWMMain (PWM_TAIL_FREQ, 30);
+        setPWMMain (PWM_TAIL_FREQ, height_sweep_duty);
     }
-
-    setPWMTail (PWM_MAIN_FREQ, 0);
-    setPWMMain (PWM_MAIN_FREQ, 0);
 
     ref_enabled = false;
 }
 
 //*****************************************************************************
-// Pass deg to main function
-//*****************************************************************************
-int
-getYaw(void)
-{
-    return deg;
-}
-
-//*****************************************************************************
-// Pass yaw data to response control module
+// Pass current yaw to other modules
 //*****************************************************************************
 int16_t
-getYawData(void)
+getYaw(void)
 {
     return yaw_degree;
 }
 
 //*****************************************************************************
-// Pass yaw data to response control module
-// TO BE REMOVED
+// Pass yaw target to reponse control module
 //*****************************************************************************
 int16_t
-getYawDataTarget(void)
+getYawTarget(void)
 {
     return target_yaw;
 }

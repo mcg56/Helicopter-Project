@@ -14,8 +14,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-void calculateYaw(bool a_next, bool b_next);
-
 //*************************************************************
 // Intialise Yaw module
 //*************************************************************
@@ -29,26 +27,21 @@ uint32_t
 updateYaw(int16_t yaw_degree_in, int16_t target_yaw_in);
 
 //*****************************************************************************
-// Pass deg to main function
+// Sweep helicopter to find reference yaw
 //*****************************************************************************
-int
-getYaw(void);
-
 void
 findReference(void);
 
 //*****************************************************************************
-// Pass yaw data to response control module
+// Pass current yaw to other modules
 //*****************************************************************************
 int16_t
-getYawData(void);
+getYaw(void);
 
 //*****************************************************************************
-// Pass yaw data to response control module
-// TO BE REMOVED
+// Pass yaw target to reponse control module
 //*****************************************************************************
 int16_t
-getYawDataTarget(void);
-
+getYawTarget(void);
 
 #endif /* YAW_H_ */

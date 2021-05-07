@@ -14,7 +14,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
 //*****************************************************************************
 // Constants
 //*****************************************************************************
@@ -30,9 +29,9 @@ void
 initDisplay (void);
 
 //*****************************************************************************
-// Function to control display
+// Update display
 //*****************************************************************************
 void
-displayMeanVal(int16_t height_percent, int32_t display_deg, int16_t countbla);
+displayMeanVal(int16_t height_percent, int32_t display_deg);
 
 #endif /* DISPLAY_H_ */

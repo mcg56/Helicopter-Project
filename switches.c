@@ -5,11 +5,10 @@
 // Support for the up button Tiva/Orbit.
 // ENCE361 sample code.
 //
-//
 // Note that pin PF0 (the pin for the RIGHT pushbutton - SW2 on
 //  the Tiva board) needs special treatment - See PhilsNotesOnTiva.rtf.
 //
-// TRP
+// Authors: T.R. Peterson M.G. Gardyne M. Comber
 // Last modified:  26.04.2020
 //
 // *******************************************************
@@ -25,24 +24,24 @@
 #include "switches.h"
 
 //*****************************************************************************
-// Constants
+// Enumerated types
 //*****************************************************************************
 enum switchNames {ONE = 0, NUM_SWITCHES};
 enum switchStates {LOW = 0, HIGH, NO_CHANGE};
 
 // *******************************************************
-// Globals to module
+// Globals Variables
 // *******************************************************
-static bool switch_state[NUM_SWITCHES];    // Corresponds to the electrical state
-static uint8_t switch_count[NUM_SWITCHES];
-static bool switch_flag[NUM_SWITCHES];
 static bool switch_normal[NUM_SWITCHES];   // Corresponds to the electrical state
+static bool switch_state[NUM_SWITCHES];    // Corresponds to the electrical state
+static bool switch_flag[NUM_SWITCHES];
+static uint8_t switch_count[NUM_SWITCHES];
 static uint8_t switchState;
 static flight_mode current_state;
 
-// *******************************************************
-// initButtons: Initialise the variables associated with the set of buttons
-// defined by the constants in the buttons2.h header file.
+//*****************************************************************************
+// Initialise switch
+//*****************************************************************************
 void
 initSwitches (void)
 {
@@ -55,7 +54,7 @@ initSwitches (void)
        GPIO_PIN_TYPE_STD_WPD);
     switch_normal[ONE] = SWITCH_ONE_NORMAL; // Low at begining when switch is down
 
-
+    // Sets initial switch value to false
     for (i = 0; i < NUM_SWITCHES; i++)
     {
         switch_state[i] = switch_normal[i];
@@ -64,15 +63,9 @@ initSwitches (void)
     }
 }
 
-// *******************************************************
-// updateButtons: Function designed to be called regularly. It polls all
-// buttons once and updates variables associated with the buttons if
-// necessary.  It is efficient enough to be part of an ISR, e.g. from
-// a SysTick interrupt.
-// Debounce algorithm: A state machine is associated with each button.
-// A state change occurs only after NUM_BUT_POLLS consecutive polls have
-// read the pin in the opposite condition, before the state changes and
-// a flag is set.  Set NUM_BUT_POLLS according to the polling rate.
+//*****************************************************************************
+// Update switch value with debouncing
+//*****************************************************************************
 void
 updateSwitches (void)
 {
@@ -100,10 +93,9 @@ updateSwitches (void)
     }
 }
 
-// *******************************************************
-// checkButton: Function returns the new button logical state if the button
-// logical state (PUSHED or RELEASED) has changed since the last call,
-// otherwise returns NO_CHANGE.
+//*****************************************************************************
+// Checks if switch state has changed
+//*****************************************************************************
 uint8_t
 checkSwitch (uint8_t switchName)
 {

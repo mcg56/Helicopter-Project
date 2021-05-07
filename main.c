@@ -32,8 +32,6 @@
 #include "system.h"
 #include "switches.h"
 
-#include "responseControl.h"
-
 int
 main(void)
 {
@@ -49,7 +47,6 @@ main(void)
     uint8_t slowTick;
     bool reference_found = false;
 
-    //IntMasterDisable();
     // As a precaution, make sure that the peripherals used are reset
     SysCtlPeripheralReset (PWM_MAIN_PERIPH_GPIO); // Used for PWM output
     SysCtlPeripheralReset (PWM_MAIN_PERIPH_PWM);  // Main Rotor PWM
@@ -61,7 +58,7 @@ main(void)
     SysCtlPeripheralReset (SYSCTL_PERIPH_GPIOC);
     SysCtlPeripheralReset (UART_USB_PERIPH_UART);
     SysCtlPeripheralReset (UART_USB_PERIPH_GPIO);
-    //SysCtlPeripheralReset(SYSCTL_PERIPH_TIMER0);
+    SysCtlPeripheralReset(SYSCTL_PERIPH_TIMER0);
 
     initClock ();
     initButtons ();
@@ -71,20 +68,22 @@ main(void)
     initUSB_UART ();
     initSwitches ();
     initSoftReset ();
-    initResponseTimer ();
 
     // Enable interrupts to the processor.
     IntMasterEnable();
+
     // System delay for accurate initial value calibration
     SysCtlDelay (SysCtlClockGet() / 2);
 
-    landed_height = getHeight();        // Set initial helicopter resting height
+    // Set initial helicopter resting height
+    landed_height = getHeight();
 
 
     while (1)
     {
         SysCtlDelay (SysCtlClockGet() / 32);  // Update display at approx 32 Hz
 
+        // Update helicopter state
         current_state = switchValue();
 
         switch (current_state)
@@ -100,11 +99,13 @@ main(void)
             if (reference_found == false)
             {
                 findReference();
+
                 reference_found = true;
 
+                // Reset yaw values
                 yaw_degree = 0;
-                target_yaw = 0;
             }
+
             // Increase main rotor duty cycle if up button pressed
             if ((checkButton (UP) == PUSHED) && (target_height_percent < 90))
             {
@@ -121,18 +122,17 @@ main(void)
                 }
             }
 
-            // Increase yaw if left button pushed
+            // Decrease yaw if left button pushed
             if ((checkButton (LEFT) == PUSHED))
             {
                 target_yaw -= 15;
             }
 
-            // Decrease yaw if right button pushed
+            // Increase yaw if right button pushed
             if ((checkButton (RIGHT) == PUSHED))
             {
                 target_yaw += 15;
             }
-            break;
         }
 
         // Get current helicopter height
@@ -145,12 +145,12 @@ main(void)
         yaw_degree = getYaw();
 
         // Display helicopter details
-        displayMeanVal (height_percent, yaw_degree, countbla);
+        displayMeanVal (height_percent, yaw_degree);
 
-        // Update altitude control
+        // Update altitude module data
         duty_main = updateAltitude(height_percent, target_height_percent);
 
-        // Update yaw control
+        // Update yaw module data
         duty_tail = updateYaw(yaw_degree, target_yaw);
 
         // Get slowTick from system module

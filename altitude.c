@@ -110,13 +110,14 @@ initAltitude(void)
     initCircBuf (&g_inBuffer, BUF_SIZE);
     initADC ();
     initialisePWMMain ();
+    initResponseTimer ();
 
     // Initialisation is complete, so turn on the output.
     PWMOutputState(PWM_MAIN_BASE, PWM_MAIN_OUTBIT, true);
 }
 
 //*****************************************************************************
-// Function to convert helicopter height to percentage
+// Convert helicopter height to percentage
 //*****************************************************************************
 int
 calculate_percent_height(uint16_t current_height, uint16_t landed_height)
@@ -132,7 +133,7 @@ calculate_percent_height(uint16_t current_height, uint16_t landed_height)
 }
 
 //*****************************************************************************
-// Find and return current helicopter landed height.
+// Determine current helicopter  height.
 //*****************************************************************************
 int
 getHeight(void)
@@ -154,33 +155,35 @@ getHeight(void)
 }
 
 //*****************************************************************************
-// Update helicopter altitute control
+// Update helicopter altitute module data
 //*****************************************************************************
 uint32_t
 updateAltitude(int16_t height_percent_in, int16_t target_height_percent_in)
 {
+    // Update module values
     height_percent = height_percent_in;
     target_height_percent = target_height_percent_in;
+
+    // Update PWM duty from response control module
     pwm_main_duty = getMainDuty();
 
     return pwm_main_duty;
 }
 
 //*****************************************************************************
-// Passes current height and target height to reponse module
+// Passes current height to reponse module
 //*****************************************************************************
 int16_t
-getAltitudeData(void)
+getAltitudeHeight(void)
 {
     return height_percent;
 }
 
 //*****************************************************************************
-// Passes current height and target height to reponse module
-// TO BE REMOVED
+// Passes target height to reponse module
 //*****************************************************************************
 int16_t
-getAltitudeDataTarget(void)
+getAltitudeTarget(void)
 {
     return target_height_percent;
 }

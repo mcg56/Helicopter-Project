@@ -30,32 +30,32 @@
 #include "pwmGen.h"
 #include "uart.h"
 
-volatile uint8_t slowTick = false;
+static volatile uint8_t slowTick = false;
 
 //*****************************************************************************
-// The interrupt handler for the for SysTick interrupt.
+// The interrupt handler for the for Clock interrupt.
 //*****************************************************************************
 void
 SysTickIntHandler(void)
 {
     static uint8_t tickCount = 0;
     const uint8_t ticksPerSlow = SYSTICK_RATE_HZ / SLOWTICK_RATE_HZ;
+
     // Poll the buttons
     updateButtons();
 
     ADCProcessorTrigger(ADC0_BASE, 3);
 
+    // Update slowTick value for UART transmission
     if (++tickCount >= ticksPerSlow)
-    {                       // Signal a slow tick
+    {
         tickCount = 0;
         slowTick = true;
     }
-
-
 }
 
 //*****************************************************************************
-// The interrupt handler for the for SysTick interrupt.
+// The interrupt handler for the for soft reset interrupt.
 //*****************************************************************************
 void
 SoftResetIntHandler (void)
@@ -67,7 +67,7 @@ SoftResetIntHandler (void)
 }
 
 //*****************************************************************************
-// Initialisation functions for the clock
+// Initialisation function for the clock
 // Sourced from:  P.J. Bones  UCECE
 //*****************************************************************************
 void
@@ -101,13 +101,14 @@ initSoftReset (void)
     // Set pin 0 and 1 as input
     GPIOPinTypeGPIOInput(GPIO_PORTA_BASE, GPIO_PIN_6);
 
+    // Set pad configuration
     GPIOPadConfigSet (GPIO_PORTA_BASE, GPIO_PIN_6, GPIO_STRENGTH_2MA,
            GPIO_PIN_TYPE_STD_WPU);
 
     // Register interrupt
     GPIOIntRegister(GPIO_PORTA_BASE, SoftResetIntHandler);
 
-    // Enable pins
+    // Enable pin
     GPIOIntEnable(GPIO_PORTA_BASE, GPIO_PIN_6);
 }
 

@@ -27,13 +27,13 @@ void
 initAltitude(void);
 
 //*****************************************************************************
-// Function to convert helicopter height to percentage
+// Convert helicopter height to percentage
 //*****************************************************************************
 int
 calculate_percent_height(uint16_t current_height_in, uint16_t landed_height_in);
 
 //*****************************************************************************
-// Find and return current helicopter landed height.
+// Find current helicopter height.
 //*****************************************************************************
 int
 getHeight(void);
@@ -45,16 +45,15 @@ uint32_t
 updateAltitude(int16_t height_percent, int16_t target_height_percent);
 
 //*****************************************************************************
-// Passes current height and target height to reponse module
+// Passes current height to reponse module
 //*****************************************************************************
 int16_t
-getAltitudeData(void);
+getAltitudeHeight(void);
 
 //*****************************************************************************
-// Passes current height and target height to reponse module
-// TO BE REMOVED
+// Passes target height to reponse module
 //*****************************************************************************
 int16_t
-getAltitudeDataTarget(void);
+getAltitudeTarget(void);
 
 #endif /* ALTITUDE_H_ */

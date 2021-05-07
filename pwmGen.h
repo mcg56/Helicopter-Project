@@ -15,23 +15,8 @@
 #include <stdio.h>
 
 /**********************************************************
- * Generates a single PWM signal on Tiva board pin J4-05 =
- * PC5 (M0PWM7).  This is the same PWM output as the
- * helicopter main rotor.
- **********************************************************/
-
-/**********************************************************
  * Constants
  **********************************************************/
-/*
-#define PWM_RATE_STEP_HZ   50
-#define PWM_RATE_MIN_HZ    50
-#define PWM_RATE_MAX_HZ    400
-#define PWM_FIXED_DUTY     50
-#define PWM_DUTY_STEP      5
-#define PWM_DUTY_MIN       5
-#define PWM_DUTY_MAX       95
-*/
 
 // PWM configuration
 #define PWM_DIVIDER_CODE   SYSCTL_PWMDIV_1

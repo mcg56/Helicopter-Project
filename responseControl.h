@@ -28,29 +28,21 @@
 #define MAX_DUTY_TAIL                    97  // Minimum helicopter duty cycle
 #define MIN_DUTY_TAIL                    2  // Minimum helicopter duty cycle
 
-int16_t countbla;
-
-//*****************************************************************************
-// Caculate helicopter main rotor response using PI control
-//*****************************************************************************
-int32_t
-dutyResponseMain(int16_t current_height, int16_t target_height);
-
-//*****************************************************************************
-// Caculate helicopter tail rotor response using PI control
-//*****************************************************************************
-int32_t
-dutyResponseTail(int16_t current_yaw, int16_t target_yaw);
-
 //*****************************************************************************
 // Intialise timer for PI control update
 //*****************************************************************************
 void
 initResponseTimer (void);
 
+//*****************************************************************************
+// Pass PWM tail duty out of module
+//*****************************************************************************
 uint32_t
 getTailDuty(void);
 
+//*****************************************************************************
+// Pass PWM main duty out of module
+//*****************************************************************************
 uint32_t
 getMainDuty(void);
 
