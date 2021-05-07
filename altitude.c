@@ -8,26 +8,26 @@
 // Code Sourced from:  P.J. Bones  UCECE (acknowledged in function descriptions)
 
 #include <stdint.h>
-#include <stdio.h>
 #include <stdbool.h>
-#include "stdlib.h"
 #include "inc/hw_memmap.h"
-#include "inc/hw_types.h"
-#include "inc/hw_ints.h"
 #include "driverlib/adc.h"
-#include "driverlib/gpio.h"
 #include "driverlib/sysctl.h"
-#include "driverlib/systick.h"
-#include "driverlib/interrupt.h"
-#include "driverlib/debug.h"
-#include "driverlib/pin_map.h"
 #include "driverlib/pwm.h" // For setting pwm output true
-#include "utils/ustdlib.h"
 #include "altitude.h"
 #include "circBufT.h"
 #include "pwmGen.h"
 #include "responseControl.h"
-#include "driverlib/timer.h"
+//#include "driverlib/timer.h"
+//#include "utils/ustdlib.h"
+//#include "driverlib/systick.h"
+//#include "driverlib/interrupt.h"
+//#include "driverlib/debug.h"
+//#include "driverlib/pin_map.h"
+//#include "driverlib/gpio.h"
+//#include "inc/hw_types.h"
+//#include "inc/hw_ints.h"
+//#include "stdlib.h"
+//#include <stdio.h>
 
 //*****************************************************************************
 // Global Variables

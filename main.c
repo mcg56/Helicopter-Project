@@ -8,29 +8,30 @@
 // Code Sourced from:  P.J. Bones  UCECE (acknowledged in function descriptions)
 
 #include <stdint.h>
-#include <stdio.h>
 #include <stdbool.h>
-#include "stdlib.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_types.h"
-#include "inc/hw_ints.h"
-#include "driverlib/adc.h"
-#include "driverlib/gpio.h"
 #include "driverlib/sysctl.h"
-#include "driverlib/systick.h"
 #include "driverlib/interrupt.h"
-#include "driverlib/debug.h"
-#include "driverlib/pin_map.h"
-#include "utils/ustdlib.h"
 #include "buttons4.h"
 #include "yaw.h"
 #include "altitude.h"
 #include "display.h"
-#include "circBufT.h"
 #include "pwmGen.h"
 #include "uart.h"
 #include "system.h"
 #include "switches.h"
+
+//#include "driverlib/debug.h"
+//#include "driverlib/pin_map.h"
+//#include "utils/ustdlib.h"
+//#include "circBufT.h"
+//#include "driverlib/systick.h"
+//#include "stdlib.h"
+//#include "inc/hw_memmap.h"
+//#include "inc/hw_types.h"
+//#include "inc/hw_ints.h"
+//#include "driverlib/adc.h"
+//#include "driverlib/gpio.h"
+//#include <stdio.h>
 
 int
 main(void)
