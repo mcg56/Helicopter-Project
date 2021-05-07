@@ -36,7 +36,7 @@ static int16_t target_yaw;
 
 static uint32_t pwm_tail_duty;
 static uint32_t height_sweep_duty = 30;
-static uint32_t yaw_sweep_duty = 50;
+static uint32_t yaw_sweep_duty = 40;
 
 //*****************************************************************************
 // Function prototypes

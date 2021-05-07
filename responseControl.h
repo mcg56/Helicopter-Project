@@ -17,12 +17,12 @@
 //*****************************************************************************
 // Constants
 //*****************************************************************************
-#define PROPORTIONAL_GAIN_MAIN      3 // Proportional control gain for main rotor
+#define PROPORTIONAL_GAIN_MAIN      2 // Proportional control gain for main rotor
 #define PROPORTIONAL_GAIN_TAIL      3  // Proportional control gain for tail rotor
-#define INTEGRAL_GAIN_MAIN          0  // Integral control gain for main rotor
-#define INTEGRAL_GAIN_TAIL          0  // Integral control gain for tail rotor
-#define MAX_DUTY_MAIN                    97 // Maximum helicopter duty cycle
-#define MIN_DUTY_MAIN                    20  // Minimum helicopter duty cycle
+#define INTEGRAL_GAIN_MAIN          1  // Integral control gain for main rotor
+#define INTEGRAL_GAIN_TAIL          0.001  // Integral control gain for tail rotor
+#define MAX_DUTY_MAIN                    55 // Maximum helicopter duty cycle
+#define MIN_DUTY_MAIN                    30  // Minimum helicopter duty cycle
 #define OFFSET_DUTY                      30 // Helicopter hover duty
 #define MAX_DUTY_TAIL                    97  // Minimum helicopter duty cycle
 #define MIN_DUTY_TAIL                    2  // Minimum helicopter duty cycle
