@@ -32,6 +32,6 @@ initDisplay (void);
 // Update display
 //*****************************************************************************
 void
-displayMeanVal(int16_t height_percent, int32_t display_deg);
+displayMeanVal(int16_t height_percent, int32_t display_deg, int var_check);
 
 #endif /* DISPLAY_H_ */

@@ -15,7 +15,6 @@
 #include "yaw.h"
 #include "altitude.h"
 #include "display.h"
-#include "pwmGen.h"
 #include "uart.h"
 #include "system.h"
 #include "switches.h"
@@ -32,6 +31,7 @@
 //#include "driverlib/adc.h"
 //#include "driverlib/gpio.h"
 //#include <stdio.h>
+//#include "pwmGen.h"
 
 int
 main(void)
@@ -49,22 +49,18 @@ main(void)
     bool reference_found = false;
 
     // As a precaution, make sure that the peripherals used are reset
-    SysCtlPeripheralReset (PWM_MAIN_PERIPH_GPIO); // Used for PWM output
-    SysCtlPeripheralReset (PWM_MAIN_PERIPH_PWM);  // Main Rotor PWM
-    SysCtlPeripheralReset (PWM_TAIL_PERIPH_GPIO); // Used for PWM output
-    SysCtlPeripheralReset (PWM_TAIL_PERIPH_PWM);  // Tail Rotor PWM
     SysCtlPeripheralReset (LEFT_BUT_PERIPH);
     SysCtlPeripheralReset (UP_BUT_PERIPH);
     SysCtlPeripheralReset (SYSCTL_PERIPH_GPIOB);
     SysCtlPeripheralReset (SYSCTL_PERIPH_GPIOC);
     SysCtlPeripheralReset (UART_USB_PERIPH_UART);
     SysCtlPeripheralReset (UART_USB_PERIPH_GPIO);
-    SysCtlPeripheralReset(SYSCTL_PERIPH_TIMER0);
+    SysCtlPeripheralReset (SYSCTL_PERIPH_TIMER0);
 
     initClock ();
-    initButtons ();
-    initYaw ();
     initAltitude ();
+    initYaw ();
+    initButtons ();
     initDisplay ();
     initUSB_UART ();
     initSwitches ();
@@ -99,12 +95,7 @@ main(void)
             // Find reference yaw on first take off
             if (reference_found == false)
             {
-                findReference();
-
-                reference_found = true;
-
-                // Reset yaw values
-                yaw_degree = 0;
+                reference_found = findReference();
             }
 
             // Increase main rotor duty cycle if up button pressed
@@ -146,7 +137,7 @@ main(void)
         yaw_degree = getYaw();
 
         // Display helicopter details
-        displayMeanVal (height_percent, yaw_degree);
+        displayMeanVal (height_percent, yaw_degree, var_check);
 
         // Update altitude module data
         duty_main = updateAltitude(height_percent, target_height_percent);
@@ -166,7 +157,6 @@ main(void)
 // To do:
 // Add flight mode land functionality
 // Remove functions from headers that don't need to be there
-// Clean #includes
 // Convert switches to interrupt on regular timer
 // Add pi as interrupt off timer
 // Change data transfer to struct

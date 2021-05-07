@@ -28,7 +28,7 @@
 static bool a_cur;                  // Current A-phase pin value
 static bool b_cur;                  // Current B-phase pin value
 static bool ref_found;              // Helicopter heading in degrees
-static bool ref_enabled = false;
+static volatile bool ref_enabled = false;
 
 static int16_t yaw;                 // Helicopter heading from quadrature code disc
 static int16_t yaw_degree;          // Helicopter heading in degrees
@@ -36,7 +36,7 @@ static int16_t target_yaw;
 
 static uint32_t pwm_tail_duty;
 static uint32_t height_sweep_duty = 30;
-static uint32_t yaw_sweep_duty = 60;
+static uint32_t yaw_sweep_duty = 50;
 
 //*****************************************************************************
 // Function prototypes
@@ -80,6 +80,8 @@ GPIORefPinIntHandler (void)
         ref_found = true;
     }
 
+    ref_enabled = false;
+
     // Clean up, clearing the interrupt
     GPIOIntClear(GPIO_PORTC_BASE, GPIO_PIN_4);
 }
@@ -119,8 +121,13 @@ initGPIOPins (void)
 void
 initYaw (void)
 {
+    SysCtlPeripheralReset (PWM_TAIL_PERIPH_GPIO); // Used for PWM output
+    SysCtlPeripheralReset (PWM_TAIL_PERIPH_PWM);  // Tail Rotor PWM
+
+
     initGPIOPins ();
     initialisePWMTail ();
+    initResponseTimer ();
 
     // Initialisation is complete, so turn on the output.
     PWMOutputState(PWM_TAIL_BASE, PWM_TAIL_OUTBIT, true);
@@ -187,18 +194,28 @@ updateYaw(int16_t yaw_degree_in, int16_t target_yaw_in)
 //*****************************************************************************
 // Sweep helicopter to find reference yaw
 //*****************************************************************************
-void
+bool
 findReference(void)
 {
     ref_enabled = true;
+    setPWMTail (PWM_MAIN_FREQ, yaw_sweep_duty);
+    setPWMMain (PWM_TAIL_FREQ, height_sweep_duty);
+    var_check++;
 
-    // Sweep helicopter at fixed rate
-    while (ref_found == false) {
-        setPWMTail (PWM_MAIN_FREQ, yaw_sweep_duty);
-        setPWMMain (PWM_TAIL_FREQ, height_sweep_duty);
-    }
+    // Alternative method
+    //    ref_enabled = true;
+    //
+    //    // Sweep helicopter at fixed rate
+    //    while (ref_found == false) {
+    //        setPWMTail (PWM_MAIN_FREQ, yaw_sweep_duty);
+    //        setPWMMain (PWM_TAIL_FREQ, height_sweep_duty);
+    //
+    //    }
+    //
+    //    ref_enabled = false;
 
-    ref_enabled = false;
+    return ref_found;
+
 }
 
 //*****************************************************************************
@@ -217,4 +234,13 @@ int16_t
 getYawTarget(void)
 {
     return target_yaw;
+}
+
+//*****************************************************************************
+// Pass reference found to reponse control module
+//*****************************************************************************
+bool
+refFound(void)
+{
+    return ref_found;
 }

@@ -17,6 +17,7 @@
 #include "circBufT.h"
 #include "pwmGen.h"
 #include "responseControl.h"
+
 //#include "driverlib/timer.h"
 //#include "utils/ustdlib.h"
 //#include "driverlib/systick.h"
@@ -107,10 +108,12 @@ initADC (void)
 void
 initAltitude(void)
 {
+    SysCtlPeripheralReset (PWM_MAIN_PERIPH_GPIO); // Used for PWM output
+    SysCtlPeripheralReset (PWM_MAIN_PERIPH_PWM);  // Main Rotor PWM
+
     initCircBuf (&g_inBuffer, BUF_SIZE);
     initADC ();
     initialisePWMMain ();
-    initResponseTimer ();
 
     // Initialisation is complete, so turn on the output.
     PWMOutputState(PWM_MAIN_BASE, PWM_MAIN_OUTBIT, true);

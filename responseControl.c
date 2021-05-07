@@ -13,6 +13,7 @@
 #include "pwmGen.h"
 #include "inc/hw_memmap.h"
 #include "driverlib/sysctl.h"
+
 //#include <stdbool.h>
 //#include "stdlib.h"
 
@@ -50,21 +51,23 @@ responseControlIntHandler (void)
     // Clear the timer interrupt flag
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
-    // Update data from altitude module
-    height_percent = getAltitudeHeight();
-    target_height_percent = getAltitudeTarget();
+    if (refFound()) {
+        // Update data from altitude module
+        height_percent = getAltitudeHeight();
+        target_height_percent = getAltitudeTarget();
 
-    // Calculate and set main rotor PWM using PI control
-    pwm_main_duty = dutyResponseMain(height_percent, target_height_percent);
-    setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
+        // Calculate and set main rotor PWM using PI control
+        pwm_main_duty = dutyResponseMain(height_percent, target_height_percent);
+        setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
 
-    // Updata data from yaw module
-    yaw_degree = getYaw();
-    target_yaw = getYawTarget();
+        // Update data from yaw module
+        yaw_degree = getYaw();
+        target_yaw = getYawTarget();
 
-    // Calculate and set tail rotor PWM using PI control
-    pwm_tail_duty = dutyResponseTail(yaw_degree, target_yaw);
-    setPWMTail (PWM_TAIL_FREQ, pwm_tail_duty);
+        // Calculate and set tail rotor PWM using PI control
+        pwm_tail_duty = dutyResponseTail(yaw_degree, target_yaw);
+        setPWMTail (PWM_TAIL_FREQ, pwm_tail_duty);
+    }
 }
 
 //*****************************************************************************
