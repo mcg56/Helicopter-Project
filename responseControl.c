@@ -37,12 +37,10 @@ static uint32_t height_sweep_duty = 30;
 static int16_t yaw_degree;
 static int16_t target_yaw;
 static uint32_t pwm_tail_duty;
-static uint32_t yaw_sweep_duty = 40;
+static uint32_t yaw_sweep_duty = 50;
 
 // Current helicopter state
 flight_mode current_state;
-
-
 
 //*****************************************************************************
 // Function prototypes
@@ -118,7 +116,7 @@ initResponseTimer (void)
     TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);
 
     // Set timer value
-    TimerLoadSet(TIMER0_BASE, TIMER_A, SysCtlClockGet() / 1000);
+    TimerLoadSet(TIMER0_BASE, TIMER_A, SysCtlClockGet() / 100);
 
     // Register interrupt
     TimerIntRegister(TIMER0_BASE, TIMER_A, responseControlIntHandler);
@@ -153,7 +151,7 @@ dutyResponseMain(int16_t current_height, int16_t target_percent)
     d_integral = INTEGRAL_GAIN_MAIN * (error - prev_error_main);
 
     // Total response duty cycle
-    duty_cycle = proportional + (integral_main + d_integral);
+    duty_cycle = proportional + (integral_main + d_integral) + OFFSET_DUTY_MAIN;
 
     // Limit duty cycle values
     if (duty_cycle > MAX_DUTY_MAIN) {
@@ -191,7 +189,7 @@ dutyResponseTail(int16_t current_yaw, int16_t target_yaw)
     d_integral = INTEGRAL_GAIN_TAIL * (error - prev_error_tail);
 
     // Total response duty cycle
-    duty_cycle = proportional + (integral_tail + d_integral);
+    duty_cycle = proportional + (integral_tail + d_integral) + OFFSET_DUTY_TAIL;
 
     //Limit duty cycle values
     if (duty_cycle > MAX_DUTY_TAIL) {
@@ -225,5 +223,3 @@ getMainDuty(void)
 {
     return pwm_main_duty;
 }
-
-

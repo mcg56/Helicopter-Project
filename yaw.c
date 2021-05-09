@@ -197,7 +197,6 @@ bool
 findReference(void)
 {
     ref_enabled = true;
-    var_check++;
 
     // Alternative method
     //    ref_enabled = true;

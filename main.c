@@ -105,9 +105,13 @@ main(void)
                 reference_found = findReference();
             } else {
                 // Increase main rotor duty cycle if up button pressed
-                if ((checkButton (UP) == PUSHED) && (target_height_percent < 90))
+                if (checkButton (UP) == PUSHED)
                 {
-                    target_height_percent += 10;
+                    if (target_height_percent < 90) {
+                        target_height_percent += 10;
+                    } else {
+                        target_height_percent = 100;
+                    }
                 }
 
                 // Decrease main rotor duty cycle if down button pressed
@@ -143,14 +147,14 @@ main(void)
         // Get yaw from yaw module
         yaw_degree = getYaw();
 
-        // Display helicopter details
-        displayMeanVal (height_percent, yaw_degree, var_check);
-
         // Update altitude module data
         duty_main = updateAltitude(height_percent, target_height_percent);
 
         // Update yaw module data
         duty_tail = updateYaw(yaw_degree, target_yaw);
+
+        // Display helicopter details
+        displayMeanVal (height_percent, yaw_degree, duty_main, duty_tail);
 
         // Get slowTick from system module
         slowTick = getSlowTick();
@@ -162,9 +166,10 @@ main(void)
 }
 
 // To do:
-// Add pi as interrupt off timer
 // Change data transfer to struct
+// Remove var check
 
 // Questions?
-// Location of flight state enum in switches?
+// How to reduce limit bashing
+// How to choose timer value
 

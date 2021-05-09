@@ -41,7 +41,7 @@ initDisplay (void)
 // Update display
 //*****************************************************************************
 void
-displayMeanVal(int16_t height_percent, int32_t display_deg, int var_check)
+displayMeanVal(int16_t height_percent, int32_t display_deg, uint32_t duty_main, uint32_t duty_tail)
 {
     char string[17];  // 16 characters across the display
 
@@ -49,7 +49,9 @@ displayMeanVal(int16_t height_percent, int32_t display_deg, int var_check)
     OLEDStringDraw (string, 0, 0);
     usnprintf (string, sizeof(string), "Yaw (deg) %5d", display_deg);
     OLEDStringDraw (string, 0, 1);
-    usnprintf (string, sizeof(string), "Yaw (deg) %5d", var_check);
+    usnprintf (string, sizeof(string), "Main Duty %5d%%", duty_main);
     OLEDStringDraw (string, 0, 2);
+    usnprintf (string, sizeof(string), "Tail Duty %5d%%", duty_tail);
+    OLEDStringDraw (string, 0, 3);
 }
 
