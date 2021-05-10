@@ -116,7 +116,7 @@ initResponseTimer (void)
     TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);
 
     // Set timer value
-    TimerLoadSet(TIMER0_BASE, TIMER_A, SysCtlClockGet() / 100);
+    TimerLoadSet(TIMER0_BASE, TIMER_A, SysCtlClockGet() / TIMER_RATE);
 
     // Register interrupt
     TimerIntRegister(TIMER0_BASE, TIMER_A, responseControlIntHandler);

@@ -14,19 +14,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
 //*****************************************************************************
 // Constants
 //*****************************************************************************
-#define PROPORTIONAL_GAIN_MAIN      0.2 // Proportional control gain for main rotor
-#define PROPORTIONAL_GAIN_TAIL      1  // Proportional control gain for tail rotor
-#define INTEGRAL_GAIN_MAIN          0.2  // Integral control gain for main rotor
-#define INTEGRAL_GAIN_TAIL          0  // Integral control gain for tail rotor
+#define PROPORTIONAL_GAIN_MAIN           0.4 // Proportional control gain for main rotor
+#define PROPORTIONAL_GAIN_TAIL           0.6  // Proportional control gain for tail rotor
+#define INTEGRAL_GAIN_MAIN               0.5  // Integral control gain for main rotor
+#define INTEGRAL_GAIN_TAIL               0  // Integral control gain for tail rotor
 #define MAX_DUTY_MAIN                    98 // Maximum helicopter duty cycle
 #define MIN_DUTY_MAIN                    20  // Minimum helicopter duty cycle
-#define OFFSET_DUTY_MAIN                 33 // Helicopter hover duty
+#define OFFSET_DUTY_MAIN                 30 // Helicopter hover duty
 #define OFFSET_DUTY_TAIL                 20 // Helicopter hover duty
 #define MAX_DUTY_TAIL                    97  // Minimum helicopter duty cycle
 #define MIN_DUTY_TAIL                    2  // Minimum helicopter duty cycle
+#define TIMER_RATE                       1000 // Determines rate of timer interrupt
 
 //*****************************************************************************
 // Intialise timer for PI control update

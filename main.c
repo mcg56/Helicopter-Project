@@ -167,7 +167,6 @@ main(void)
 
 // To do:
 // Change data transfer to struct
-// Remove var check
 
 // Questions?
 // How to reduce limit bashing
