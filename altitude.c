@@ -18,18 +18,6 @@
 #include "pwmGen.h"
 #include "responseControl.h"
 
-//#include "driverlib/timer.h"
-//#include "utils/ustdlib.h"
-//#include "driverlib/systick.h"
-//#include "driverlib/interrupt.h"
-//#include "driverlib/debug.h"
-//#include "driverlib/pin_map.h"
-//#include "driverlib/gpio.h"
-//#include "inc/hw_types.h"
-//#include "inc/hw_ints.h"
-//#include "stdlib.h"
-//#include <stdio.h>
-
 //*****************************************************************************
 // Global Variables
 //*****************************************************************************

@@ -15,15 +15,11 @@
 #include "inc/hw_memmap.h"
 #include "driverlib/sysctl.h"
 
-//#include <stdbool.h>
-//#include "stdlib.h"
 
 //*****************************************************************************
 // Global variables
 //*****************************************************************************
 // Integral control information
-static int16_t prev_error_main;
-static int16_t prev_error_tail;
 static float integral_main;
 static float integral_tail;
 
@@ -37,7 +33,8 @@ static uint32_t height_sweep_duty = 30;
 static int16_t yaw_degree;
 static int16_t target_yaw;
 static uint32_t pwm_tail_duty;
-static uint32_t yaw_sweep_duty = 50;
+static uint32_t yaw_sweep_duty = 60;
+
 
 // Current helicopter state
 flight_mode current_state;
@@ -148,7 +145,7 @@ dutyResponseMain(int16_t current_height, int16_t target_percent)
     proportional = PROPORTIONAL_GAIN_MAIN * error;
 
     // Integral response for current time step
-    d_integral = INTEGRAL_GAIN_MAIN * (error - prev_error_main);
+    d_integral = INTEGRAL_GAIN_MAIN * (error);
 
     // Total response duty cycle
     duty_cycle = proportional + (integral_main + d_integral) + OFFSET_DUTY_MAIN;
@@ -161,9 +158,6 @@ dutyResponseMain(int16_t current_height, int16_t target_percent)
     } else {
         integral_main += d_integral;
     }
-
-    // Update previous error for next time step
-    prev_error_main = error;
 
     return duty_cycle;
 }
@@ -178,15 +172,23 @@ dutyResponseTail(int16_t current_yaw, int16_t target_yaw)
     float d_integral;
     int16_t error;
     int16_t proportional;
+    int16_t full_rot = 360;    // Degrees in full rotation
+    int16_t half_rot = 180;    // Half rotation
 
-    // Current yaw error
-    error = target_yaw - current_yaw;
+    // Current yaw error accounting for 0 to 360 degree range
+    if (current_yaw > half_rot && (target_yaw < (current_yaw - half_rot)))  {
+        error = (full_rot - (current_yaw - target_yaw));
+    } else if (current_yaw < half_rot && (target_yaw > (current_yaw + half_rot))) {
+        error = -1 * (full_rot + (current_yaw - target_yaw));
+    } else {
+        error = target_yaw - current_yaw;
+    }
 
     // Proportional response
     proportional = PROPORTIONAL_GAIN_TAIL * error;
 
     // Integral response for current time step
-    d_integral = INTEGRAL_GAIN_TAIL * (error - prev_error_tail);
+    d_integral = INTEGRAL_GAIN_TAIL * (error);
 
     // Total response duty cycle
     duty_cycle = proportional + (integral_tail + d_integral) + OFFSET_DUTY_TAIL;
@@ -199,9 +201,6 @@ dutyResponseTail(int16_t current_yaw, int16_t target_yaw)
     } else {
         integral_tail += d_integral;
     }
-
-    // Update previous error for next time step
-    prev_error_tail = error;
 
     return duty_cycle;
 }

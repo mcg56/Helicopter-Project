@@ -143,7 +143,6 @@ calculateYaw(bool a_next, bool b_next)
     int16_t full_rot = 360;    // Degrees in full rotation
     int16_t tooth_count = 448; // Total count in quadrature code disc
 
-
     // Find rotation direction using current and next phase values
     cw = (!a_cur & !b_cur & !a_next & b_next) | (!a_cur & b_cur & a_next & b_next)
             | (a_cur & b_cur & a_next & !b_next) | (a_cur & !b_cur & !a_next & !b_next);
@@ -155,15 +154,12 @@ calculateYaw(bool a_next, bool b_next)
         yaw--;
     }
 
-
-//    // Limit yaw values
-//    if (yaw == tooth_count) {
-//        yaw = 0;
-//    } else if (yaw == -1) {
-//        yaw = tooth_count - 1;
-//    }
-
-
+    // Limit yaw values
+    if (yaw == tooth_count) {
+        yaw = 0;
+    } else if (yaw == -1) {
+        yaw = tooth_count - 1;
+    }
 
 //    // Limit yaw values
 //    if ((yaw == (tooth_count/2 + 1))) {
@@ -196,22 +192,10 @@ updateYaw(int16_t yaw_degree_in, int16_t target_yaw_in)
 bool
 findReference(void)
 {
+
     ref_enabled = true;
 
-    // Alternative method
-    //    ref_enabled = true;
-    //
-    //    // Sweep helicopter at fixed rate
-    //    while (ref_found == false) {
-    //        setPWMTail (PWM_MAIN_FREQ, yaw_sweep_duty);
-    //        setPWMMain (PWM_TAIL_FREQ, height_sweep_duty);
-    //
-    //    }
-    //
-    //    ref_enabled = false;
-
     return ref_found;
-
 }
 
 //*****************************************************************************

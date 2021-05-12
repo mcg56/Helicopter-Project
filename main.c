@@ -19,20 +19,6 @@
 #include "system.h"
 #include "switches.h"
 
-//#include "driverlib/debug.h"
-//#include "driverlib/pin_map.h"
-//#include "utils/ustdlib.h"
-//#include "circBufT.h"
-//#include "driverlib/systick.h"
-//#include "stdlib.h"
-//#include "inc/hw_memmap.h"
-//#include "inc/hw_types.h"
-//#include "inc/hw_ints.h"
-//#include "driverlib/adc.h"
-//#include "driverlib/gpio.h"
-//#include <stdio.h>
-//#include "pwmGen.h"
-
 int
 main(void)
 {
@@ -127,14 +113,23 @@ main(void)
                 // Decrease yaw if left button pushed
                 if ((checkButton (LEFT) == PUSHED))
                 {
-                    target_yaw -= 15;
+                    if (target_yaw == 0) {
+                        target_yaw = 345;
+                    } else {
+                        target_yaw -= 15;
+                    }
                 }
 
                 // Increase yaw if right button pushed
                 if ((checkButton (RIGHT) == PUSHED))
                 {
-                    target_yaw += 15;
+                    if (target_yaw == 345) {
+                        target_yaw = 0;
+                    } else {
+                        target_yaw += 15;
+                    }
                 }
+
             }
         }
 
@@ -167,9 +162,9 @@ main(void)
 
 // To do:
 // Change data transfer to struct
-// Remove var check
+// Reduce response interrupt size
+// Overloop
 
 // Questions?
-// How to reduce limit bashing
 // How to choose timer value
 
