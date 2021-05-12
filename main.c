@@ -19,6 +19,7 @@
 #include "system.h"
 #include "switches.h"
 
+
 int
 main(void)
 {
@@ -164,7 +165,7 @@ main(void)
 // To do:
 // Change data transfer to struct
 // Reduce response interrupt size
-// Overloop
+
 
 // Questions?
 // How to choose timer value

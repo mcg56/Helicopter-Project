@@ -32,8 +32,8 @@
  *******************************************/
 void initialisePWMMain (void);
 void initialisePWMTail (void);
-void setPWMMain (uint32_t u32Freq, uint32_t u32Duty);
-void setPWMTail (uint32_t u32Freq, uint32_t u32Duty);
+void setPWMMain (uint32_t u32Freq, float u32Duty);
+void setPWMTail (uint32_t u32Freq, float u32Duty);
 
 
 /*********************************************************
@@ -88,7 +88,7 @@ initialisePWMTail (void)
  * Function to set the freq, duty cycle of M1PWM5
  ********************************************************/
 void
-setPWMTail (uint32_t ui32Freq, uint32_t ui32Duty)
+setPWMTail (uint32_t ui32Freq, float ui32Duty)
 {
     // Calculate the PWM period corresponding to the freq.
     uint32_t ui32Period =
@@ -103,7 +103,7 @@ setPWMTail (uint32_t ui32Freq, uint32_t ui32Duty)
  * Function to set the freq, duty cycle of M0PWM7
  ********************************************************/
 void
-setPWMMain (uint32_t ui32Freq, uint32_t ui32Duty)
+setPWMMain (uint32_t ui32Freq, float ui32Duty)
 {
     // Calculate the PWM period corresponding to the freq.
     uint32_t ui32Period =

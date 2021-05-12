@@ -68,12 +68,12 @@ initialisePWMTail (void);
  * Function to set the freq, duty cycle of M1PWM5
  ********************************************************/
 void
-setPWMTail (uint32_t ui32Freq, uint32_t ui32Duty);
+setPWMTail (uint32_t ui32Freq, float ui32Duty);
 
 /********************************************************
  * Function to set the freq, duty cycle of M0PWM7
  ********************************************************/
 void
-setPWMMain (uint32_t ui32Freq, uint32_t ui32Duty);
+setPWMMain (uint32_t ui32Freq, float ui32Duty);
 
 #endif /* PWMGEN_H_ */

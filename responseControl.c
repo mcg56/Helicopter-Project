@@ -24,17 +24,16 @@ static float integral_main;
 static float integral_tail;
 
 // Altitude data
-static int16_t height_percent;
-static int16_t target_height_percent;
-static uint32_t pwm_main_duty;
-static uint32_t height_sweep_duty = 30;
+static float height_percent;
+static float target_height_percent;
+static float pwm_main_duty;
+static float height_sweep_duty = 30;
 
 // Yaw data
 static int16_t yaw_degree;
 static int16_t target_yaw;
 static uint32_t pwm_tail_duty;
 static uint32_t yaw_sweep_duty = 60;
-
 
 // Current helicopter state
 flight_mode current_state;
@@ -113,7 +112,7 @@ initResponseTimer (void)
     TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);
 
     // Set timer value
-    TimerLoadSet(TIMER0_BASE, TIMER_A, SysCtlClockGet() / 100);
+    TimerLoadSet(TIMER0_BASE, TIMER_A, SysCtlClockGet() / TIMER_RATE);
 
     // Register interrupt
     TimerIntRegister(TIMER0_BASE, TIMER_A, responseControlIntHandler);
@@ -134,9 +133,9 @@ int32_t
 dutyResponseMain(int16_t current_height, int16_t target_percent)
 {
     float d_integral;
-    int32_t duty_cycle;
-    int16_t error;
-    int16_t proportional;
+    int duty_cycle;
+    float error;
+    float proportional;
 
     // Current height error
     error = target_percent - current_height;
@@ -168,7 +167,7 @@ dutyResponseMain(int16_t current_height, int16_t target_percent)
 int32_t
 dutyResponseTail(int16_t current_yaw, int16_t target_yaw)
 {
-    int32_t duty_cycle;
+    uint32_t duty_cycle;
     float d_integral;
     int16_t error;
     int16_t proportional;
@@ -183,6 +182,7 @@ dutyResponseTail(int16_t current_yaw, int16_t target_yaw)
     } else {
         error = target_yaw - current_yaw;
     }
+
 
     // Proportional response
     proportional = PROPORTIONAL_GAIN_TAIL * error;
