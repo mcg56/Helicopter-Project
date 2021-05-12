@@ -19,6 +19,8 @@
 #include "system.h"
 #include "switches.h"
 
+#include "responseControl.h"
+
 //#include "driverlib/debug.h"
 //#include "driverlib/pin_map.h"
 //#include "utils/ustdlib.h"

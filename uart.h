@@ -47,7 +47,7 @@ void
 UARTSend (char *pucBuffer);
 
 void
-UARTTransData (int16_t current_height, int16_t target_height_percent, int16_t yaw_degree, int16_t target_yaw, uint32_t duty_main, uint32_t duty_tail, flight_mode current_state, uint8_t slowTick);
+UARTTransData (int16_t current_height, int16_t target_height_percent, int16_t yaw_degree, int16_t target_yaw, uint32_t duty_main, int32_t duty_tail, flight_mode current_state, uint8_t slowTick);
 
 
 
