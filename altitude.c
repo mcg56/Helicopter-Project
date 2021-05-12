@@ -22,8 +22,9 @@
 // Global Variables
 //*****************************************************************************
 static circBuf_t g_inBuffer;
-static int16_t height_percent;
-static int16_t target_height_percent;
+static height_data_s height_data;
+//static int16_t height_percent;
+//static int16_t target_height_percent;
 static uint32_t pwm_main_duty;
 
 
@@ -152,8 +153,8 @@ uint32_t
 updateAltitude(int16_t height_percent_in, int16_t target_height_percent_in)
 {
     // Update module values
-    height_percent = height_percent_in;
-    target_height_percent = target_height_percent_in;
+    height_data.current = height_percent_in;
+    height_data.target = target_height_percent_in;
 
     // Update PWM duty from response control module
     pwm_main_duty = getMainDuty();
@@ -167,7 +168,7 @@ updateAltitude(int16_t height_percent_in, int16_t target_height_percent_in)
 int16_t
 getAltitudeHeight(void)
 {
-    return height_percent;
+    return height_data.current;
 }
 
 //*****************************************************************************
@@ -176,7 +177,7 @@ getAltitudeHeight(void)
 int16_t
 getAltitudeTarget(void)
 {
-    return target_height_percent;
+    return height_data.target;
 }
 
 

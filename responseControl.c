@@ -176,10 +176,10 @@ dutyResponseTail(int16_t current_yaw, int16_t target_yaw)
     int16_t half_rot = 180;    // Half rotation
 
     // Current yaw error accounting for 0 to 360 degree range
-    if (current_yaw > half_rot && (target_yaw < (current_yaw - half_rot)))  {
-        error = (full_rot - (current_yaw - target_yaw));
-    } else if (current_yaw < half_rot && (target_yaw > (current_yaw + half_rot))) {
-        error = -1 * (full_rot + (current_yaw - target_yaw));
+    if (current_yaw > 180 && (target_yaw < (current_yaw - 180)))  {
+        error = (360 - (current_yaw - target_yaw));
+    } else if (current_yaw < 180 && (target_yaw > (current_yaw + 180))) {
+        error = -1 * (360 + (current_yaw - target_yaw));
     } else {
         error = target_yaw - current_yaw;
     }

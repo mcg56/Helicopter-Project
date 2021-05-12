@@ -23,6 +23,7 @@ int
 main(void)
 {
     flight_mode current_state;
+    height_data_s height_data;
     int32_t current_height;
     int32_t landed_height;
     uint32_t duty_main;
@@ -81,7 +82,7 @@ main(void)
             target_yaw = 0;
 
             // Update state to landed when targets reached
-            if ((yaw_degree > -20) && (yaw_degree <= 20) && height_percent == 0) {
+            if ((yaw_degree > -20) && (yaw_degree <= 20) && height_data.current == 0) {
                 current_state = landed;
             }
         case take_off:
@@ -137,25 +138,25 @@ main(void)
         current_height = getHeight();
 
         // Convert ADC height to percentage
-        height_percent = calculate_percent_height(current_height, landed_height);
+        height_data.current = calculate_percent_height(current_height, landed_height);
 
         // Get yaw from yaw module
         yaw_degree = getYaw();
 
         // Update altitude module data
-        duty_main = updateAltitude(height_percent, target_height_percent);
+        duty_main = updateAltitude(height_data.current, target_height_percent);
 
         // Update yaw module data
         duty_tail = updateYaw(yaw_degree, target_yaw);
 
         // Display helicopter details
-        displayMeanVal (height_percent, yaw_degree, duty_main, duty_tail);
+        displayMeanVal (height_data.current, yaw_degree, duty_main, duty_tail);
 
         // Get slowTick from system module
         slowTick = getSlowTick();
 
         // Carry out UART transmission of helicopter data
-        UARTTransData (height_percent, target_height_percent, yaw_degree, target_yaw, duty_main, duty_tail, current_state, slowTick);
+        UARTTransData (height_data.current, target_height_percent, yaw_degree, target_yaw, duty_main, duty_tail, current_state, slowTick);
 
     }
 }
