@@ -31,8 +31,9 @@ static float pwm_main_duty;
 static float height_sweep_duty = 30;
 
 // Yaw data
-static int16_t yaw_degree;
-static int16_t target_yaw;
+static yaw_data_s yaw_data;
+//static int16_t yaw_degree;
+//static int16_t target_yaw;
 static uint32_t pwm_tail_duty;
 static uint32_t yaw_sweep_duty = 60;
 
@@ -43,7 +44,7 @@ flight_mode current_state;
 // Function prototypes
 //*****************************************************************************
 int32_t dutyResponseMain();
-int32_t dutyResponseTail(int16_t current_yaw, int16_t target_yaw);
+int32_t dutyResponseTail();
 
 //*****************************************************************************
 // The interrupt handler for the for timer interrupt.
@@ -78,11 +79,10 @@ responseControlIntHandler (void)
             pwm_main_duty = dutyResponseMain();
 
             // Update data from yaw module
-            yaw_degree = getYaw();
-            target_yaw = getYawTarget();
+            yaw_data = getYawData();
 
             // Calculate and set tail rotor PWM using PI control
-            pwm_tail_duty = dutyResponseTail(yaw_degree, target_yaw);
+            pwm_tail_duty = dutyResponseTail();
         } else {
             // Set duty to sweeping values during intialisation
             pwm_tail_duty = yaw_sweep_duty;
@@ -165,7 +165,7 @@ dutyResponseMain()
 // Calculate helicopter tail rotor response using PI control
 //*****************************************************************************
 int32_t
-dutyResponseTail(int16_t current_yaw, int16_t target_yaw)
+dutyResponseTail()
 {
     uint32_t duty_cycle;
     float d_integral;
@@ -175,12 +175,12 @@ dutyResponseTail(int16_t current_yaw, int16_t target_yaw)
     //int16_t half_rot = 180;    // Half rotation
 
     // Current yaw error accounting for 0 to 360 degree range
-    if (current_yaw > 180 && (target_yaw < (current_yaw - 180)))  {
-        error = (360 - (current_yaw - target_yaw));
-    } else if (current_yaw < 180 && (target_yaw > (current_yaw + 180))) {
-        error = -1 * (360 + (current_yaw - target_yaw));
+    if (yaw_data.current > 180 && (yaw_data.target < (yaw_data.current - 180)))  {
+        error = (360 - (yaw_data.current - yaw_data.target));
+    } else if (yaw_data.current < 180 && (yaw_data.target > (yaw_data.current + 180))) {
+        error = -1 * (360 + (yaw_data.current - yaw_data.target));
     } else {
-        error = target_yaw - current_yaw;
+        error = yaw_data.target - yaw_data.current;
     }
 
 

@@ -17,11 +17,6 @@
 #include "responseControl.h"
 #include "pwmGen.h"
 
-//#include "driverlib/interrupt.h"
-//#include "driverlib/debug.h"
-//#include "inc/hw_ints.h"
-//#include "stdlib.h"
-
 //*****************************************************************************
 // Global variables
 //*****************************************************************************
@@ -30,9 +25,10 @@ static bool b_cur;                  // Current B-phase pin value
 static bool ref_found;              // Helicopter heading in degrees
 static volatile bool ref_enabled = false;
 
-static int16_t yaw;                 // Helicopter heading from quadrature code disc
-static int16_t yaw_degree;          // Helicopter heading in degrees
-static int16_t target_yaw;
+static yaw_data_s yaw_data;
+static int16_t yaw;                   // Helicopter heading from quadrature code disc
+//static int16_t yaw_degree;          // Helicopter heading in degrees
+//static int16_t target_yaw;
 
 static uint32_t pwm_tail_duty;
 
@@ -75,7 +71,7 @@ GPIORefPinIntHandler (void)
     // Set reference found to true and reset yaw values
     if (ref_enabled) {
         yaw = 0;
-        yaw_degree = 0;
+        yaw_data.current = 0;
         ref_found = true;
     }
 
@@ -170,17 +166,17 @@ calculateYaw(bool a_next, bool b_next)
 
 
     // Convert yaw value to degrees with rounded value
-    yaw_degree = (2 * yaw * full_rot + 1)/(2 * tooth_count);
+    yaw_data.current = (2 * yaw * full_rot + 1)/(2 * tooth_count);
 }
 
 //*****************************************************************************
 // Update yaw helicopter control
 //*****************************************************************************
 uint32_t
-updateYaw(int16_t yaw_degree_in, int16_t target_yaw_in)
+updateYaw(yaw_data_s yaw_data_in)
 {
-    yaw_degree = yaw_degree_in;
-    target_yaw = target_yaw_in;
+    yaw_data.current = yaw_data_in.current;
+    yaw_data.target = yaw_data_in.target;
     pwm_tail_duty = getTailDuty();
 
     return pwm_tail_duty;
@@ -201,19 +197,19 @@ findReference(void)
 //*****************************************************************************
 // Pass current yaw to other modules
 //*****************************************************************************
-int16_t
-getYaw(void)
+yaw_data_s
+getYawData(void)
 {
-    return yaw_degree;
+    return yaw_data;
 }
 
 //*****************************************************************************
-// Pass yaw target to reponse control module
+// Pass current yaw to other modules
 //*****************************************************************************
 int16_t
-getYawTarget(void)
+getYawCurrent(void)
 {
-    return target_yaw;
+    return yaw_data.current;
 }
 
 //*****************************************************************************

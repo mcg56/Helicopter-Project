@@ -15,6 +15,14 @@
 #include <stdio.h>
 
 //*************************************************************
+// Type definitions
+//*************************************************************
+typedef struct {
+    int16_t current;
+    int16_t target;
+} yaw_data_s;
+
+//*************************************************************
 // Intialise Yaw module
 //*************************************************************
 void
@@ -24,7 +32,7 @@ initYaw (void);
 // Update yaw helicopter control
 //*****************************************************************************
 uint32_t
-updateYaw(int16_t yaw_degree_in, int16_t target_yaw_in);
+updateYaw(yaw_data_s yaw_data_in);
 
 //*****************************************************************************
 // Sweep helicopter to find reference yaw
@@ -35,14 +43,14 @@ findReference(void);
 //*****************************************************************************
 // Pass current yaw to other modules
 //*****************************************************************************
-int16_t
-getYaw(void);
+yaw_data_s
+getYawData();
 
 //*****************************************************************************
-// Pass yaw target to reponse control module
+// Pass current yaw to other modules
 //*****************************************************************************
 int16_t
-getYawTarget(void);
+getYawCurrent(void);
 
 //*****************************************************************************
 // Pass reference found to reponse control module

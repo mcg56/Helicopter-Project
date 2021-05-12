@@ -20,6 +20,7 @@
 #include <stdbool.h>
 #include "switches.h"
 #include "altitude.h"
+#include "yaw.h"
 
 //********************************************************
 // Constants
@@ -37,7 +38,9 @@
 #define UART_USB_GPIO_PIN_TX    GPIO_PIN_1
 #define UART_USB_GPIO_PINS      UART_USB_GPIO_PIN_RX | UART_USB_GPIO_PIN_TX
 
-
+//**********************************************************************
+// Initialise UART
+//**********************************************************************
 void
 initUSB_UART (void);
 
@@ -47,9 +50,11 @@ initUSB_UART (void);
 void
 UARTSend (char *pucBuffer);
 
+//**********************************************************************
+// Update string to be send via UART
+//**********************************************************************
 void
-UARTTransData (height_data_s height_data, int16_t yaw_degree, int16_t target_yaw, uint32_t duty_main, int32_t duty_tail, flight_mode current_state, uint8_t slowTick);
-
+UARTTransData (height_data_s height_data, yaw_data_s yaw_data, uint32_t duty_main, int32_t duty_tail, flight_mode current_state, uint8_t slowTick);
 
 
 #endif /* UART_H_ */
