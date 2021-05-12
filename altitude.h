@@ -50,18 +50,12 @@ getHeight(void);
 // Update helicopter altitute control
 //*****************************************************************************
 uint32_t
-updateAltitude(int16_t height_percent, int16_t target_height_percent);
+updateAltitude(height_data_s height_data_in);
 
 //*****************************************************************************
-// Passes current height to reponse module
+// Passes height data to reponse module
 //*****************************************************************************
-int16_t
-getAltitudeHeight(void);
-
-//*****************************************************************************
-// Passes target height to reponse module
-//*****************************************************************************
-int16_t
-getAltitudeTarget(void);
+height_data_s
+getAltitudeData(void);
 
 #endif /* ALTITUDE_H_ */

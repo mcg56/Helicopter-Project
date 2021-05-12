@@ -24,8 +24,9 @@ static float integral_main;
 static float integral_tail;
 
 // Altitude data
-static float height_percent;
-static float target_height_percent;
+static height_data_s height_data;
+//static float height_percent;
+//static float target_height_percent;
 static float pwm_main_duty;
 static float height_sweep_duty = 30;
 
@@ -41,7 +42,7 @@ flight_mode current_state;
 //*****************************************************************************
 // Function prototypes
 //*****************************************************************************
-int32_t dutyResponseMain(int16_t current_height, int16_t target_percent);
+int32_t dutyResponseMain();
 int32_t dutyResponseTail(int16_t current_yaw, int16_t target_yaw);
 
 //*****************************************************************************
@@ -71,11 +72,10 @@ responseControlIntHandler (void)
         // Initiate PI control is initialisation finished
         if (refFound()) {
             // Update data from altitude module
-            height_percent = getAltitudeHeight();
-            target_height_percent = getAltitudeTarget();
+            height_data = getAltitudeData();
 
             // Calculate and set main rotor PWM using PI control
-            pwm_main_duty = dutyResponseMain(height_percent, target_height_percent);
+            pwm_main_duty = dutyResponseMain();
 
             // Update data from yaw module
             yaw_degree = getYaw();
@@ -130,7 +130,7 @@ initResponseTimer (void)
 // Calculate helicopter main rotor response using PI control
 //*****************************************************************************
 int32_t
-dutyResponseMain(int16_t current_height, int16_t target_percent)
+dutyResponseMain()
 {
     float d_integral;
     int duty_cycle;
@@ -138,7 +138,7 @@ dutyResponseMain(int16_t current_height, int16_t target_percent)
     float proportional;
 
     // Current height error
-    error = target_percent - current_height;
+    error = height_data.target - height_data.current;
 
     // Proportional response
     proportional = PROPORTIONAL_GAIN_MAIN * error;
@@ -171,8 +171,8 @@ dutyResponseTail(int16_t current_yaw, int16_t target_yaw)
     float d_integral;
     int16_t error;
     int16_t proportional;
-    int16_t full_rot = 360;    // Degrees in full rotation
-    int16_t half_rot = 180;    // Half rotation
+    //int16_t full_rot = 360;    // Degrees in full rotation
+    //int16_t half_rot = 180;    // Half rotation
 
     // Current yaw error accounting for 0 to 360 degree range
     if (current_yaw > 180 && (target_yaw < (current_yaw - 180)))  {

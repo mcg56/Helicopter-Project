@@ -29,8 +29,8 @@ main(void)
     int32_t landed_height;
     uint32_t duty_main;
     uint32_t duty_tail;
-    int16_t height_percent;
-    int16_t target_height_percent;
+    //int16_t height_percent;
+    //int16_t target_height_percent;
     int16_t yaw_degree;
     int16_t target_yaw;
     uint8_t slowTick;
@@ -76,10 +76,11 @@ main(void)
         switch (current_state)
         {
         case landed:
+            height_data.target = 0;
             break;
         case landing:
             // Set target values to home
-            target_height_percent = 0;
+            height_data.target = 0;
             target_yaw = 0;
 
             // Update state to landed when targets reached
@@ -95,20 +96,20 @@ main(void)
                 // Increase main rotor duty cycle if up button pressed
                 if (checkButton (UP) == PUSHED)
                 {
-                    if (target_height_percent < 90) {
-                        target_height_percent += 10;
+                    if (height_data.target < 90) {
+                        height_data.target += 10;
                     } else {
-                        target_height_percent = 100;
+                        height_data.target = 100;
                     }
                 }
 
                 // Decrease main rotor duty cycle if down button pressed
                 if (checkButton (DOWN) == PUSHED)
                 {
-                    if (target_height_percent > 10) {
-                        target_height_percent -= 10;
+                    if (height_data.target > 10) {
+                        height_data.target -= 10;
                     } else {
-                        target_height_percent = 0;
+                        height_data.target = 0;
                     }
                 }
 
@@ -145,7 +146,7 @@ main(void)
         yaw_degree = getYaw();
 
         // Update altitude module data
-        duty_main = updateAltitude(height_data.current, target_height_percent);
+        duty_main = updateAltitude(height_data);
 
         // Update yaw module data
         duty_tail = updateYaw(yaw_degree, target_yaw);
@@ -157,7 +158,7 @@ main(void)
         slowTick = getSlowTick();
 
         // Carry out UART transmission of helicopter data
-        UARTTransData (height_data.current, target_height_percent, yaw_degree, target_yaw, duty_main, duty_tail, current_state, slowTick);
+        UARTTransData (height_data, yaw_degree, target_yaw, duty_main, duty_tail, current_state, slowTick);
 
     }
 }

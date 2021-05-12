@@ -18,6 +18,7 @@
 #include "driverlib/pin_map.h"
 #include "utils/ustdlib.h"
 #include "uart.h"
+#include "altitude.h"
 
 //#include "inc/hw_types.h"
 //#include "inc/hw_ints.h"
@@ -72,7 +73,7 @@ UARTSend (char *pucBuffer)
 }
 
 void
-UARTTransData (int16_t current_height, int16_t target_height_percent, int16_t yaw_degree, int16_t target_yaw, uint32_t duty_main, int32_t duty_tail, flight_mode current_state, uint8_t slowTick)
+UARTTransData (height_data_s height_data, int16_t yaw_degree, int16_t target_yaw, uint32_t duty_main, int32_t duty_tail, flight_mode current_state, uint8_t slowTick)
 {
     char flight_status[10];
 
@@ -93,7 +94,7 @@ UARTTransData (int16_t current_height, int16_t target_height_percent, int16_t ya
         }
 
         // Form and send a status message to the console
-        usprintf (statusStr, "----------------\r\nAlt: %2d [%2d]\r\nYaw: %2d [%2d]\r\nMain %2d Tail %2d\r\nMode: %s\r\n", current_height, target_height_percent, yaw_degree, target_yaw, duty_main, duty_tail, flight_status); // * usprintf
+        usprintf (statusStr, "----------------\r\nAlt: %2d [%2d]\r\nYaw: %2d [%2d]\r\nMain %2d Tail %2d\r\nMode: %s\r\n", height_data.current, height_data.target, yaw_degree, target_yaw, duty_main, duty_tail, flight_status); // * usprintf
         UARTSend (statusStr);
     }
 

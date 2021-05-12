@@ -150,11 +150,11 @@ getHeight(void)
 // Update helicopter altitute module data
 //*****************************************************************************
 uint32_t
-updateAltitude(int16_t height_percent_in, int16_t target_height_percent_in)
+updateAltitude(height_data_s height_data_in)
 {
     // Update module values
-    height_data.current = height_percent_in;
-    height_data.target = target_height_percent_in;
+    height_data.current = height_data_in.current;
+    height_data.target = height_data_in.target;
 
     // Update PWM duty from response control module
     pwm_main_duty = getMainDuty();
@@ -163,21 +163,12 @@ updateAltitude(int16_t height_percent_in, int16_t target_height_percent_in)
 }
 
 //*****************************************************************************
-// Passes current height to reponse module
+// Passes height data to reponse module
 //*****************************************************************************
-int16_t
-getAltitudeHeight(void)
+height_data_s
+getAltitudeData(void)
 {
-    return height_data.current;
-}
-
-//*****************************************************************************
-// Passes target height to reponse module
-//*****************************************************************************
-int16_t
-getAltitudeTarget(void)
-{
-    return height_data.target;
+    return height_data;
 }
 
 
