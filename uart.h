@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "switches.h"
+#include "flight_mode.h"
 #include "altitude.h"
 #include "yaw.h"
 

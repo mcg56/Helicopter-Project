@@ -11,7 +11,7 @@
 #include "yaw.h"
 #include "altitude.h"
 #include "pwmGen.h"
-#include "switches.h"
+#include "flight_mode.h"
 #include "inc/hw_memmap.h"
 #include "driverlib/sysctl.h"
 

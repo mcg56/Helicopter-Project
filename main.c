@@ -17,7 +17,7 @@
 #include "display.h"
 #include "uart.h"
 #include "system.h"
-#include "switches.h"
+#include "flight_mode.h"
 #include "responseControl.h"
 
 
