@@ -35,6 +35,7 @@ static uint32_t yaw_sweep_duty = 55;
 
 // Current helicopter state
 flight_mode current_state;
+bool PI_control_enable = false;
 
 //*****************************************************************************
 // Function prototypes
@@ -51,44 +52,24 @@ responseControlIntHandler (void)
     // Clear the timer interrupt flag
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
-    // Update helicopter state
-    current_state = getState();
+    if (PI_control_enable) {
+        // Update data from altitude module
+        height_data = getAltitudeData();
 
-    switch (current_state)
-    {
-    case landed:
-        // Turn off rotors
-        pwm_tail_duty = 0;
-        pwm_main_duty = 0;
-        setPWMTail (PWM_TAIL_FREQ, pwm_tail_duty);
-        setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
-        break;
-    case landing:
-        // Use same control as take off so continue
-    case flying:
-        // Initiate PI control is initialisation finished
-        if (refFound()) {
-            // Update data from altitude module
-            height_data = getAltitudeData();
+        // Calculate and set main rotor PWM using PI control
+        pwm_main_duty = dutyResponseMain();
 
-            // Calculate and set main rotor PWM using PI control
-            pwm_main_duty = dutyResponseMain();
+        // Update data from yaw module
+        yaw_data = getYawData();
 
-            // Update data from yaw module
-            yaw_data = getYawData();
-
-            // Calculate and set tail rotor PWM using PI control
-            pwm_tail_duty = dutyResponseTail();
-        } else {
-            // Set duty to sweeping values during intialisation
-            pwm_tail_duty = yaw_sweep_duty;
-            pwm_main_duty = height_sweep_duty;
-        }
+        // Calculate and set tail rotor PWM using PI control
+        pwm_tail_duty = dutyResponseTail();
 
         // Set duty values
         setPWMTail (PWM_TAIL_FREQ, pwm_tail_duty);
         setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
     }
+
 }
 
 //*****************************************************************************
@@ -114,6 +95,43 @@ initResponseTimer (void)
 
     // Enable timer
     TimerEnable(TIMER0_BASE, TIMER_A);
+}
+
+//*****************************************************************************
+// Update PWM based on helicopter state
+//*****************************************************************************
+void
+updateResponseControl (void)
+{
+    // Update helicopter state
+     current_state = getState();
+
+     switch (current_state)
+     {
+     case landed:
+         // Turn off rotors
+         PI_control_enable = false;
+         pwm_tail_duty = 0;
+         pwm_main_duty = 0;
+         setPWMTail (PWM_TAIL_FREQ, pwm_tail_duty);
+         setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
+         break;
+     case landing:
+         // Use same control as take off so continue
+     case flying:
+         // Initiate PI control is initialisation finished
+         if (refFound()) {
+             PI_control_enable = true;
+         } else {
+             // Set duty to sweeping values during intialisation
+             pwm_tail_duty = yaw_sweep_duty;
+             pwm_main_duty = height_sweep_duty;
+
+             // Set duty values
+             setPWMTail (PWM_TAIL_FREQ, pwm_tail_duty);
+             setPWMMain (PWM_MAIN_FREQ, pwm_main_duty);
+         }
+     }
 }
 
 //*****************************************************************************
@@ -172,7 +190,6 @@ dutyResponseTail()
     } else {
         error = yaw_data.target - yaw_data.current;
     }
-
 
     // Proportional response
     proportional = PROPORTIONAL_GAIN_TAIL * error;

@@ -23,8 +23,6 @@
 //*****************************************************************************
 static circBuf_t g_inBuffer;
 static height_data_s height_data;
-//static int16_t height_percent;
-//static int16_t target_height_percent;
 static uint32_t pwm_main_duty;
 
 

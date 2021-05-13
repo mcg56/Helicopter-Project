@@ -18,6 +18,7 @@
 #include "uart.h"
 #include "system.h"
 #include "switches.h"
+#include "responseControl.h"
 
 
 int
@@ -147,6 +148,9 @@ main(void)
 
         // Update yaw module data
         duty_tail = updateYaw(yaw_data);
+
+        // Update response control
+        updateResponseControl();
 
         // Display helicopter details
         displayMeanVal (height_data.current, yaw_data.current, duty_main, duty_tail);
