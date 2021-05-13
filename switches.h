@@ -24,7 +24,7 @@
 #define SWITCH_ONE_PERIPH  SYSCTL_PERIPH_GPIOA
 #define SWITCH_ONE_PORT_BASE  GPIO_PORTA_BASE
 #define SWITCH_ONE_PIN  GPIO_PIN_7
-#define SWITCH_ONE_NORMAL  false
+#define SWITCH_ONE_NORMAL  true
 #define NUM_SWITCH_POLLS 3
 
 //*****************************************************************************
@@ -32,7 +32,7 @@
 //*****************************************************************************
 typedef enum {
     landed,
-    take_off,
+    flying,
     landing,
 } flight_mode;
 

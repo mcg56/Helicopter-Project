@@ -30,10 +30,6 @@ main(void)
     int32_t landed_height;
     uint32_t duty_main;
     uint32_t duty_tail;
-    //int16_t height_percent;
-    //int16_t target_height_percent;
-    //int16_t yaw_degree;
-    //int16_t target_yaw;
     uint8_t slowTick;
     bool reference_found = false;
 
@@ -85,10 +81,11 @@ main(void)
             yaw_data.target = 0;
 
             // Update state to landed when targets reached
-            if ((yaw_data.current > 355) && (yaw_data.current <= 20) && height_data.current == 0) {
+            if (((yaw_data.current > 340) || (yaw_data.current <= 20)) && height_data.current == 0) {
                 current_state = landed;
             }
-        case take_off:
+            break;
+        case flying:
             // Find reference yaw on first take off and prevent button usage
             if (reference_found == false)
             {
@@ -133,7 +130,6 @@ main(void)
                         yaw_data.target += 15;
                     }
                 }
-
             }
         }
 
@@ -160,7 +156,6 @@ main(void)
 
         // Carry out UART transmission of helicopter data
         UARTTransData (height_data, yaw_data, duty_main, duty_tail, current_state, slowTick);
-
     }
 }
 

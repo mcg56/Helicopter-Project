@@ -25,17 +25,13 @@ static float integral_tail;
 
 // Altitude data
 static height_data_s height_data;
-//static float height_percent;
-//static float target_height_percent;
 static float pwm_main_duty;
 static float height_sweep_duty = 30;
 
 // Yaw data
 static yaw_data_s yaw_data;
-//static int16_t yaw_degree;
-//static int16_t target_yaw;
 static uint32_t pwm_tail_duty;
-static uint32_t yaw_sweep_duty = 60;
+static uint32_t yaw_sweep_duty = 55;
 
 // Current helicopter state
 flight_mode current_state;
@@ -69,7 +65,7 @@ responseControlIntHandler (void)
         break;
     case landing:
         // Use same control as take off so continue
-    case take_off:
+    case flying:
         // Initiate PI control is initialisation finished
         if (refFound()) {
             // Update data from altitude module
@@ -101,14 +97,10 @@ responseControlIntHandler (void)
 void
 initResponseTimer (void)
 {
-    //
     // The Timer0 peripheral must be enabled for use.
-    //
     SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
 
-    //
     // Configure Timer0B as a 16-bit periodic timer.
-    //
     TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);
 
     // Set timer value
@@ -117,9 +109,7 @@ initResponseTimer (void)
     // Register interrupt
     TimerIntRegister(TIMER0_BASE, TIMER_A, responseControlIntHandler);
 
-    //
     // Configure the Timer0B interrupt for timer timeout.
-    //
     TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
     // Enable timer
@@ -132,8 +122,8 @@ initResponseTimer (void)
 int32_t
 dutyResponseMain()
 {
-    float d_integral;
     int duty_cycle;
+    float step_integral;
     float error;
     float proportional;
 
@@ -144,10 +134,10 @@ dutyResponseMain()
     proportional = PROPORTIONAL_GAIN_MAIN * error;
 
     // Integral response for current time step
-    d_integral = INTEGRAL_GAIN_MAIN * (error);
+    step_integral = INTEGRAL_GAIN_MAIN * error;
 
     // Total response duty cycle
-    duty_cycle = proportional + (integral_main + d_integral) + OFFSET_DUTY_MAIN;
+    duty_cycle = proportional + (integral_main + step_integral) + OFFSET_DUTY_MAIN;
 
     // Limit duty cycle values
     if (duty_cycle > MAX_DUTY_MAIN) {
@@ -155,7 +145,7 @@ dutyResponseMain()
     } else if (duty_cycle < MIN_DUTY_MAIN) {
         duty_cycle = MIN_DUTY_MAIN;
     } else {
-        integral_main += d_integral;
+        integral_main += step_integral;
     }
 
     return duty_cycle;
@@ -168,17 +158,17 @@ int32_t
 dutyResponseTail()
 {
     uint32_t duty_cycle;
-    float d_integral;
+    float step_integral;
     int16_t error;
     int16_t proportional;
-    //int16_t full_rot = 360;    // Degrees in full rotation
-    //int16_t half_rot = 180;    // Half rotation
+    int16_t full_rot = 360;    // Degrees in full rotation
+    int16_t half_rot = 180;    // Half rotation
 
     // Current yaw error accounting for 0 to 360 degree range
-    if (yaw_data.current > 180 && (yaw_data.target < (yaw_data.current - 180)))  {
-        error = (360 - (yaw_data.current - yaw_data.target));
-    } else if (yaw_data.current < 180 && (yaw_data.target > (yaw_data.current + 180))) {
-        error = -1 * (360 + (yaw_data.current - yaw_data.target));
+    if (yaw_data.current > half_rot && (yaw_data.target < (yaw_data.current - half_rot)))  {
+        error = (full_rot - (yaw_data.current - yaw_data.target));
+    } else if (yaw_data.current < half_rot && (yaw_data.target > (yaw_data.current + half_rot))) {
+        error = -1 * (full_rot + (yaw_data.current - yaw_data.target));
     } else {
         error = yaw_data.target - yaw_data.current;
     }
@@ -188,10 +178,10 @@ dutyResponseTail()
     proportional = PROPORTIONAL_GAIN_TAIL * error;
 
     // Integral response for current time step
-    d_integral = INTEGRAL_GAIN_TAIL * (error);
+    step_integral = INTEGRAL_GAIN_TAIL * error;
 
     // Total response duty cycle
-    duty_cycle = proportional + (integral_tail + d_integral) + OFFSET_DUTY_TAIL;
+    duty_cycle = proportional + (integral_tail + step_integral) + OFFSET_DUTY_TAIL;
 
     //Limit duty cycle values
     if (duty_cycle > MAX_DUTY_TAIL) {
@@ -199,7 +189,7 @@ dutyResponseTail()
     } else if (duty_cycle < MIN_DUTY_TAIL) {
         duty_cycle = MIN_DUTY_TAIL;
     } else {
-        integral_tail += d_integral;
+        integral_tail += step_integral;
     }
 
     return duty_cycle;

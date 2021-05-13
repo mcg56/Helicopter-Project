@@ -20,9 +20,6 @@
 #include "driverlib/sysctl.h"
 #include "switches.h"
 
-//#include "driverlib/debug.h"
-//#include "inc/tm4c123gh6pm.h"  // Board specific defines (for PF0)
-//#include "inc/hw_types.h"
 
 //*****************************************************************************
 // Enumerated types
@@ -104,9 +101,9 @@ checkSwitch (uint8_t switchName)
     {
         switch_flag[switchName] = false;
         if (switch_state[switchName] == switch_normal[switchName])
-            return LOW;
-        else
             return HIGH;
+        else
+            return LOW;
     }
     return NO_CHANGE;
 }
@@ -131,11 +128,13 @@ updateState(flight_mode main_state)
     case HIGH:
         // Prevent state change during landing process
         if (current_state == landed) {
-            current_state = take_off;
+            current_state = flying;
         }
         break;
     case LOW:
-        current_state = landing;
+        if (current_state == flying) {
+            current_state = landing;
+        }
         break;
     }
 

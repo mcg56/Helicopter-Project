@@ -81,7 +81,7 @@ UARTTransData (height_data_s height_data, yaw_data_s yaw_data, uint32_t duty_mai
         case landed:
             strcpy(flight_status, "Landed");
             break;
-        case take_off:
+        case flying:
             strcpy(flight_status, "Take off");
             break;
         case landing:
