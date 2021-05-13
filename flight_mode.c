@@ -18,7 +18,7 @@
 #include "inc/hw_memmap.h"
 #include "driverlib/gpio.h"
 #include "driverlib/sysctl.h"
-#include "switches.h"
+#include "flight_mode.h"
 
 
 //*****************************************************************************
