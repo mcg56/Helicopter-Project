@@ -68,7 +68,7 @@ UARTSend (char *pucBuffer)
 // Update string to be send via UART
 //**********************************************************************
 void
-UARTTransData (height_data_s height_data, yaw_data_s yaw_data, uint32_t duty_main, int32_t duty_tail, flight_mode current_state, uint8_t slowTick)
+UARTTransData (height_data_s height_data, yaw_data_s yaw_data, duty_cycle_s heli_duty, flight_mode current_state, uint8_t slowTick)
 {
     char flight_status[10];
 
@@ -89,7 +89,7 @@ UARTTransData (height_data_s height_data, yaw_data_s yaw_data, uint32_t duty_mai
         }
 
         // Form and send a status message to the console
-        usprintf (statusStr, "----------------\r\nAlt: %2d [%2d]\r\nYaw: %2d [%2d]\r\nMain %2d Tail %2d\r\nMode: %s\r\n", height_data.current, height_data.target, yaw_data.current, yaw_data.target, duty_main, duty_tail, flight_status); // * usprintf
+        usprintf (statusStr, "----------------\r\nAlt: %2d [%2d]\r\nYaw: %2d [%2d]\r\nMain %2d Tail %2d\r\nMode: %s\r\n", height_data.current, height_data.target, yaw_data.current, yaw_data.target, heli_duty.main, heli_duty.tail, flight_status); // * usprintf
         UARTSend (statusStr);
     }
 

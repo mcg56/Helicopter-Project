@@ -27,12 +27,11 @@ main(void)
     flight_mode current_state;
     height_data_s height_data;
     yaw_data_s yaw_data;
-    int32_t current_height;
-    int32_t landed_height;
-    uint32_t duty_main;
-    uint32_t duty_tail;
+    duty_cycle_s heli_duty;
+    int32_t height_current_adc;
+    int32_t height_landed_adc;
     uint8_t slowTick;
-    bool reference_found = false;
+    bool ref_yaw_found = false;
 
     // As a precaution, make sure that the peripherals used are reset
     SysCtlPeripheralReset (LEFT_BUT_PERIPH);
@@ -59,18 +58,20 @@ main(void)
     SysCtlDelay (SysCtlClockGet() / 2);
 
     // Set initial helicopter resting height
-    landed_height = getHeight();
+    height_landed_adc = getHeight();
 
     // Intialise helicopter state
     current_state = landed;
 
     while (1)
     {
-        SysCtlDelay (SysCtlClockGet() / 32);  // Update display at approx 32 Hz
+        // Update display at approx 32 Hz
+        SysCtlDelay (SysCtlClockGet() / 32);
 
         // Update helicopter state
         current_state = updateState(current_state);
 
+        // Helicopter functionality based on current state
         switch (current_state)
         {
         case landed:
@@ -82,15 +83,15 @@ main(void)
             yaw_data.target = 0;
 
             // Update state to landed when targets reached
-            if (((yaw_data.current > 340) || (yaw_data.current <= 20)) && height_data.current == 0) {
+            if (((yaw_data.current > 355) || (yaw_data.current <= 5)) && height_data.current == 0) {
                 current_state = landed;
             }
             break;
         case flying:
             // Find reference yaw on first take off and prevent button usage
-            if (reference_found == false)
+            if (ref_yaw_found == false)
             {
-                reference_found = findReference();
+                ref_yaw_found = findReference();
             } else {
                 // Increase main rotor duty cycle if up button pressed
                 if (checkButton (UP) == PUSHED)
@@ -135,39 +136,27 @@ main(void)
         }
 
         // Get current helicopter height
-        current_height = getHeight();
+        height_current_adc = getHeight();
 
         // Convert ADC height to percentage
-        height_data.current = calculate_percent_height(current_height, landed_height);
+        height_data.current = calculate_percent_height(height_current_adc, height_landed_adc);
 
         // Get yaw from yaw module
         yaw_data.current = getYawCurrent();
 
-        // Update altitude module data
-        duty_main = updateAltitude(height_data);
-
-        // Update yaw module data
-        duty_tail = updateYaw(yaw_data);
-
         // Update response control
-        updateResponseControl();
+        updateResponseControl(height_data, yaw_data);
+
+        // Update helicopter duty cycles
+        heli_duty = getHeliDuty();
 
         // Display helicopter details
-        displayMeanVal (height_data.current, yaw_data.current, duty_main, duty_tail);
+        displayMeanVal (height_data.current, yaw_data.current, heli_duty);
 
         // Get slowTick from system module
         slowTick = getSlowTick();
 
         // Carry out UART transmission of helicopter data
-        UARTTransData (height_data, yaw_data, duty_main, duty_tail, current_state, slowTick);
+        UARTTransData (height_data, yaw_data, heli_duty, current_state, slowTick);
     }
 }
-
-// To do:
-// Change data transfer to struct
-// Reduce response interrupt size
-
-
-// Questions?
-// How to choose timer value
-

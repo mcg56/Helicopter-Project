@@ -22,9 +22,6 @@
 // Global Variables
 //*****************************************************************************
 static circBuf_t g_inBuffer;
-static height_data_s height_data;
-static uint32_t pwm_main_duty;
-
 
 //*****************************************************************************
 // The handler for the ADC conversion complete interrupt.
@@ -95,6 +92,7 @@ initADC (void)
 void
 initAltitude(void)
 {
+    // As a precaution, make sure that the peripherals used are reset
     SysCtlPeripheralReset (PWM_MAIN_PERIPH_GPIO); // Used for PWM output
     SysCtlPeripheralReset (PWM_MAIN_PERIPH_PWM);  // Main Rotor PWM
 
@@ -142,31 +140,6 @@ getHeight(void)
     mean = (2 * sum + BUF_SIZE) / 2 / BUF_SIZE;
 
     return mean;
-}
-
-//*****************************************************************************
-// Update helicopter altitute module data
-//*****************************************************************************
-uint32_t
-updateAltitude(height_data_s height_data_in)
-{
-    // Update module values
-    height_data.current = height_data_in.current;
-    height_data.target = height_data_in.target;
-
-    // Update PWM duty from response control module
-    pwm_main_duty = getMainDuty();
-
-    return pwm_main_duty;
-}
-
-//*****************************************************************************
-// Passes height data to reponse module
-//*****************************************************************************
-height_data_s
-getAltitudeData(void)
-{
-    return height_data;
 }
 
 

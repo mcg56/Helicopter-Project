@@ -27,11 +27,6 @@ static volatile bool ref_enabled = false;
 
 static yaw_data_s yaw_data;
 static int16_t yaw;                   // Helicopter heading from quadrature code disc
-//static int16_t yaw_degree;          // Helicopter heading in degrees
-//static int16_t target_yaw;
-
-static uint32_t pwm_tail_duty;
-
 
 //*****************************************************************************
 // Function prototypes
@@ -116,6 +111,7 @@ initGPIOPins (void)
 void
 initYaw (void)
 {
+    // As a precaution, make sure that the peripherals used are reset
     SysCtlPeripheralReset (PWM_TAIL_PERIPH_GPIO); // Used for PWM output
     SysCtlPeripheralReset (PWM_TAIL_PERIPH_PWM);  // Tail Rotor PWM
 
@@ -157,29 +153,8 @@ calculateYaw(bool a_next, bool b_next)
         yaw = tooth_count - 1;
     }
 
-//    // Limit yaw values
-//    if ((yaw == (tooth_count/2 + 1))) {
-//        yaw = -1 * tooth_count/2 - 1;
-//    } else if ((yaw == -1 * tooth_count/2)) {
-//        yaw = tooth_count/2;
-//    }
-
-
     // Convert yaw value to degrees with rounded value
     yaw_data.current = (2 * yaw * full_rot + 1)/(2 * tooth_count);
-}
-
-//*****************************************************************************
-// Update yaw helicopter control
-//*****************************************************************************
-uint32_t
-updateYaw(yaw_data_s yaw_data_in)
-{
-    yaw_data.current = yaw_data_in.current;
-    yaw_data.target = yaw_data_in.target;
-    pwm_tail_duty = getTailDuty();
-
-    return pwm_tail_duty;
 }
 
 //*****************************************************************************
@@ -192,15 +167,6 @@ findReference(void)
     ref_enabled = true;
 
     return ref_found;
-}
-
-//*****************************************************************************
-// Pass current yaw to other modules
-//*****************************************************************************
-yaw_data_s
-getYawData(void)
-{
-    return yaw_data;
 }
 
 //*****************************************************************************

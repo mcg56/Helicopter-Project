@@ -11,20 +11,7 @@
 #include "utils/ustdlib.h"
 #include "OrbitOLED/OrbitOLEDInterface.h"
 #include "display.h"
-
-//#include "driverlib/pin_map.h"
-//#include "driverlib/debug.h"
-//#include "driverlib/interrupt.h"
-//#include "driverlib/systick.h"
-//#include "driverlib/sysctl.h"
-//#include "driverlib/gpio.h"
-//#include "driverlib/adc.h"
-//#include "inc/hw_ints.h"
-//#include <stdio.h>
-//#include <stdbool.h>
-//#include "stdlib.h"
-//#include "inc/hw_memmap.h"
-//#include "inc/hw_types.h"
+#include "responseControl.h"
 
 //*****************************************************************************
 // Initialise Display Function
@@ -41,7 +28,7 @@ initDisplay (void)
 // Update display
 //*****************************************************************************
 void
-displayMeanVal(int16_t height_percent, int32_t display_deg, uint32_t duty_main, uint32_t duty_tail)
+displayMeanVal(int16_t height_percent, int32_t display_deg, duty_cycle_s heli_duty)
 {
     char string[17];  // 16 characters across the display
 
@@ -49,9 +36,9 @@ displayMeanVal(int16_t height_percent, int32_t display_deg, uint32_t duty_main, 
     OLEDStringDraw (string, 0, 0);
     usnprintf (string, sizeof(string), "Yaw (deg) %5d", display_deg);
     OLEDStringDraw (string, 0, 1);
-    usnprintf (string, sizeof(string), "Main Duty %5d%%", duty_main);
+    usnprintf (string, sizeof(string), "Main Duty %5d%%", heli_duty.main);
     OLEDStringDraw (string, 0, 2);
-    usnprintf (string, sizeof(string), "Tail Duty %5d%%", duty_tail);
+    usnprintf (string, sizeof(string), "Tail Duty %5d%%", heli_duty.tail);
     OLEDStringDraw (string, 0, 3);
 }
 

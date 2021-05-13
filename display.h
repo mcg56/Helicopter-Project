@@ -13,6 +13,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "responseControl.h"
 
 //*****************************************************************************
 // Constants
@@ -32,6 +33,6 @@ initDisplay (void);
 // Update display
 //*****************************************************************************
 void
-displayMeanVal(int16_t height_percent, int32_t display_deg, uint32_t duty_main, uint32_t duty_tail);
+displayMeanVal(int16_t height_percent, int32_t display_deg, duty_cycle_s heli_duty);
 
 #endif /* DISPLAY_H_ */

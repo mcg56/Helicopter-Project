@@ -21,6 +21,7 @@
 #include "flight_mode.h"
 #include "altitude.h"
 #include "yaw.h"
+#include "responseControl.h"
 
 //********************************************************
 // Constants
@@ -54,7 +55,7 @@ UARTSend (char *pucBuffer);
 // Update string to be send via UART
 //**********************************************************************
 void
-UARTTransData (height_data_s height_data, yaw_data_s yaw_data, uint32_t duty_main, int32_t duty_tail, flight_mode current_state, uint8_t slowTick);
+UARTTransData (height_data_s height_data, yaw_data_s yaw_data, duty_cycle_s heli_duty, flight_mode current_state, uint8_t slowTick);
 
 
 #endif /* UART_H_ */

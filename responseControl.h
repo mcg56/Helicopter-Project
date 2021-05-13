@@ -13,6 +13,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "altitude.h"
+#include "yaw.h"
 
 
 //*****************************************************************************
@@ -35,6 +37,14 @@
  */
 
 //*****************************************************************************
+// Type definitions
+//*****************************************************************************
+typedef struct {
+    uint32_t main;
+    uint32_t tail;
+} duty_cycle_s;
+
+//*****************************************************************************
 // Intialise timer for PI control update
 //*****************************************************************************
 void
@@ -44,18 +54,12 @@ initResponseTimer (void);
 // Update PWM based on helicopter state
 //*****************************************************************************
 void
-updateResponseControl (void);
+updateResponseControl (height_data_s height_data, yaw_data_s yaw_data);
 
 //*****************************************************************************
-// Pass PWM tail duty out of module
+// Pass PWM main and tail duty out of module
 //*****************************************************************************
-uint32_t
-getTailDuty(void);
-
-//*****************************************************************************
-// Pass PWM main duty out of module
-//*****************************************************************************
-uint32_t
-getMainDuty(void);
+duty_cycle_s
+getHeliDuty(void);
 
 #endif /* RESPONSECONTROL_H_ */

@@ -46,16 +46,4 @@ calculate_percent_height(uint16_t current_height_in, uint16_t landed_height_in);
 int
 getHeight(void);
 
-//*****************************************************************************
-// Update helicopter altitute control
-//*****************************************************************************
-uint32_t
-updateAltitude(height_data_s height_data_in);
-
-//*****************************************************************************
-// Passes height data to reponse module
-//*****************************************************************************
-height_data_s
-getAltitudeData(void);
-
 #endif /* ALTITUDE_H_ */
