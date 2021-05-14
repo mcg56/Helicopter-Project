@@ -111,6 +111,8 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
          PI_control_enable = false;
          heli_duty.tail = 0;
          heli_duty.main = 0;
+         integral_main = 0;
+         integral_tail = 0;
          setPWMTail (PWM_TAIL_FREQ, heli_duty.tail);
          setPWMMain (PWM_MAIN_FREQ, heli_duty.main);
          break;

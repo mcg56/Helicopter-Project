@@ -18,18 +18,6 @@
 #include "buttons4.h"
 #include "uart.h"
 #include "system.h"
-//#include "circBufT.h"
-//#include "yaw.h"
-//#include "altitude.h"
-//#include "driverlib/interrupt.h"
-//#include "driverlib/debug.h"
-//#include "driverlib/pin_map.h"
-//#include "utils/ustdlib.h"
-//#include "inc/hw_types.h"
-//#include "inc/hw_ints.h"
-//#include "stdlib.h"
-//#include "display.h"
-//#include "pwmGen.h"
 
 static volatile uint8_t slowTick = false;
 
