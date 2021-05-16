@@ -32,6 +32,8 @@ main(void)
     int32_t height_landed_adc;
     uint8_t slowTick;
     bool ref_yaw_found = false;
+    bool hover_duty_found = false;
+    uint32_t hover_height = 2;
 
     // As a precaution, make sure that the peripherals used are reset
     SysCtlPeripheralReset (LEFT_BUT_PERIPH);
@@ -88,50 +90,59 @@ main(void)
                 current_state = landed;
             }
             break;
-        case flying:
+        case initialising:
             // Find reference yaw on first take off and prevent button usage
-            if (ref_yaw_found == false)
-            {
+            if (!ref_yaw_found) {
                 ref_yaw_found = findReference();
+            } else if (!hover_duty_found) {
+                if (height_data.current == hover_height) {
+                    hover_duty_found = true;
+                }
+                height_data.target = hover_height;
             } else {
-                // Increase main rotor duty cycle if up button pressed
-                if (checkButton (UP) == PUSHED)
-                {
-                    if (height_data.target < 90) {
-                        height_data.target += 10;
-                    } else {
-                        height_data.target = 100;
-                    }
+                current_state = flying;
+            }
+            break;
+        case flying:
+            // Increase main rotor duty cycle if up button pressed
+            if (checkButton (UP) == PUSHED)
+            {
+                if (height_data.target == hover_height) {
+                    height_data.target = 10;
+                } else if (height_data.target < 90) {
+                    height_data.target += 10;
+                } else {
+                    height_data.target = 100;
                 }
+            }
 
-                // Decrease main rotor duty cycle if down button pressed
-                if (checkButton (DOWN) == PUSHED)
-                {
-                    if (height_data.target > 10) {
-                        height_data.target -= 10;
-                    } else {
-                        height_data.target = 0;
-                    }
+            // Decrease main rotor duty cycle if down button pressed
+            if (checkButton (DOWN) == PUSHED)
+            {
+                if (height_data.target > 10) {
+                    height_data.target -= 10;
+                } else {
+                    height_data.target = hover_height;
                 }
+            }
 
-                // Decrease yaw if left button pushed
-                if ((checkButton (LEFT) == PUSHED))
-                {
-                    if (yaw_data.target == 0) {
-                        yaw_data.target = 345;
-                    } else {
-                        yaw_data.target -= 15;
-                    }
+            // Decrease yaw if left button pushed
+            if ((checkButton (LEFT) == PUSHED))
+            {
+                if (yaw_data.target == 0) {
+                    yaw_data.target = 345;
+                } else {
+                    yaw_data.target -= 15;
                 }
+            }
 
-                // Increase yaw if right button pushed
-                if ((checkButton (RIGHT) == PUSHED))
-                {
-                    if (yaw_data.target == 345) {
-                        yaw_data.target = 0;
-                    } else {
-                        yaw_data.target += 15;
-                    }
+            // Increase yaw if right button pushed
+            if ((checkButton (RIGHT) == PUSHED))
+            {
+                if (yaw_data.target == 345) {
+                    yaw_data.target = 0;
+                } else {
+                    yaw_data.target += 15;
                 }
             }
         }

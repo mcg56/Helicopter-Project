@@ -26,6 +26,7 @@ static float integral_tail;
 // Altitude data
 static height_data_s height_data;
 static float height_sweep_duty = 30;
+static uint32_t offset_duty_main = 30; // Helicopter hover duty
 
 // Yaw data
 static yaw_data_s yaw_data;
@@ -34,6 +35,7 @@ static uint32_t yaw_sweep_duty = 55;
 // Current helicopter state
 flight_mode current_state;
 bool PI_control_enable = false;
+bool hover_duty_found = false;
 
 duty_cycle_s heli_duty;
 
@@ -113,12 +115,24 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
          heli_duty.main = 0;
          integral_main = 0;
          integral_tail = 0;
-         setPWMTail (PWM_TAIL_FREQ, heli_duty.tail);
          setPWMMain (PWM_MAIN_FREQ, heli_duty.main);
+         setPWMTail (PWM_TAIL_FREQ, heli_duty.tail);
          break;
      case landing:
          // Use same control as take off so continue
+     case initialising:
+         // Find hover duty cycle
+         if (!hover_duty_found && refFound()) {
+             if (height_data.current == height_data.target) {
+                 hover_duty_found = true;
+                 offset_duty_main = heli_duty.main;
+                 integral_main = 0;
+             }
+         }
+
+         // Use same control as take off so continue
      case flying:
+
          // Initiate PI control is initialisation finished
          if (refFound()) {
              PI_control_enable = true;
@@ -155,7 +169,7 @@ dutyResponseMain()
     step_integral = INTEGRAL_GAIN_MAIN * error;
 
     // Total response duty cycle
-    duty_cycle = proportional + (integral_main + step_integral) + OFFSET_DUTY_MAIN;
+    duty_cycle = proportional + (integral_main + step_integral) + offset_duty_main;
 
     // Limit duty cycle values
     if (duty_cycle > MAX_DUTY_MAIN) {

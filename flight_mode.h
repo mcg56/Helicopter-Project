@@ -32,6 +32,7 @@
 //*****************************************************************************
 typedef enum {
     landed,
+    initialising,
     flying,
     landing,
 } flight_mode;

@@ -81,6 +81,9 @@ UARTTransData (height_data_s height_data, yaw_data_s yaw_data, duty_cycle_s heli
         case landed:
             strcpy(flight_status, "Landed");
             break;
+        case initialising:
+            strcpy(flight_status, "Initialising");
+            break;
         case flying:
             strcpy(flight_status, "Take off");
             break;

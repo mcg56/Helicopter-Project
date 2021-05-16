@@ -46,4 +46,10 @@ calculate_percent_height(uint16_t current_height_in, uint16_t landed_height_in);
 int
 getHeight(void);
 
+//*****************************************************************************
+// Pass reference found to reponse control module
+//*****************************************************************************
+bool
+hoverDutyFound(void);
+
 #endif /* ALTITUDE_H_ */

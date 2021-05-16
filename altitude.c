@@ -23,6 +23,8 @@
 //*****************************************************************************
 static circBuf_t g_inBuffer;
 
+static bool hover_duty_found = false;
+
 //*****************************************************************************
 // The handler for the ADC conversion complete interrupt.
 // Writes to the circular buffer.
@@ -142,4 +144,12 @@ getHeight(void)
     return mean;
 }
 
+//*****************************************************************************
+// Pass reference found to reponse control module
+//*****************************************************************************
+bool
+hoverDutyFound(void)
+{
+    return hover_duty_found;
+}
 

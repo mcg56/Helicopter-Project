@@ -128,7 +128,7 @@ updateState(flight_mode main_state)
     case HIGH:
         // Prevent state change during landing process
         if (current_state == landed) {
-            current_state = flying;
+            current_state = initialising;
         }
         break;
     case LOW:
