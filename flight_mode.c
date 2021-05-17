@@ -132,9 +132,7 @@ updateState(flight_mode main_state)
         }
         break;
     case LOW:
-        if (current_state == flying) {
-            current_state = landing;
-        }
+        current_state = landing;
         break;
     }
 

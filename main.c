@@ -93,16 +93,16 @@ main(void)
             break;
         case initialising:
             // Find reference yaw on first take off and prevent button usage
-            if (!ref_yaw_found) {
-                ref_yaw_found = findReference();
-            } else if (!hover_duty_found) {
+            if (!hover_duty_found) {
                 height_data.target = hover_height;
                 if (height_data.current == hover_height) {
                     hover_duty_found = true;
+                    height_data.target = 0;
                 }
+            } else if (!ref_yaw_found) {
+                ref_yaw_found = findReference();
             } else {
                 current_state = flying;
-                height_data.target = 0;
             }
             break;
         case flying:
@@ -131,8 +131,8 @@ main(void)
             // Decrease yaw if left button pushed
             if ((checkButton (LEFT) == PUSHED))
             {
-                if (yaw_data.target == 0) {
-                    yaw_data.target = 345;
+                if (yaw_data.target == -165) {
+                    yaw_data.target = 180;
                 } else {
                     yaw_data.target -= 15;
                 }
@@ -141,8 +141,8 @@ main(void)
             // Increase yaw if right button pushed
             if ((checkButton (RIGHT) == PUSHED))
             {
-                if (yaw_data.target == 345) {
-                    yaw_data.target = 0;
+                if (yaw_data.target == 180) {
+                    yaw_data.target = -165;
                 } else {
                     yaw_data.target += 15;
                 }

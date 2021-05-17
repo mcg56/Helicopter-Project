@@ -146,11 +146,11 @@ calculateYaw(bool a_next, bool b_next)
         yaw--;
     }
 
-    // Limit yaw values
-    if (yaw == tooth_count) {
-        yaw = 0;
-    } else if (yaw == -1) {
-        yaw = tooth_count - 1;
+    // Limit yaw values to -ve half tooth count to +ve half tooth count
+    if (yaw == tooth_count/2 && cw) {
+        yaw = -1 * tooth_count/2 + 1;
+    } else if (yaw == -1 * tooth_count/2 && !cw) {
+        yaw = tooth_count/2;
     }
 
     // Convert yaw value to degrees with rounded value

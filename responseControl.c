@@ -122,20 +122,21 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
          // Use same control as take off so continue
      case initialising:
          // Find hover duty cycle
-         if (!hover_duty_found && refFound()) {
+         if (!hover_duty_found) {
+             PI_control_enable = true;
              if (height_data.current == height_data.target) {
                  hover_duty_found = true;
                  offset_duty_main = heli_duty.main;
                  integral_main = 0;
              }
          }
-         // Use same control as take off so continue
-     case flying:
 
-         // Initiate PI control is initialisation finished
-         if (refFound()) {
+         // Find reference yaw
+         if (refFound() && hover_duty_found) {
              PI_control_enable = true;
-         } else {
+         } else if (hover_duty_found) {
+             PI_control_enable = false;
+
              // Set duty to sweeping values during intialisation
              heli_duty.tail = yaw_sweep_duty;
              heli_duty.main = height_sweep_duty;
@@ -144,6 +145,9 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
              setPWMTail (PWM_TAIL_FREQ, heli_duty.tail);
              setPWMMain (PWM_MAIN_FREQ, heli_duty.main);
          }
+         break;
+     case flying:
+         PI_control_enable = true;
      }
 }
 
@@ -195,11 +199,11 @@ dutyResponseTail()
     int16_t full_rot = 360;    // Degrees in full rotation
     int16_t half_rot = 180;    // Half rotation
 
-    // Current yaw error accounting for 0 to 360 degree range
-    if (yaw_data.current > half_rot && (yaw_data.target < (yaw_data.current - half_rot)))  {
-        error = (full_rot - (yaw_data.current - yaw_data.target));
-    } else if (yaw_data.current < half_rot && (yaw_data.target > (yaw_data.current + half_rot))) {
-        error = -1 * (full_rot + (yaw_data.current - yaw_data.target));
+    // Current yaw error accounting for -179 to 180 degree range
+    if (yaw_data.current < 0 && (yaw_data.target > (yaw_data.current + half_rot)))  {
+        error = -1 * (full_rot - (yaw_data.target - yaw_data.current));
+    } else if (yaw_data.current > 0 && (yaw_data.target < (yaw_data.current - half_rot))) {
+        error = (full_rot + (yaw_data.target - yaw_data.current));
     } else {
         error = yaw_data.target - yaw_data.current;
     }
@@ -211,7 +215,7 @@ dutyResponseTail()
     step_integral = INTEGRAL_GAIN_TAIL * error;
 
     // Total response duty cycle
-    duty_cycle = proportional + (integral_tail + step_integral) + OFFSET_DUTY_TAIL;
+    duty_cycle = proportional + (integral_tail + step_integral) + heli_duty.main/offset_duty_main * COUPLING_RATIO;
 
     //Limit duty cycle values
     if (duty_cycle > MAX_DUTY_TAIL) {
