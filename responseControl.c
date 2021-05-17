@@ -25,12 +25,12 @@ static float integral_tail;
 
 // Altitude data
 static height_data_s height_data;
-static float height_sweep_duty = 30;
+static uint32_t height_sweep_duty = 30;
 static uint32_t offset_duty_main = 30; // Helicopter hover duty
 
 // Yaw data
 static yaw_data_s yaw_data;
-static uint32_t yaw_sweep_duty = 55;
+static uint32_t yaw_sweep_duty = 45;
 
 // Current helicopter state
 flight_mode current_state;
@@ -118,8 +118,6 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
          setPWMMain (PWM_MAIN_FREQ, heli_duty.main);
          setPWMTail (PWM_TAIL_FREQ, heli_duty.tail);
          break;
-     case landing:
-         // Use same control as take off so continue
      case initialising:
          // Find hover duty cycle
          if (!hover_duty_found) {
@@ -127,13 +125,14 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
              if (height_data.current == height_data.target) {
                  hover_duty_found = true;
                  offset_duty_main = heli_duty.main;
-                 integral_main = 0;
              }
          }
 
          // Find reference yaw
          if (refFound() && hover_duty_found) {
              PI_control_enable = true;
+             integral_main = 0;
+             integral_tail = 0;
          } else if (hover_duty_found) {
              PI_control_enable = false;
 
@@ -145,6 +144,9 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
              setPWMTail (PWM_TAIL_FREQ, heli_duty.tail);
              setPWMMain (PWM_MAIN_FREQ, heli_duty.main);
          }
+         break;
+     case landing:
+         // Use same control as take off
          break;
      case flying:
          PI_control_enable = true;

@@ -79,13 +79,13 @@ main(void)
         {
         case landed:
             height_data.target = 0;
+            yaw_data.target = 0;
             break;
         case landing:
             // Set target values to home
             height_data.target = 0;
             yaw_data.target = 0;
 
-            //((yaw_data.current > 355) || (yaw_data.current <= 5))
             // Update state to landed when targets reached
             if (yaw_data.current == 0 && height_data.current == 0) {
                 current_state = landed;
