@@ -30,10 +30,11 @@ main(void)
     duty_cycle_s heli_duty;
     int32_t height_current_adc;
     int32_t height_landed_adc;
+    uint32_t hover_height = 1;
     uint8_t slowTick;
     bool ref_yaw_found = false;
     bool hover_duty_found = false;
-    uint32_t hover_height = 2;
+
 
     // As a precaution, make sure that the peripherals used are reset
     SysCtlPeripheralReset (LEFT_BUT_PERIPH);
@@ -95,12 +96,13 @@ main(void)
             if (!ref_yaw_found) {
                 ref_yaw_found = findReference();
             } else if (!hover_duty_found) {
+                height_data.target = hover_height;
                 if (height_data.current == hover_height) {
                     hover_duty_found = true;
                 }
-                height_data.target = hover_height;
             } else {
                 current_state = flying;
+                height_data.target = 0;
             }
             break;
         case flying:
@@ -122,7 +124,7 @@ main(void)
                 if (height_data.target > 10) {
                     height_data.target -= 10;
                 } else {
-                    height_data.target = hover_height;
+                    height_data.target = 0;
                 }
             }
 

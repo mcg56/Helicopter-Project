@@ -129,7 +129,6 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
                  integral_main = 0;
              }
          }
-
          // Use same control as take off so continue
      case flying:
 

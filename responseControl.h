@@ -16,7 +16,6 @@
 #include "altitude.h"
 #include "yaw.h"
 
-
 //*****************************************************************************
 // Constants
 //*****************************************************************************
@@ -30,10 +29,6 @@
 #define MAX_DUTY_TAIL                    97  // Minimum helicopter duty cycle
 #define MIN_DUTY_TAIL                    2  // Minimum helicopter duty cycle
 #define TIMER_RATE                       1000 // Determines rate of timer interrupt
-
-/*
- * 0.6 pro, 0.0005 int - main
- */
 
 //*****************************************************************************
 // Type definitions
