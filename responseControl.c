@@ -23,6 +23,9 @@
 static float integral_main;
 static float integral_tail;
 
+// PI gains
+static float integral_gain_main = 0.00009;   // Integral control gain for main rotor
+
 // Altitude data
 static height_data_s height_data;
 static uint32_t height_sweep_duty = 30;
@@ -121,6 +124,7 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
      case initialising:
          // Find hover duty cycle
          if (!hover_duty_found) {
+             integral_gain_main = 0.0008;
              PI_control_enable = true;
              if (height_data.current == height_data.target) {
                  hover_duty_found = true;
@@ -131,6 +135,7 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
 
          // Find reference yaw
          if (refFound() && hover_duty_found) {
+             integral_gain_main = 0.00009;
              PI_control_enable = true;
              integral_main = 0;
              integral_tail = 0;
@@ -172,7 +177,7 @@ dutyResponseMain()
     proportional = PROPORTIONAL_GAIN_MAIN * error;
 
     // Integral response for current time step
-    step_integral = INTEGRAL_GAIN_MAIN * error;
+    step_integral = integral_gain_main * error;
 
     // Total response duty cycle
     duty_cycle = proportional + (integral_main + step_integral) + offset_duty_main;
