@@ -30,7 +30,7 @@ static uint32_t offset_duty_main = 30; // Helicopter hover duty
 
 // Yaw data
 static yaw_data_s yaw_data;
-static uint32_t yaw_sweep_duty = 45;
+static uint32_t yaw_sweep_duty = 50;
 
 // Current helicopter state
 flight_mode current_state;
@@ -125,6 +125,7 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
              if (height_data.current == height_data.target) {
                  hover_duty_found = true;
                  offset_duty_main = heli_duty.main;
+                 height_sweep_duty = heli_duty.main - 10;
              }
          }
 
@@ -217,7 +218,7 @@ dutyResponseTail()
     step_integral = INTEGRAL_GAIN_TAIL * error;
 
     // Total response duty cycle
-    duty_cycle = proportional + (integral_tail + step_integral) + heli_duty.main/offset_duty_main * COUPLING_RATIO;
+    duty_cycle = proportional + (integral_tail + step_integral) + COUPLING_RATIO;
 
     //Limit duty cycle values
     if (duty_cycle > MAX_DUTY_TAIL) {

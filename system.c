@@ -20,6 +20,7 @@
 #include "system.h"
 
 static volatile uint8_t slowTick = false;
+static volatile uint32_t tickCount = 0;
 
 //*****************************************************************************
 // The interrupt handler for the for Clock interrupt.
@@ -27,7 +28,6 @@ static volatile uint8_t slowTick = false;
 void
 SysTickIntHandler(void)
 {
-    static uint8_t tickCount = 0;
     const uint8_t ticksPerSlow = SYSTICK_RATE_HZ / SLOWTICK_RATE_HZ;
 
     // Poll the buttons
@@ -40,6 +40,8 @@ SysTickIntHandler(void)
     {
         tickCount = 0;
         slowTick = true;
+    } else {
+        slowTick = false;
     }
 }
 

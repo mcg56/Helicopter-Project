@@ -58,7 +58,7 @@ main(void)
     IntMasterEnable();
 
     // System delay for accurate initial value calibration
-    SysCtlDelay (SysCtlClockGet() / 2);
+    SysCtlDelay (SysCtlClockGet() / 60);
 
     // Set initial helicopter resting height
     height_landed_adc = getHeight();
@@ -69,7 +69,7 @@ main(void)
     while (1)
     {
         // Update display at approx 32 Hz
-        SysCtlDelay (SysCtlClockGet() / 32);
+        SysCtlDelay (SysCtlClockGet() / 50);
 
         // Update helicopter state
         current_state = updateState(current_state);
@@ -87,7 +87,7 @@ main(void)
             yaw_data.target = 0;
 
             // Update state to landed when targets reached
-            if (yaw_data.current == 0 && height_data.current == 0) {
+            if (yaw_data.current == 0 && height_data.current <= 0) {
                 current_state = landed;
             }
             break;

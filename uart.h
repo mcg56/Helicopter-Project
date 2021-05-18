@@ -27,7 +27,7 @@
 // Constants
 //********************************************************
 #define SYSTICK_RATE_HZ 100
-#define SLOWTICK_RATE_HZ 80
+#define SLOWTICK_RATE_HZ 40
 #define MAX_STR_LEN 100
 //---USB Serial comms: UART0, Rx:PA0 , Tx:PA1
 #define BAUD_RATE 9600
