@@ -97,12 +97,13 @@ main(void)
                 height_data.target = hover_height;
                 if (height_data.current == hover_height) {
                     hover_duty_found = true;
-                    height_data.target = 0;
+                    height_data.target = 2;
                 }
             } else if (!ref_yaw_found) {
                 ref_yaw_found = findReference();
             } else {
                 current_state = flying;
+                height_data.target = 0;
             }
             break;
         case flying:

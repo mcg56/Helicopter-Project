@@ -147,9 +147,9 @@ calculateYaw(bool a_next, bool b_next)
     }
 
     // Limit yaw values to -ve half tooth count to +ve half tooth count
-    if (yaw == tooth_count/2 && cw) {
+    if (yaw >= tooth_count/2 && cw) {
         yaw = -1 * tooth_count/2 + 1;
-    } else if (yaw == -1 * tooth_count/2 && !cw) {
+    } else if (yaw <= -1 * tooth_count/2 && !cw) {
         yaw = tooth_count/2;
     }
 

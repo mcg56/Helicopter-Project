@@ -28,7 +28,7 @@ static float integral_gain_main = 0.00009;   // Integral control gain for main r
 
 // Altitude data
 static height_data_s height_data;
-static uint32_t height_sweep_duty = 30;
+//static uint32_t height_sweep_duty = 30;
 static uint32_t offset_duty_main = 30; // Helicopter hover duty
 
 // Yaw data
@@ -125,22 +125,24 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
          PI_tail_enable = false;
          heli_duty.tail = 0;
          heli_duty.main = 0;
-         integral_main = 0;
-         integral_tail = 0;
          setPWMMain (PWM_MAIN_FREQ, heli_duty.main);
          setPWMTail (PWM_TAIL_FREQ, heli_duty.tail);
          break;
      case initialising:
          // Find hover duty cycle
          if (!hover_duty_found) {
-             integral_gain_main = 0.0008;
+             integral_gain_main = 0.001;
              PI_main_enable = true;
              PI_tail_enable = true;
              if (height_data.current == height_data.target) {
                  hover_duty_found = true;
                  offset_duty_main = heli_duty.main;
-                 height_sweep_duty = heli_duty.main - 5;
-                 yaw_sweep_duty = offset_duty_main - 30;
+                 //height_sweep_duty = heli_duty.main - 5;
+                 yaw_sweep_duty = offset_duty_main + 15;
+
+                 if (yaw_sweep_duty > MAX_DUTY_TAIL) {
+                     yaw_sweep_duty = MAX_DUTY_TAIL;
+                 }
              }
          }
 
@@ -152,23 +154,23 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
              integral_main = 0;
              integral_tail = 0;
          } else if (hover_duty_found) {
-             PI_main_enable = false;
+             PI_main_enable = true;
              PI_tail_enable = false;
 
              // Set duty to sweeping values during intialisation
              heli_duty.tail = yaw_sweep_duty;
-             heli_duty.main = height_sweep_duty;
+             //heli_duty.main = height_sweep_duty;
 
              // Set duty values
              setPWMTail (PWM_TAIL_FREQ, heli_duty.tail);
-             setPWMMain (PWM_MAIN_FREQ, heli_duty.main);
+             //setPWMMain (PWM_MAIN_FREQ, heli_duty.main);
          }
          break;
      case landing:
          PI_main_enable = false;
 
          landing_count++;
-         if (landing_count >= 5 && heli_duty.main > (offset_duty_main - 10)) {
+         if (landing_count >= 5 && heli_duty.main > (offset_duty_main - 10) && yaw_data.current > -5 && yaw_data.current < 5) {
              heli_duty.main = heli_duty.main - 1;
              landing_count = 0;
          }
@@ -245,7 +247,7 @@ dutyResponseTail()
     step_integral = INTEGRAL_GAIN_TAIL * error;
 
     // Total response duty cycle
-    duty_cycle = proportional + (integral_tail + step_integral) + COUPLING_RATIO;
+    duty_cycle = proportional + (integral_tail + step_integral) + COUPLING_OFFSET;
 
     //Limit duty cycle values
     if (duty_cycle > MAX_DUTY_TAIL) {

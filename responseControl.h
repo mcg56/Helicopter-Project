@@ -21,14 +21,13 @@
 //*****************************************************************************
 #define PROPORTIONAL_GAIN_MAIN      0.65 // Proportional control gain for main rotor
 #define PROPORTIONAL_GAIN_TAIL      0.6  // Proportional control gain for tail rotor
-
-#define INTEGRAL_GAIN_TAIL          0.000039   // Integral control gain for tail rotor
-#define MAX_DUTY_MAIN                    98   // Maximum helicopter duty cycle
-#define MIN_DUTY_MAIN                    28    // Minimum helicopter duty cycle
-#define COUPLING_RATIO                   25   // Helicopter hover duty
-#define MAX_DUTY_TAIL                    97   // Minimum helicopter duty cycle
-#define MIN_DUTY_TAIL                    2    // Minimum helicopter duty cycle
-#define TIMER_RATE                       1000 // Determines rate of timer interrupt
+#define INTEGRAL_GAIN_TAIL          0.0000375   // Integral control gain for tail rotor
+#define MAX_DUTY_MAIN               98   // Maximum helicopter duty cycle
+#define MIN_DUTY_MAIN               28    // Minimum helicopter duty cycle
+#define COUPLING_OFFSET             25   // Helicopter hover duty
+#define MAX_DUTY_TAIL               97   // Minimum helicopter duty cycle
+#define MIN_DUTY_TAIL               2    // Minimum helicopter duty cycle
+#define TIMER_RATE                  2000 // Determines rate of timer interrupt
 
 //*****************************************************************************
 // Type definitions
