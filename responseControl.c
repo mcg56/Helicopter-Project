@@ -38,9 +38,13 @@ static uint32_t yaw_sweep_duty = 50;
 // Current helicopter state
 flight_mode current_state;
 bool PI_control_enable = false;
+bool PI_main_enable = false;
+bool PI_tail_enable = false;
 bool hover_duty_found = false;
 
 duty_cycle_s heli_duty;
+
+int landing_count = 0;
 
 //*****************************************************************************
 // Function prototypes
@@ -57,16 +61,20 @@ responseControlIntHandler (void)
     // Clear the timer interrupt flag
     TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
 
-    if (PI_control_enable) {
+    if (PI_main_enable) {
         // Calculate main rotor PWM using PI control
         heli_duty.main = dutyResponseMain();
 
+        // Set duty values
+        setPWMMain (PWM_MAIN_FREQ, heli_duty.main);
+    }
+
+    if (PI_tail_enable) {
         // Calculate tail rotor PWM using PI control
         heli_duty.tail = dutyResponseTail();
 
         // Set duty values
         setPWMTail (PWM_TAIL_FREQ, heli_duty.tail);
-        setPWMMain (PWM_MAIN_FREQ, heli_duty.main);
     }
 
 }
@@ -113,7 +121,8 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
      {
      case landed:
          // Turn off rotors
-         PI_control_enable = false;
+         PI_main_enable = false;
+         PI_tail_enable = false;
          heli_duty.tail = 0;
          heli_duty.main = 0;
          integral_main = 0;
@@ -125,22 +134,26 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
          // Find hover duty cycle
          if (!hover_duty_found) {
              integral_gain_main = 0.0008;
-             PI_control_enable = true;
+             PI_main_enable = true;
+             PI_tail_enable = true;
              if (height_data.current == height_data.target) {
                  hover_duty_found = true;
                  offset_duty_main = heli_duty.main;
-                 height_sweep_duty = heli_duty.main - 10;
+                 height_sweep_duty = heli_duty.main - 5;
+                 yaw_sweep_duty = offset_duty_main - 30;
              }
          }
 
          // Find reference yaw
          if (refFound() && hover_duty_found) {
-             integral_gain_main = 0.00009;
-             PI_control_enable = true;
+             integral_gain_main = 0.0001;
+             PI_main_enable = true;
+             PI_tail_enable = true;
              integral_main = 0;
              integral_tail = 0;
          } else if (hover_duty_found) {
-             PI_control_enable = false;
+             PI_main_enable = false;
+             PI_tail_enable = false;
 
              // Set duty to sweeping values during intialisation
              heli_duty.tail = yaw_sweep_duty;
@@ -152,10 +165,19 @@ updateResponseControl (height_data_s height_data_in, yaw_data_s yaw_data_in)
          }
          break;
      case landing:
-         // Use same control as take off
+         PI_main_enable = false;
+
+         landing_count++;
+         if (landing_count >= 5 && heli_duty.main > (offset_duty_main - 10)) {
+             heli_duty.main = heli_duty.main - 1;
+             landing_count = 0;
+         }
+
+         setPWMMain (PWM_MAIN_FREQ, heli_duty.main);
          break;
      case flying:
-         PI_control_enable = true;
+         PI_main_enable = true;
+         PI_tail_enable = true;
      }
 }
 
