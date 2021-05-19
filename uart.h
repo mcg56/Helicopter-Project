@@ -2,17 +2,15 @@
 #define UART_H_
 // *******************************************************
 //
-// switches.h
+// uart.h
 //
-// Support for the up button Tiva/Orbit.
-// ENCE361 sample code.
+// Runs the UART transmission for helicopter data.
+// Transmits the state, height and yaw (current and target)
+// and the duty cycle values.
 //
-//
-// Note that pin PF0 (the pin for the RIGHT pushbutton - SW2 on
-//  the Tiva board) needs special treatment - See PhilsNotesOnTiva.rtf.
-//
-// TRP
-// Last modified:  26.04.2020
+// Author:  P.J. Bones  UCECE
+// Modified by: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified:   19/5/2021
 //
 // *******************************************************
 
@@ -55,7 +53,8 @@ UARTSend (char *pucBuffer);
 // Update string to be send via UART
 //**********************************************************************
 void
-UARTTransData (height_data_s height_data, yaw_data_s yaw_data, duty_cycle_s heli_duty, flight_mode current_state, uint8_t slowTick);
+UARTTransData (height_data_s height_data, yaw_data_s yaw_data, duty_cycle_s heli_duty,
+               flight_mode current_state, uint8_t slowTick);
 
 
 #endif /* UART_H_ */

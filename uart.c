@@ -1,11 +1,14 @@
 //********************************************************
 //
-// uartDemo.c - Example code for ENCE361
+// uart.c
 //
-// Link with modules:  buttons2, OrbitOLEDInterface
+// Runs the UART transmission for helicopter data.
+// Transmits the state, height and yaw (current and target)
+// and the duty cycle values.
 //
 // Author:  P.J. Bones  UCECE
-// Last modified:   16.4.2018
+// Modified by: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified:   19/5/2021
 //
 
 #include <stdint.h>
@@ -74,8 +77,9 @@ UARTTransData (height_data_s height_data, yaw_data_s yaw_data, duty_cycle_s heli
 
     if (slowTick)
     {
-        slowTick = false;
+        slowTick = false; // Reset slowtick
 
+        // Assign current state to string for display
         switch (current_state)
         {
         case landed:
@@ -92,7 +96,8 @@ UARTTransData (height_data_s height_data, yaw_data_s yaw_data, duty_cycle_s heli
         }
 
         // Form and send a status message to the console
-        usprintf (statusStr, "----------------\r\nAlt: %2d [%2d]\r\nYaw: %2d [%2d]\r\nMain %2d Tail %2d\r\nMode: %s\r\n", height_data.current, height_data.target, yaw_data.current, yaw_data.target, heli_duty.main, heli_duty.tail, flight_status); // * usprintf
+        usprintf (statusStr, "----------------\r\nAlt: %2d [%2d]\r\nYaw: %2d [%2d]\r\nMain %2d Tail %2d\r\nMode: %s\r\n",
+                      height_data.current, height_data.target, yaw_data.current, yaw_data.target, heli_duty.main, heli_duty.tail, flight_status); // * usprintf
         UARTSend (statusStr);
     }
 

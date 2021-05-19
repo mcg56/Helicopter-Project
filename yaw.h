@@ -4,10 +4,11 @@
 // *******************************************************
 // yaw.h
 //
-// Support for yaw functionality of the helicopter
+// Helicopter yaw functionality. Reads and updates yaw via interrupts to GPIO
+// pins reading from a quadrature encoder disk. Yaw range is 180 to -179.
 //
-// Authors: T.R. Peterson M.G. Gardyne M. Comber
-// Last modified:  24.4.2021
+// Authors: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified: 19/5/2021
 //
 // *******************************************************
 
@@ -34,15 +35,14 @@ initYaw (void);
 bool
 findReference(void);
 
-
 //*****************************************************************************
-// Pass current yaw to other modules
+// Pass current yaw out of module
 //*****************************************************************************
 int16_t
 getYawCurrent(void);
 
 //*****************************************************************************
-// Pass reference found to reponse control module
+// Pass reference found out of module
 //*****************************************************************************
 bool
 refFound(void);

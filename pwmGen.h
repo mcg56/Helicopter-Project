@@ -4,10 +4,13 @@
 // *******************************************************
 // pwmGen.h
 //
-// Support for PWM signal generation of the helicopter
+// Generates PWM signals for helicopter height
+// and yaw control
 //
-// Authors: T.R. Peterson M.G. Gardyne M. Comber
-// Last modified:  24.4.2021
+// Authors: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified 19/5/2021
+//
+// Original code Sourced from:  P.J. Bones  UCECE, and modified by authors
 //
 // *******************************************************
 

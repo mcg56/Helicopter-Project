@@ -4,10 +4,11 @@
 // *******************************************************
 // responseControl.h
 //
-// Support for response control of the helicopter rotors
+// Motion control for helicopter. Takes current helicopter state, position and
+// target position from the main and drives the rotors appropriately.
 //
-// Authors: T.R. Peterson M.G. Gardyne M. Comber
-// Last modified:  24.4.2021
+// Authors: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified: 19/5/2021
 //
 // *******************************************************
 
@@ -19,9 +20,6 @@
 //*****************************************************************************
 // Constants
 //*****************************************************************************
-#define PROPORTIONAL_GAIN_MAIN      0.65 // Proportional control gain for main rotor
-#define PROPORTIONAL_GAIN_TAIL      0.6  // Proportional control gain for tail rotor
-#define INTEGRAL_GAIN_TAIL          0.0000375   // Integral control gain for tail rotor
 #define MAX_DUTY_MAIN               98   // Maximum helicopter duty cycle
 #define MIN_DUTY_MAIN               28    // Minimum helicopter duty cycle
 #define COUPLING_OFFSET             25   // Helicopter hover duty
@@ -50,7 +48,7 @@ void
 updateResponseControl (height_data_s height_data, yaw_data_s yaw_data);
 
 //*****************************************************************************
-// Pass PWM main and tail duty out of module
+// Pass PWM main and tail duties out of module
 //*****************************************************************************
 duty_cycle_s
 getHeliDuty(void);

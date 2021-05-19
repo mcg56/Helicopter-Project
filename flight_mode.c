@@ -1,15 +1,17 @@
 // *******************************************************
 //
-// switches.c
+// flight_mode.c
 //
-// Support for the up button Tiva/Orbit.
-// ENCE361 sample code.
+// Reads and updates the value of the switch and updates the
+// helicopter state accordingly.
 //
 // Note that pin PF0 (the pin for the RIGHT pushbutton - SW2 on
 //  the Tiva board) needs special treatment - See PhilsNotesOnTiva.rtf.
 //
-// Authors: T.R. Peterson M.G. Gardyne M. Comber
-// Last modified:  26.04.2020
+// Authors: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified:  20/5/2021
+//
+// Sourced code acknowledged in function descriptions
 //
 // *******************************************************
 
@@ -19,7 +21,6 @@
 #include "driverlib/gpio.h"
 #include "driverlib/sysctl.h"
 #include "flight_mode.h"
-
 
 //*****************************************************************************
 // Enumerated types
@@ -39,6 +40,7 @@ static flight_mode current_state;
 
 //*****************************************************************************
 // Initialise switch
+// Sourced from: P.J. Bones UCECE
 //*****************************************************************************
 void
 initSwitches (void)
@@ -63,6 +65,7 @@ initSwitches (void)
 
 //*****************************************************************************
 // Update switch value with debouncing
+// Sourced from: P.J. Bones UCECE
 //*****************************************************************************
 void
 updateSwitches (void)
@@ -108,9 +111,9 @@ checkSwitch (uint8_t switchName)
     return NO_CHANGE;
 }
 
-// *******************************************************
+// ****************************************************************************
 // Update and return current helicopter state
-// *******************************************************
+// ****************************************************************************
 flight_mode
 updateState(flight_mode main_state)
 {
@@ -132,6 +135,7 @@ updateState(flight_mode main_state)
         }
         break;
     case LOW:
+        // Transition to landing, even if still initialising
         current_state = landing;
         break;
     }
@@ -140,7 +144,7 @@ updateState(flight_mode main_state)
 }
 
 // *******************************************************
-// Return current helicopter state
+// Pass helicopter state out of module
 // *******************************************************
 flight_mode
 getState(void)

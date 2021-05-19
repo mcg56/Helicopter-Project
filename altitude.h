@@ -6,8 +6,8 @@
 //
 // Support for altitude functionality of the helicopter
 //
-// Authors: T.R. Peterson M.G. Gardyne M. Comber
-// Last modified:  24.4.2021
+// Authors: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified:  19/5/2021
 //
 // *******************************************************
 
@@ -35,21 +35,15 @@ void
 initAltitude(void);
 
 //*****************************************************************************
-// Convert helicopter height to percentage
+// Return helicopter height as a percentage of total range
 //*****************************************************************************
 int
 calculate_percent_height(uint16_t current_height_in, uint16_t landed_height_in);
 
 //*****************************************************************************
-// Find current helicopter height.
+// Determine current helicopter height in ADC value
 //*****************************************************************************
 int
 getHeight(void);
-
-//*****************************************************************************
-// Pass reference found to reponse control module
-//*****************************************************************************
-bool
-hoverDutyFound(void);
 
 #endif /* ALTITUDE_H_ */

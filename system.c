@@ -1,9 +1,11 @@
 //*****************************************************************************
 //
-// system.c - helicopter system functionality
+// system.c
 //
-// Authors: T.R. Peterson M.G. Gardyne M. Comber
-// Date 19/04/2021
+// Core helicopter system functionality
+//
+// Authors: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified: 19/5/2021
 //
 // Code Sourced from:  P.J. Bones  UCECE (acknowledged in function descriptions)
 
@@ -19,7 +21,10 @@
 #include "uart.h"
 #include "system.h"
 
-static volatile uint8_t slowTick = false;
+//*****************************************************************************
+// Globals
+//*****************************************************************************
+static volatile uint8_t slowTick = false;   // Determines rate of UART transmission
 static volatile uint32_t tickCount = 0;
 
 //*****************************************************************************
@@ -28,11 +33,13 @@ static volatile uint32_t tickCount = 0;
 void
 SysTickIntHandler(void)
 {
+    // Set UART transmission rate
     const uint8_t ticksPerSlow = SYSTICK_RATE_HZ / SLOWTICK_RATE_HZ;
 
     // Poll the buttons
     updateButtons();
 
+    // Read ADC value to buffer
     ADCProcessorTrigger(ADC0_BASE, 3);
 
     // Update slowTick value for UART transmission
@@ -51,10 +58,10 @@ SysTickIntHandler(void)
 void
 SoftResetIntHandler (void)
 {
-    SysCtlReset();
-
     // Clean up, clearing the interrupt
     GPIOIntClear(GPIO_PORTA_BASE, GPIO_PIN_6);
+
+    SysCtlReset();
 }
 
 //*****************************************************************************

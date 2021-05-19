@@ -1,19 +1,21 @@
-#ifndef SWITCHES_H_
-#define SWITCHES_H_
+#ifndef FLIGHT_MODE_H_
+#define FLIGHT_MODE_H_
 
 // *******************************************************
 //
-// switches.h
+// flight_mode.h
 //
-// Support for the up button Tiva/Orbit.
-// ENCE361 sample code.
+// Reads and updates the value of the switch and updates the
+// helicopter state accordingly.
 //
 //
 // Note that pin PF0 (the pin for the RIGHT pushbutton - SW2 on
 //  the Tiva board) needs special treatment - See PhilsNotesOnTiva.rtf.
 //
-// TRP
-// Last modified:  26.04.2020
+// Authors: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified:  20/5/2021
+//
+// Sourced code acknowledged in function descriptions
 //
 // *******************************************************
 
@@ -30,6 +32,7 @@
 //*****************************************************************************
 // Definition Types
 //*****************************************************************************
+// Helicopter FSM states
 typedef enum {
     landed,
     initialising,
@@ -39,6 +42,7 @@ typedef enum {
 
 //*****************************************************************************
 // Initialise switch
+// Sourced from: P.J. Bones UCECE
 //*****************************************************************************
 void
 initSwitches (void);
@@ -50,9 +54,9 @@ flight_mode
 updateState(flight_mode main_state);
 
 // *******************************************************
-// Return current helicopter state
+// Pass helicopter state out of module
 // *******************************************************
 flight_mode
 getState(void);
 
-#endif /*SWITCH_H_*/
+#endif /*FLIGHT_MODE_H_*/

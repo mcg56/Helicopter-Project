@@ -1,31 +1,24 @@
 /**********************************************************
 //
-// pwmGen.c - Generates PWM signals for helicopter height
+// pwmGen.c
+//
+// Generates PWM signals for helicopter height
 // and yaw control
 //
-// Authors: T.R. Peterson M.G. Gardyne M. Comber
-// Date 19/04/2021
+// Authors: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified 19/5/2021
 //
-// Code Sourced from:  P.J. Bones  UCECE
+// Original code Sourced from:  P.J. Bones  UCECE, and modified by authors
  **********************************************************/
 
 #include <stdint.h>
 #include <stdbool.h>
 #include "inc/hw_memmap.h"
-#include "driverlib/pin_map.h" //Needed for pin configure
+#include "driverlib/pin_map.h"
 #include "driverlib/gpio.h"
 #include "driverlib/pwm.h"
 #include "driverlib/sysctl.h"
 #include "pwmGen.h"
-
-//#include "driverlib/interrupt.h"
-//#include "utils/ustdlib.h"
-//#include "stdlib.h"
-//#include "driverlib/systick.h"
-//#include "driverlib/debug.h"
-//#include "inc/hw_types.h"
-//#include "inc/hw_ints.h"
-//#include "driverlib/adc.h"
 
 /*******************************************
  *      Local prototypes
@@ -34,7 +27,6 @@ void initialisePWMMain (void);
 void initialisePWMTail (void);
 void setPWMMain (uint32_t u32Freq, float u32Duty);
 void setPWMTail (uint32_t u32Freq, float u32Duty);
-
 
 /*********************************************************
  * initialisePWM

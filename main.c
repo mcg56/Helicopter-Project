@@ -1,11 +1,19 @@
 //*****************************************************************************
 //
-// Milestone_2.c - Measure and display helicopter altitude and yaw
+// main.c
 //
-// Authors: T.R. Peterson M.G. Gardyne M. Comber
-// Date 19/04/2021
+// Top level file for a helicopter control system. The helicopter is able to take
+// off and initialise, finding the hover point and orientating itself to a reference
+// yaw, before user interface control allows the helicopter to change height and
+// yaw. This control is done using the four push buttons on the TIVA board. Returning
+// the switch to the off position puts the helicopter into a smooth landing
+// state in the reference orientation position.
+// Helicopter state, position and dut cycle information is continuously updated
+// through both UART transmissions and via the OLED display.
 //
-// Code Sourced from:  P.J. Bones  UCECE (acknowledged in function descriptions)
+// Authors: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified: 19/5/2021
+//
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -45,6 +53,7 @@ main(void)
     SysCtlPeripheralReset (UART_USB_PERIPH_GPIO);
     SysCtlPeripheralReset (SYSCTL_PERIPH_TIMER0);
 
+    // Initialise peripherals and modules
     initClock ();
     initAltitude ();
     initYaw ();
@@ -68,7 +77,7 @@ main(void)
 
     while (1)
     {
-        // Update display at approx 32 Hz
+        // Update display at approx 50 Hz
         SysCtlDelay (SysCtlClockGet() / 50);
 
         // Update helicopter state
@@ -78,6 +87,7 @@ main(void)
         switch (current_state)
         {
         case landed:
+            // Keep target values at home
             height_data.target = 0;
             yaw_data.target = 0;
             break;
@@ -86,21 +96,26 @@ main(void)
             height_data.target = 0;
             yaw_data.target = 0;
 
-            // Update state to landed when targets reached
+            // Update helicopter state to landed when reference orientation reached
             if (yaw_data.current == 0 && height_data.current <= 0) {
                 current_state = landed;
             }
             break;
         case initialising:
-            // Find reference yaw on first take off and prevent button usage
+            // First find hover duty for the helicopter
             if (!hover_duty_found) {
                 height_data.target = hover_height;
                 if (height_data.current == hover_height) {
                     hover_duty_found = true;
-                    height_data.target = 2;
+                    height_data.target = 0;
                 }
+
+            // Second find the refence yaw orientation
             } else if (!ref_yaw_found) {
+                // Update the reference yaw value from yaw module
                 ref_yaw_found = findReference();
+
+            // Once complete set the mode to flying
             } else {
                 current_state = flying;
                 height_data.target = 0;
@@ -110,9 +125,8 @@ main(void)
             // Increase main rotor duty cycle if up button pressed
             if (checkButton (UP) == PUSHED)
             {
-                if (height_data.target == hover_height) {
-                    height_data.target = 10;
-                } else if (height_data.target < 90) {
+                // Limit max height to 100%
+                if (height_data.target < 90) {
                     height_data.target += 10;
                 } else {
                     height_data.target = 100;
@@ -122,6 +136,7 @@ main(void)
             // Decrease main rotor duty cycle if down button pressed
             if (checkButton (DOWN) == PUSHED)
             {
+                // Limit minimum height to 0%
                 if (height_data.target > 10) {
                     height_data.target -= 10;
                 } else {
@@ -132,6 +147,7 @@ main(void)
             // Decrease yaw if left button pushed
             if ((checkButton (LEFT) == PUSHED))
             {
+                // Keep yaw in 180 to -179 range
                 if (yaw_data.target == -165) {
                     yaw_data.target = 180;
                 } else {
@@ -142,6 +158,7 @@ main(void)
             // Increase yaw if right button pushed
             if ((checkButton (RIGHT) == PUSHED))
             {
+                // Keep yaw in 180 to -179 range
                 if (yaw_data.target == 180) {
                     yaw_data.target = -165;
                 } else {
@@ -156,17 +173,17 @@ main(void)
         // Convert ADC height to percentage
         height_data.current = calculate_percent_height(height_current_adc, height_landed_adc);
 
-        // Get yaw from yaw module
+        // Get current yaw from yaw module
         yaw_data.current = getYawCurrent();
 
         // Update response control
         updateResponseControl(height_data, yaw_data);
 
-        // Update helicopter duty cycles
+        // Update helicopter duty cycle values
         heli_duty = getHeliDuty();
 
         // Display helicopter details
-        displayMeanVal (height_data.current, yaw_data.current, heli_duty);
+        displayData (height_data.current, yaw_data.current, heli_duty);
 
         // Get slowTick from system module
         slowTick = getSlowTick();

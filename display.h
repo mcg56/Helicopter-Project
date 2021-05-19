@@ -2,25 +2,20 @@
 #define DISPLAY_H_
 
 // *******************************************************
-// altitude.h
+// display.h
 //
-// Support for altitude functionality of the helicopter
+// Functionality for displaying helicopter data using
+// OLED display. Displays current height and yaw, as well
+// as main and tail duty cycles.
 //
-// Authors: T.R. Peterson M.G. Gardyne M. Comber
-// Last modified:  24.4.2021
+// Authors: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified:  19/5/2021
 //
 // *******************************************************
 
 #include <stdint.h>
 #include <stdbool.h>
 #include "responseControl.h"
-
-//*****************************************************************************
-// Constants
-//*****************************************************************************
-#define SAMPLE_RATE_HZ      2000 // Sample rate
-#define SYSTICK_RATE_HZ     100  // Systick configuration
-#define ADC_BITS            4095 // 12 bit ADC
 
 //*****************************************************************************
 // Initialise Display Function
@@ -33,6 +28,6 @@ initDisplay (void);
 // Update display
 //*****************************************************************************
 void
-displayMeanVal(int16_t height_percent, int32_t display_deg, duty_cycle_s heli_duty);
+displayData(int16_t height_percent, int32_t display_deg, duty_cycle_s heli_duty);
 
 #endif /* DISPLAY_H_ */

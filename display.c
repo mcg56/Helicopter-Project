@@ -1,11 +1,15 @@
 //*****************************************************************************
 //
-// display.c - Display functionality
+// display.c
 //
-// Authors: T.R. Peterson M.G. Gardyne M. Comber
-// Date 19/04/2021
+// Functionality for displaying helicopter data using
+// OLED display. Displays current height and yaw, as well
+// as main and tail duty cycles.
 //
-// Code Sourced from:  P.J. Bones  UCECE (acknowledged in function descriptions)
+// Authors: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified: 19/05/2021
+//
+// Sourced code acknowledged in function descriptions
 
 #include <stdint.h>
 #include "utils/ustdlib.h"
@@ -28,10 +32,11 @@ initDisplay (void)
 // Update display
 //*****************************************************************************
 void
-displayMeanVal(int16_t height_percent, int32_t display_deg, duty_cycle_s heli_duty)
+displayData(int16_t height_percent, int32_t display_deg, duty_cycle_s heli_duty)
 {
     char string[17];  // 16 characters across the display
 
+    // Print each line of OLED display data
     usnprintf (string, sizeof(string), "Height   %5d%%", height_percent);
     OLEDStringDraw (string, 0, 0);
     usnprintf (string, sizeof(string), "Yaw (deg) %5d", display_deg);

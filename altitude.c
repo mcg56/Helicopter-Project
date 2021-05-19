@@ -1,18 +1,22 @@
 //*****************************************************************************
 //
-// altitude.c - helicopter altitute functionality
+// altitude.c
 //
-// Authors: T.R. Peterson M.G. Gardyne M. Comber
-// Date 19/04/2021
+// Helicopter altitude functionality. Updates height using an averaged ADC value
+// read from helicopter. Uses 0.7 V range to determine this ADC value as a
+// percentage height of total range
 //
-// Code Sourced from:  P.J. Bones  UCECE (acknowledged in function descriptions)
+// Authors: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified: 19/05/2021
+//
+// Sourced code acknowledged in function descriptions
 
 #include <stdint.h>
 #include <stdbool.h>
 #include "inc/hw_memmap.h"
 #include "driverlib/adc.h"
 #include "driverlib/sysctl.h"
-#include "driverlib/pwm.h" // For setting pwm output true
+#include "driverlib/pwm.h"
 #include "altitude.h"
 #include "circBufT.h"
 #include "pwmGen.h"
@@ -22,8 +26,6 @@
 // Global Variables
 //*****************************************************************************
 static circBuf_t g_inBuffer;
-
-static bool hover_duty_found = false;
 
 //*****************************************************************************
 // The handler for the ADC conversion complete interrupt.
@@ -107,7 +109,7 @@ initAltitude(void)
 }
 
 //*****************************************************************************
-// Convert helicopter height to percentage
+// Return helicopter height as a percentage of total range
 //*****************************************************************************
 int
 calculate_percent_height(uint16_t current_height, uint16_t landed_height)
@@ -123,7 +125,7 @@ calculate_percent_height(uint16_t current_height, uint16_t landed_height)
 }
 
 //*****************************************************************************
-// Determine current helicopter  height.
+// Determine current helicopter height in ADC value
 //*****************************************************************************
 int
 getHeight(void)
@@ -143,13 +145,3 @@ getHeight(void)
 
     return mean;
 }
-
-//*****************************************************************************
-// Pass reference found to reponse control module
-//*****************************************************************************
-bool
-hoverDutyFound(void)
-{
-    return hover_duty_found;
-}
-

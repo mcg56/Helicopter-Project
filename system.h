@@ -4,10 +4,12 @@
 // *******************************************************
 // system.h
 //
-// Support for system functionality of the helicopter
+// Core helicopter system functionality
 //
-// Authors: T.R. Peterson M.G. Gardyne M. Comber
-// Last modified:  24.4.2021
+// Authors: T.R. Peterson, M.G. Gardyne, M. Comber
+// Last modified: 19/5/2021
+//
+// Code Sourced from:  P.J. Bones  UCECE (acknowledged in function descriptions)
 //
 // *******************************************************
 
