@@ -77,7 +77,7 @@ main(void)
 
     while (1)
     {
-        // Update display at approx 50 Hz
+        // Pace program at apporx 50 Hz
         SysCtlDelay (SysCtlClockGet() / 50);
 
         // Update helicopter state
